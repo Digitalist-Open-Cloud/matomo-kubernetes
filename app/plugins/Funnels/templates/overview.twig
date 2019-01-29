@@ -1,0 +1,11 @@
+{% import '@Funnels/macros.twig' as funnelsMacro %}
+
+<div piwik-content-block content-title="{{ 'Funnels_FunnelsOverview'|translate }}" class="funnelsOverview">
+    <div class="alert alert-info">
+        {% if canEditFunnels %}
+            {{ 'Funnels_NoActiveFunnelsAdmin'|translate }}
+        {% else %}
+            {{ 'Funnels_NoActiveFunnelsUser'|translate }}
+        {% endif %}
+    </div>
+</div>

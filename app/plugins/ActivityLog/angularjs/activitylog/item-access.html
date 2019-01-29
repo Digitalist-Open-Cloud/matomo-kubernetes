@@ -1,0 +1,7 @@
+<span class="item-data-title icon-admin-settings"></span>
+<span class="item-name">{{ 'ActivityLog_Access'|translate }}:</span>
+<span class="item-data-text">
+    <span ng-if="item.data.access === 'view'">{{ 'UsersManager_PrivView'|translate }}</span>
+    <span ng-if="item.data.access === 'admin'">{{ 'UsersManager_PrivAdmin'|translate }}</span>
+    <span ng-if="item.data.access !== 'admin' && item.data.access !== 'view'">{{ 'UsersManager_PrivNone'|translate }}</span>
+</span>

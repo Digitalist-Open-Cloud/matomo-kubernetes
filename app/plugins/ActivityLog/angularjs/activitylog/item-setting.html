@@ -1,0 +1,8 @@
+<span class="item-data-title icon-admin-settings"></span>
+<span class="item-name">{{ item.data.name }}:</span>
+<span class="item-data-text">
+    <span ng-if="item.data.value === true">{{ 'General_Yes'|translate }}</span>
+    <span ng-if="item.data.value === false">{{ 'General_No'|translate }}</span>
+    <span ng-if="!item.data.value && item.data.value !== 0 && item.data.value !== false">{{ 'ActivityLog_NoValueSet'|translate }}</span>
+    <span ng-if="!!item.data.value !== item.data.value && (item.data.value || item.data.value == 0)">{{ item.data.value }}</span>
+</span>

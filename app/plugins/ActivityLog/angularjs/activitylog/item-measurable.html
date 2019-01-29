@@ -1,0 +1,5 @@
+<span class="item-name"><span class="item-icon icon-open-source"></span>{{ item.data.name }}</span>
+<span class="item-data-title">{{ 'SitesManager_Type'|translate }}:</span><span class="item-data-text">{{ item.data.type }}</span>
+<span ng-if="item.data.urls.length > 0 && item.data.urls.join('') != ''">
+    <span class="item-data-title">{{ 'SitesManager_Urls'|translate }}:</span><span class="item-data-text">{{ item.data.urls.join(', ') }}</span>
+</span>

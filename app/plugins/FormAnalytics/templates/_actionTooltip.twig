@@ -1,0 +1,23 @@
+
+{{ 'FormAnalytics_ColumnHesitationTime'|translate }}: {{ (action.timeHesitation/1000)|sumtime }}
+{{ 'FormAnalytics_ColumnTimeSpent'|translate }}: {{ (action.timeSpent/1000)|sumtime }}
+{% if action.timeToFirstSubmission %}{{ 'FormAnalytics_ColumnTimeToFirstSubmit'|translate }}: {{ (action.timeToFirstSubmission/1000)|sumtime }}
+{% endif %}
+{% if action.fields|length %}
+    {% if action.leftBlank < action.fields|length -%}
+        {{ 'FormAnalytics_FieldsInteractedWith'|translate }}:
+        {% for field in action.fields %}
+            {% if not field.leftBlank -%}
+                - {{ field.fieldName }}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if action.leftBlank > 0 %}
+        {{ 'FormAnalytics_FieldsLeftBlank'|translate }}:
+        {% for field in action.fields %}
+            {% if field.leftBlank %}
+                - {{ field.fieldName }}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{%- endif %}

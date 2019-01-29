@@ -1,0 +1,62 @@
+{% if not is_auto_refresh %}
+<div id="liveFormOverview{{ lastMinutes }}" class="formLiveMetrics">
+{% endif %}
+
+    {% set row = counters.getFirstRow %}
+    <div class="row">
+        <div class="col s12 m6">
+            <span title="{{ 'FormAnalytics_ColumnDescriptionNbFormViewers'|translate}}">{{ 'FormAnalytics_ColumnNbViewers'|translate("<strong>"~row.getColumn('nb_form_viewers')|default(0)|number~"</strong>")|raw }}</span>
+            <br />
+            <br />
+            <span title="{{ 'FormAnalytics_ColumnDescriptionNbFormStarters'|translate}} {{ 'FormAnalytics_ColumnDescriptionNbFormStarters'|translate }}">{{ 'FormAnalytics_ColumnNbStarters'|translate("<strong>"~row.getColumn('nb_form_starters')|default(0)|number~"</strong>")|raw }}</span>
+            <br />
+            <br />
+            <span title="{{ 'FormAnalytics_ColumnDescriptionNbFormSubmitters'|translate}}">{{ 'FormAnalytics_ColumnNbSubmitters'|translate("<strong>"~row.getColumn('nb_form_submitters')|default(0)|number~"</strong>")|raw }}</span>
+            <br />
+            <br />
+            <span title="{{ 'FormAnalytics_ColumnDescriptionNbFormResubmitters'|translate}} {{ 'FormAnalytics_ColumnInfoResubmitters'|translate }}">{{ 'FormAnalytics_ColumnNbResubmitters'|translate("<strong>"~row.getColumn('nb_form_resubmitters')|default(0)|number~"</strong>")|raw }}</span>
+            <br />
+            <br />
+            <span title="{{ 'FormAnalytics_ColumnDescriptionNbFormConversions'|translate}}">{{ 'FormAnalytics_ColumnNbConversions'|translate("<strong>"~row.getColumn('nb_form_conversions')|default(0)|number~"</strong>")|raw }}</span>
+        </div>
+        <div class="col s12 m6">
+            <span title="{{ 'FormAnalytics_ColumnDescriptionFormStartersRate'|translate}} {{ 'FormAnalytics_ColumnDescriptionNbFormStarters'|translate }}">{{ 'FormAnalytics_ColumnNbStarterRate'|translate("<strong>"~row.getColumn('form_starters_rate')|default('0%')~"</strong>")|raw }}</span>
+            <br />
+            <br />
+            <span title="{{ 'FormAnalytics_ColumnDescriptionAvgFormTimeSpent'|translate}} {{ 'FormAnalytics_ColumnInfoFormTimeSpent'|translate }}">{{ 'FormAnalytics_ColumnNbAvgTimeSpent'|translate("<strong>"~row.getColumn('avg_form_time_spent')|default('0s')~"</strong>")|raw }}</span>
+            <br />
+            <br />
+            <span title="{{ 'FormAnalytics_ColumnDescriptionFormSubmitterRate'|translate}}">{{ 'FormAnalytics_ColumnNbSubmitterRate'|translate("<strong>"~row.getColumn('form_submitter_rate')|default('0%')~"</strong>")|raw }}</span>
+            <br />
+            <br />
+            <span title="{{ 'FormAnalytics_ColumnDescriptionFormResubmittersRate'|translate}} {{ 'FormAnalytics_ColumnInfoResubmitters'|translate }}">{{ 'FormAnalytics_ColumnNbResubmitterRate'|translate("<strong>"~row.getColumn('form_resubmitters_rate')|default('0%')~"</strong>")|raw }}</span>
+            <br />
+            <br />
+            <span title="{{ 'FormAnalytics_ColumnDescriptionFormConversionRate'|translate}}">{{ 'FormAnalytics_ColumnNbConversionRate'|translate("<strong>"~row.getColumn('form_conversion_rate')|default('0%')~"</strong>")|raw }}</span>
+
+        </div>
+    </div>
+
+{% if not is_auto_refresh %}
+</div>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function () {
+            var segment = broadcast.getValueFromUrl('segment');
+
+            $('#liveFormOverview{{ lastMinutes }}').liveWidget({
+                interval: {{ liveRefreshAfterMs }},
+                replaceContent: true,
+                fadeInSpeed: 600,
+                maxInterval: {% if liveRefreshAfterMs >= 20000 %}300000{% else %}{{ liveRefreshAfterMs * 15 }}{% endif %},
+                dataUrlParams: {
+                    is_auto_refresh: '1',
+                    module: 'FormAnalytics',
+                    action: 'getCounters',
+                    segment: segment,
+                    lastMinutes: {{ lastMinutes }}
+                }
+            });
+        });
+    </script>
+{% endif %}

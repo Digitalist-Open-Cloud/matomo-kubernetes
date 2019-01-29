@@ -1,0 +1,30 @@
+{% if not is_auto_refresh %}
+<p id="liveMetric{{ action }}" class="mediaLiveMetrics">
+{% endif %}
+
+    <span>{{ 'MediaAnalytics_NbInLast24Hours'|translate("<strong>"~last3600~"</strong>")|raw }}</span>
+    <br />
+    <br />
+    <span>{{ 'MediaAnalytics_NbInLast30Minutes'|translate("<strong>"~last30~"</strong>")|raw }}</span>
+
+{% if not is_auto_refresh %}
+</p>
+
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function () {
+        var segment = broadcast.getValueFromUrl('segment');
+
+        $('#liveMetric{{ action }}').liveWidget({
+            interval: {{ liveRefreshAfterMs }},
+            replaceContent: true,
+            fadeInSpeed: 600,
+            dataUrlParams: {
+                is_auto_refresh: '1',
+                module: 'MediaAnalytics',
+                action: '{{ action }}',
+                segment: segment
+            }
+        });
+    });
+</script>
+{% endif %}

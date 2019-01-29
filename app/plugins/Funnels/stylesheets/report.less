@@ -1,0 +1,260 @@
+.funnelsOverview {
+  .funnelTitle {
+    clear:both;
+  }
+}
+
+.openFunnelReport {
+  .icon-show {
+    color: @color-silver;
+    margin-left: 10px;
+  }
+}
+
+.funnelsReport {
+
+  .icon-show,
+  .icon-visitor-profile {
+    color: @color-silver;
+  }
+
+  .funnelSummary {
+    ul {
+      list-style-type: circle;
+      margin-left: 30px;
+      li {
+        list-style-type: circle;
+        margin-bottom: 5px;
+        font-size: 13px;
+        line-height: 18px;
+      }
+    }
+
+    a.toggleFunnelConfiguration,
+    a.segmentVisitorsByFunnel {
+      margin-left: 12px;
+    }
+  }
+
+  .segmentVisitorsByFunnel {
+    margin: 6px 0;
+    display: inline-block;
+  }
+
+  table.reportFlow {
+    width: 1000px;
+    margin: 0 auto;
+
+    td {
+      vertical-align: top;
+    }
+
+    tbody tr:first-child .stepLabel h3 {
+      margin-top: 10px;
+    }
+
+    .progressOuter {
+      background-color: #D73F36;
+      width: 100%;
+      height: 15px;
+      position: relative;
+    }
+
+    .progressInner {
+      height: 15px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: #1AA282;
+    }
+
+    .stepLabel {
+      .rowEvolutionByFunnelStep,
+      .segmentVisitorsByFunnelStep {
+        visibility: hidden;
+      }
+
+      .segmentVisitors:hover {
+        text-decoration: none;
+      }
+
+      &:hover {
+        .rowEvolutionByFunnelStep,
+        .segmentVisitorsByFunnelStep {
+          visibility: visible;
+          text-decoration: none;
+        }
+      }
+
+      text-align: center;
+      h3 {
+        margin-top: 60px;
+        margin-bottom: 8px;
+        font-weight: normal !important;
+      }
+      h4 {
+        margin-bottom: 8px;
+      }
+      .stepName {
+        font-size: 1.6em;
+      }
+      .stepMetric {
+        margin-top: 8px;
+      }
+    }
+
+    .separator {
+      width: 40px;
+      text-align: center;
+    }
+
+    .actionReportContainer {
+      min-height: 150px;
+    }
+  }
+
+  .funnelsConfiguration {
+    display: none;
+
+    table {
+      th {
+        text-align: left;
+      }
+    }
+  }
+
+  .entryArrow,
+  .exitArrow {
+    font-size: 20px;
+    margin-top: -5px;
+    display: inline-block;
+    line-height: 24px;
+  }
+
+  .exitArrow {
+    color: #D73F36;
+    text-align: right;
+  }
+
+  .proceededArrow {
+    font-size: 40px;
+  }
+
+  .proceededRate {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .funnelFlow {
+    width: 220px;
+    max-width: 220px;
+    text-align: center;
+    color: #1AA282;
+  }
+
+  .funnelEntries {
+    width: 350px;
+
+    h4 {
+      margin-top: -2px;
+      text-align: right;
+      font-weight: normal;
+    }
+  }
+
+  .funnelExits {
+    width: 350px;
+
+    h4 {
+      color: #D73F36;
+      margin-top: -2px;
+      font-weight: normal;
+    }
+  }
+}
+
+.FunnelDataTable {
+  width: 350px;
+  max-width: 350px;
+
+  &:hover .limitSelection,
+  &:hover .dataTableControls .dataTableAction {
+    visibility: visible !important;
+  }
+
+  .limitSelection,
+  .dataTableControls .dataTableAction {
+    visibility: hidden !important;
+  }
+
+  .dataTableWrapper {
+    width: 350px !important;
+    max-width: 350px !important;
+    border: 1px solid @theme-color-background-tinyContrast;
+
+    td, th {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+
+    tr.subDataTable > td:first-child:before {
+      display: none !important;
+      background-image: none;
+      margin: 0;
+    }
+
+    tr.subDataTable {
+      .whenExpanded, .whenNotExpanded {
+        margin-left: 0 !important;
+        margin-top: 1px !important;
+        margin-right: 7px !important;
+      }
+
+      .whenNotExpanded {
+        display:inline;
+      }
+      &.expanded .whenNotExpanded {
+        display:none;
+      }
+
+      .whenExpanded {
+        display:none;
+      }
+      &.expanded .whenExpanded {
+        display:inline;
+      }
+    }
+
+    .pk-emptyDataTable {
+      text-align:center;
+    }
+
+    .cellSubDataTable {
+      .FunnelDataTable {
+        width: 320px;
+      }
+
+      .dataTableWrapper {
+        max-width: 320px !important;
+        width: 320px !important;
+
+        table {
+          max-width: 318px !important;
+          width: 318px !important;
+        }
+      }
+    }
+
+    table {
+      td.label {
+        a img {
+          display: none;
+        }
+      }
+
+      margin-left: 0 !important;
+      width: 348px !important;
+      max-width: 348px !important;
+    }
+  }
+}

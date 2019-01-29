@@ -1,0 +1,84 @@
+<div>
+    <div piwik-content-block content-title="{{ 'FormAnalytics_ManageForms'|translate }}"
+         feature="{{ 'FormAnalytics_ManageForms'|translate }}"
+    >
+
+    <p>
+        {{ 'FormAnalytics_ManageFormsIntroduction'|translate }}
+        <br /><br />
+        {{ formsList.autoCreationMessage }}
+    </p>
+
+    <div piwik-field uicontrol="select" name="filterStatus"
+         id="filterStatus"
+         title="{{'FormAnalytics_Filter'|translate }}"
+         ng-change="formsList.onFilterStatusChange()"
+         ng-model="formsList.model.filterStatus"
+         options='formsList.statusOptions'>
+    </div>
+
+    <table piwik-content-table>
+        <thead>
+        <tr>
+            <th class="index">{{ 'General_Id'|translate }}</th>
+            <th class="name">{{ 'General_Name'|translate }}</th>
+            <th class="description">{{ 'General_Description'|translate }}</th>
+            <th class="description">{{ 'FormAnalytics_ConversionCriteria'|translate }}</th>
+            <th class="action">{{ 'General_Actions'|translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-show="formsList.model.isLoading || formsList.model.isUpdating">
+            <td colspan="7">
+                <span class="loadingPiwik"><img src="plugins/Morpheus/images/loading-blue.gif"/> {{ 'General_LoadingData'|translate }}</span>
+            </td>
+        </tr>
+        <tr ng-show="!formsList.model.isLoading && (formsList.model.forms|length) == 0">
+            <td colspan="7">
+                {{ 'FormAnalytics_NoFormsFound'|translate }}
+            </td>
+        </tr>
+        <tr ng-repeat="form in formsList.model.forms|orderBy:'idsiteform'"
+            id="form{{ form.idsiteform }}"
+            class="forms">
+            <td class="index">{{ form.idsiteform }}</td>
+            <td class="name">{{ form.name }}</td>
+            <td class="description" title="{{ form.description }}">{{ form.description|trim|truncateText:60 }}</td>
+            <td class="conversionRulesConfigured"><span ng-class="{'icon-ok': (form.conversion_rules.length >= 1)}"></span></td>
+            <td class="action">
+                <a ng-click="formsList.editForm(form.idsiteform)" class="table-action icon-edit" title="{{ 'FormAnalytics_EditForm'|translate }}"></a>
+                <a ng-href="?module=CoreHome&action=index&idSite={{form.idsite}}&period=day&date=yesterday#?category=FormAnalytics_Forms&idSite={{form.idsite}}&period=day&date=yesterday&subcategory={{form.idsiteform}}"
+                   target="_blank"
+                   ng-show="form.status == 'running'"
+                   title="{{ 'FormAnalytics_ViewReportInfo'|translate }}"
+                   class="table-action icon-show"></a>
+                <a ng-click="formsList.archiveForm(form)"
+                   ng-show="form.status == 'running'"
+                   title="{{ 'FormAnalytics_ArchiveReportInfo'|translate }}"
+                   class="table-action icon-archive"></a>
+                <a ng-click="formsList.deleteForm(form)" class="table-action icon-delete"
+                   title="{{ 'FormAnalytics_DeleteFormInfo'|translate }}"
+                ></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="tableActionBar">
+        <a class="createNewForm" ng-click="formsList.createForm()"
+        ><span class="icon-add"></span> {{ 'FormAnalytics_CreateNewForm'|translate }}</a>
+    </div>
+    </div>
+
+    <div class="ui-confirm" id="confirmArchiveForm">
+        <h2>{{ 'FormAnalytics_ArchiveReportConfirm'|translate }}</h2>
+        <input role="yes" type="button" value="{{ 'General_Yes'|translate }}"/>
+        <input role="no" type="button" value="{{ 'General_No'|translate }}"/>
+    </div>
+
+    <div class="ui-confirm" id="confirmDeleteForm">
+        <h2>{{ 'FormAnalytics_DeleteFormConfirm'|translate }} </h2>
+        <input role="yes" type="button" value="{{ 'General_Yes'|translate }}"/>
+        <input role="no" type="button" value="{{ 'General_No'|translate }}"/>
+    </div>
+</div>

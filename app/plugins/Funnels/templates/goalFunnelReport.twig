@@ -1,0 +1,139 @@
+<div class="funnelsReport" piwik-content-block>
+
+    <h2 piwik-enriched-headline
+        feature-name="Funnels"
+    inline-help="{{ 'Funnels_GoalFunnelReportHelp'|translate|raw }}">{{ 'Funnels_GoalFunnelReport'|translate }}</h2>
+
+    {% if funnelFlow.getRowsCount %}
+        <table class="reportFlow">
+            <thead>
+                <tr>
+                    <th class="funnelEntries"> </th>
+                    <th class="separator"></th>
+                    <th class="funnelFlow"> </th>
+                    <th class="separator"></th>
+                    <th class="funnelExits"> </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in funnelFlow.getRows %}
+                {% set step = row.getMetadata('step_position') %}
+
+                <tr class="step{{ step }}">
+                    <td colspan="5" class="stepLabel">
+                        <h3 class="stepName" title="{{ row.getMetadata('step_definition') }}">
+                            {{ row.getColumn('label')|rawSafeDecoded }}
+                        </h3>
+                        <h3 class="stepMetric" title="{% if row.getColumn('step_nb_visits') != row.getColumn('step_nb_visits_actual') %}{{ 'Funnels_HitsWereBackfilled'|translate(row.getColumn('step_nb_visits_actual')) }}{% else %}{{ 'Funnels_HitsWereNotBackfilled'|translate }}{% endif %}"
+                            >
+                            {# this icon is only there to make sure the label for hits is still centered. it will never be visible. prevents jumping of icon when hovering title #}
+                            <span class="icon-visitor-profile" style="visibility: hidden;"></span>
+                            {% if not loop.last %}<img src="plugins/Morpheus/images/row_evolution.png" style="visibility: hidden;">{% endif %}
+
+                            {% if row.getColumn('step_nb_visits') == 1 %}
+                                {% if loop.last %}
+                                    {{ 'Funnels_NbConversion'|translate(1) }}
+                                {% else %}
+                                    {{ 'General_OneVisit'|translate }}
+                                {% endif %}
+                            {% else %}
+                                {% if loop.last %}
+                                    {{ 'Goals_Conversions'|translate(row.getColumn('step_nb_visits')) }}
+                                {% else %}
+                                    {{ 'General_NVisits'|translate(row.getColumn('step_nb_visits')) }}
+                                {% endif %}
+                            {% endif %}
+
+                            <a href="javascript:void(0)"
+                               title="{{ 'Funnels_SegmentVisitorsByThisFunnelStep'|translate|e('html_attr') }}"
+                               class="segmentVisitors" onclick="SegmentedVisitorLog.show('Funnel.getFunnelFlow', 'funnels_name=={{ funnel.idfunnel }};funnels_step_position=={{ step }}{% if segment %};{{ segment|e('js') }}{% endif %}', {})"
+                            ><span class="icon-visitor-profile segmentVisitorsByFunnelStep"></span></a>
+
+                            {% if not loop.last %}
+                                <a href="javascript:void(0)"
+                                   title="{{ 'General_RowEvolutionRowActionTooltipTitle'|translate|e('html_attr') }}"
+                                   class="rowEvolutionByFunnelStep"
+                                   onclick="(new DataTable_RowActions_RowEvolution()).showRowEvolution('Funnels.getFunnelFlow', '{{ row.getColumn('label')|e('js') }}', {idGoal:{{ funnel.idgoal }}, idFunnel: {{ funnel.idfunnel }}});">
+                                    <img src="plugins/Morpheus/images/row_evolution.png">
+                                </a>{% endif %}
+                        </h3>
+                    </td>
+                </tr>
+                <tr class="step{{ step }}">
+                    <td class="funnelEntries">
+                        <h4>{% if row.getColumn('step_nb_entries') == 1 %}
+                                {{ 'Funnels_NbEntry'|translate(1) }}
+                            {% else %}
+                                {{ 'Funnels_NbEntries'|translate(row.getColumn('step_nb_entries')) }}
+                            {% endif %}
+                        </h4>
+                        <br />
+
+                        {% if row.getColumn('step_nb_entries') %}
+                            <div class="actionReportContainer" piwik-widget-loader="{module: 'Funnels', action: 'getFunnelEntries', viewDataTable: 'table', idSite: {{ idSite|e('html_attr') }}, widget: 1, disableLink: 1, showtitle: 0, idFunnel: {{ funnel.idfunnel|e('html_attr') }}, step: {{ step|e('html_attr') }}}"></div>
+
+                        {% endif %}
+                    </td>
+                    <td class="separator"><h4 class="entryArrow">&rarr;</h4></td>
+                    <td class="funnelFlow">
+                        {% if loop.last %}
+                            <div title="{{ 'Funnels_XVisitorsConvertedFunnel'|translate(funnel.conversionRate) }}"
+                                 class="progressOuter">{% if funnel.conversionRate %}<div class="progressInner" style="width: {{ funnel.conversionRate }};"></div>{% endif %}</div>
+                            <br />
+                            <span class="proceededArrow">&darr;</span>
+                            <br />
+                            <span class="proceededRate">{{ 'Goals_ConversionRate'|translate(funnel.conversionRate ~ '<br />')|raw }}</span>
+                            <br />
+                            {{ 'Funnels_XoutOfYVisitsconverted'|translate(funnel.numConversions, funnel.numEntries) }}
+                        {% else %}
+                            <div title="{{ row.getColumn('step_proceeded_rate') }} proceeded to the next step"
+                                 class="progressOuter">{% if row.getColumn('step_proceeded_rate') %}<div class="progressInner" style="width: {{ row.getColumn('step_proceeded_rate') }};"></div>{% endif %}</div>
+                            <br />
+                            <span class="proceededArrow">&darr;</span>
+                            <br />
+                            <div>
+                                {{ 'Funnels_NbProceeded'|translate(row.getColumn('step_nb_proceeded')) }}
+                                <br />
+                                <span class="proceededRate">{{ row.getColumn('step_proceeded_rate') }}</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="separator">{% if not loop.last %}<h4 class="exitArrow">&rarr;</h4>{% endif %}</td>
+                    <td class="funnelExits">
+                        {% if not loop.last %}
+                            <h4>{% if row.getColumn('step_nb_exits') == 1 %}
+                                    {{ 'Funnels_NbExit'|translate(1) }}
+                                {% else %}
+                                    {{ 'Funnels_NbExits'|translate(row.getColumn('step_nb_exits')) }}
+                                {% endif %}</h4>
+                            <br />
+
+                            {% if row.getColumn('step_nb_exits') %}
+                                <div class="actionReportContainer" piwik-widget-loader="{module: 'Funnels', action: 'getFunnelExits', viewDataTable: 'table', idSite: {{ idSite|e('html_attr') }}, widget: 1, showtitle: 0, disableLink: 1, idFunnel: {{ funnel.idfunnel|e('html_attr') }}, step: {{ step|e('html_attr') }}}"></div>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>
+            <strong>{{ 'CoreHome_ThereIsNoDataForThisReport'|translate }}</strong>
+            <br />
+            {% if hasBeenPurged %}
+                {{ 'CoreHome_DataForThisReportHasBeenPurged'|translate(deleteReportsOlderThan) }}
+            {% else %}
+                {{ 'Funnels_FunnelReportNotGeneratedYet'|translate }}
+            {% endif %}
+        </p>
+    {% endif %}
+
+</div>
+
+<style type="text/css">
+    {# we cannot add this to report.less because we only want to hide it the compare container in row evolution when this page is viewed #}
+    .ui-dialog .compare-container {
+        display:none;
+    }
+</style>

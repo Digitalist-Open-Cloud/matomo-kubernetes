@@ -1,0 +1,10 @@
+version: '3.3'
+
+services:
+  matomo:
+    container_name: digitalist_matomo
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "9000:9000"

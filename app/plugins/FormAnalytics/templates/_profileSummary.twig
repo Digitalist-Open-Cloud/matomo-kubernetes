@@ -1,0 +1,10 @@
+<div class="visitor-profile-summary visitor-profile-formconversions">
+    <div>
+        <p>{% if visitorData.uniqueFormConversions %}<strong>{% endif %}{{ 'FormAnalytics_ConvertedNUniqueForms'|translate(visitorData.uniqueFormConversions) }}{% if visitorData.uniqueFormConversions %}</strong>{% endif %}
+            {%- if visitorData.uniqueFormConversions %} (
+            {%- for idForm, totalConversions in visitorData.totalConversionsByForm -%}
+                {%- if not loop.first %}, {% endif -%}{{- totalConversions }}x {{ forms[idForm]['name'] -}}
+            {%- endfor -%}
+            ){% endif %}.</p>
+    </div>
+</div>

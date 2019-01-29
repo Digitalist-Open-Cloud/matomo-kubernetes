@@ -1,0 +1,9 @@
+<div class="profile-summary-media">
+{% if visitorData.mediaViewAudio > 0 and visitorData.mediaViewVideo > 0 %}
+    <p>Listened to <strong>{{ visitorData.mediaViewAudio }} audio files</strong> and watched <strong>{{ visitorData.mediaViewVideo }} videos</strong>.</p>
+{% elseif visitorData.mediaViewAudio > 0 %}
+    <p>Listened to <strong>{{ visitorData.mediaViewAudio }} audio files</strong>.</p>
+{% elseif visitorData.mediaViewVideo > 0 %}
+    <p>Watched <strong>{{ visitorData.mediaViewVideo }} videos</strong>.</p>
+{% endif %}
+</div>

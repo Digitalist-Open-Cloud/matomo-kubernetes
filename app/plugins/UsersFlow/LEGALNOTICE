@@ -1,0 +1,32 @@
+COPYRIGHT
+
+	The software package is:
+
+		Copyright (C) 2017 InnoCraft Ltd (NZBN 6106769)
+
+
+SOFTWARE LICENSE
+
+	This software is licensed under the InnoCraft EULA and the license has been included in this
+	software package in the file LICENSE.
+
+
+THIRD-PARTY COMPONENTS AND LIBRARIES
+
+	The following components/libraries are redistributed in this package,
+	and subject to their respective licenses.
+
+	Name:  d3.js
+	Link:  https://d3js.org/
+	License:  MIT
+	License File: libs/d3/LICENSE
+
+	Name:  d3-tip
+	Link:  https://github.com/caged/d3-tip
+	License:  MIT
+	License File: libs/d3/tip/LICENSE
+
+	Name:  sankey
+	Link:  https://github.com/d3/d3-plugins
+	License:  MIT
+	License File: libs/d3/sankey/LICENSE

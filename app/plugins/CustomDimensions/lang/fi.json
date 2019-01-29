@@ -1,0 +1,12 @@
+{
+    "CustomDimensions": {
+        "CustomDimensions": "Kustomoidut dimensiot",
+        "ExtractValue": "Hae arvo",
+        "ConfigureNewDimension": "Luo uusi dimensio",
+        "PageUrlParam": "Sivun URL-parametrit",
+        "NameIsRequired": "Nimi on pakollinen.",
+        "DimensionCreated": "Kustomoitu dimensio luotu",
+        "DimensionUpdated": "Kustomoitu dimensio päivitetty",
+        "ColumnUniqueActions": "Uniikit toiminnot"
+    }
+}

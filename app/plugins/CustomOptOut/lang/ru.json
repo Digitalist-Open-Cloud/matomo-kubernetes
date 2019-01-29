@@ -1,0 +1,7 @@
+{
+    "CustomOptOut": {
+        "ShowEditorOptionName": "Включить редактор css",
+        "EditorThemeOptionName": "Тема редактора",
+        "EditorThemeDescription": "Выбрать тему для редактора."
+    }
+}

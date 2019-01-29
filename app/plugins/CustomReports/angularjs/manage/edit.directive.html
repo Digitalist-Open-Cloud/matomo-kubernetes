@@ -1,0 +1,237 @@
+<div class="editReport"
+     piwik-content-block
+     content-title="{{ editReport.editTitle|translate:(editReport.report.name ? ('&quot;' + editReport.report.name + '&quot;') : '') }}">
+
+    <p ng-show="editReport.model.isLoading">
+        <span class="loadingPiwik"><img src="plugins/Morpheus/images/loading-blue.gif"/> {{ 'General_LoadingData'|translate }}</span>
+    </p>
+
+    <p ng-show="editReport.model.isUpdating">
+        <span class="loadingPiwik"><img src="plugins/Morpheus/images/loading-blue.gif"/> {{ 'CustomReports_UpdatingData'|translate }}</span>
+    </p>
+
+    <div ng-show="!editReport.report.canEdit" class="alert alert-danger">
+        {{ 'CustomReports_ReportEditNotAllowedAllWebsites'|translate }}
+    </div>
+
+    <form ng-submit="editReport.edit ? editReport.updateReport() : editReport.createReport()">
+        <div>
+            <div piwik-field uicontrol="text" name="name"
+                 ng-model="editReport.report.name"
+                 maxlength="50"
+                 disabled="!editReport.report.canEdit"
+                 placeholder="{{ 'CustomReports_FieldNamePlaceholder'|translate }}"
+                 ng-change="editReport.setValueHasChanged()"
+                 title="{{ 'General_Name'|translate }}"
+                 inline-help="{{ 'CustomReports_ReportNameHelp'|translate }}">
+            </div>
+
+            <div piwik-field uicontrol="textarea" name="description"
+                 ng-model="editReport.report.description"
+                 maxlength="1000"
+                 disabled="!editReport.report.canEdit"
+                 rows="3"
+                 placeholder="{{ 'CustomReports_FieldDescriptionPlaceholder'|translate }}"
+                 ng-change="editReport.setValueHasChanged()"
+                 title="{{ 'General_Description'|translate }} (optional)"
+                 inline-help="{{ 'CustomReports_ReportDescriptionHelp'|translate }}">
+            </div>
+
+            <div class="form-group row">
+                <h3 class="col s12">{{ 'CustomReports_ApplyTo'|translate }}</h3>
+                <div class="col s12 m6">
+                    <div>
+                        <label for="all_websites" class="siteSelectorLabel">{{ 'General_Website'|translate }}</label>
+                        <div piwik-siteselector
+                             id="all_websites"
+                             ng-change="editReport.setWebsiteChanged()"
+                             class="sites_autocomplete"
+                             ng-model="editReport.report.site"
+                             show-all-sites-item="editReport.isSuperUser"
+                             switch-site-on-select="false"
+                             show-selected-site="true"></div>
+                    </div>
+                </div>
+                <div class="col s12 m6">
+                    <div class="form-help">
+                        <span class="inline-help">{{ 'CustomReports_ReportAllWebsitesHelp'|translate }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <h3 class="col s12">{{ 'CustomReports_ReportContent'|translate }}</h3>
+            </div>
+
+            <div ng-show="editReport.report.isLocked" class="unlockAlert alert alert-info">
+                {{ 'CustomReports_WarningRequiresUnlock'|translate }}
+                <br />
+                <br />
+                <input type="button" class="btn unlockReport" value="{{ 'CustomReports_Unlock'|translate }}"
+                       ng-click="editReport.unlockReport()">
+            </div>
+
+            <div ng-show="editReport.report.isUnlocked" class="alertUnlocked alert alert-warning">
+                {{ 'CustomReports_WarningOnUpdateReportMightGetLost'|translate }}
+            </div>
+
+            <div piwik-field uicontrol="radio" name="reportType"
+                 ng-change="editReport.setReportTypeHasChanged()"
+                 disabled="!editReport.report.canEdit"
+                 title="{{ 'CustomReports_ReportType'|translate }}"
+                 ng-model="editReport.report.report_type"
+                 options="editReport.reportTypes">
+            </div>
+
+            <div class="form-group row" ng-show="editReport.report.report_type !='evolution'">
+                <div class="col s12 m6 dimensionsGroup">
+                    <label>{{ 'CustomReports_Dimensions'|translate }}</label><br />
+                    <div>
+                        <div class="selectedDimension selectedDimension{{dimIndex}}" ng-repeat="(dimIndex,dimension) in editReport.report.dimensions track by $index">
+                            <div piwik-field uicontrol="expandable-select" name="dimensions"
+                                 class="groupValueSelect"
+                                 full-width="true"
+                                 ng-change="editReport.changeDimension(editReport.report.initial_dimensions[dimIndex], dimIndex)"
+                                 title="{{ editReport.model.dimensionsReadable[dimension] ? editReport.model.dimensionsReadable[dimension] : dimension }}"
+                                 ng-model="editReport.report.initial_dimensions[dimIndex]"
+                                 options="editReport.dimensions">
+                            </div>
+                            <span ng-click="editReport.removeDimension(dimension)" title="{{ 'CustomReports_RemoveDimension'|translate }}" class="icon-minus"></span>
+                        </div>
+
+                        <div piwik-field uicontrol="expandable-select" name="dimensions"
+                             full-width="true"
+                             class="groupValueSelect addDimension"
+                             ng-change="editReport.addDimension(editReport.report.dimension);editReport.report.dimension='';"
+                             title="{{ 'CustomReports_AddDimension'|translate }}"
+                             ng-show="editReport.report.dimensions.length <= 2"
+                             ng-model="editReport.report.dimension"
+                             options="editReport.dimensions">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col s12 m6">
+                    <div class="form-help">
+                        <span class="inline-help">{{ 'CustomReports_ReportDimensionsHelp'|translate }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col s12 m6 metricsGroup">
+                    <label>{{ 'General_Metrics'|translate }}</label><br />
+
+                    <div>
+                        <div class="selectedMetric selectedMetric{{metricIndex}}" ng-repeat="(metricIndex,metric) in editReport.report.metrics track by $index">
+                            <div piwik-field uicontrol="expandable-select" name="metrics"
+                                 class="groupValueSelect"
+                                 full-width="true"
+                                 ng-change="editReport.changeMetric(editReport.report.initial_metrics[metricIndex], metricIndex)"
+                                 title="{{ editReport.model.metricsReadable[metric] ? editReport.model.metricsReadable[metric] : metric }}"
+                                 ng-model="editReport.report.initial_metrics[metricIndex]"
+                                 options="editReport.metrics">
+                            </div>
+                            <span ng-click="editReport.removeMetric(metric)" title="{{ 'CustomReports_RemoveMetric'|translate }}" class="icon-minus"></span>
+                        </div>
+
+                        <div piwik-field uicontrol="expandable-select" name="metrics"
+                             class="groupValueSelect addMetric"
+                             full-width="true"
+                             ng-change="editReport.addMetric(editReport.report.metric);editReport.report.metric='';"
+                             title="{{ 'CustomReports_AddMetric'|translate }}"
+                             ng-model="editReport.report.metric"
+                             options="editReport.metrics">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col s12 m6">
+                    <div class="form-help">
+                        <span class="inline-help">{{ 'CustomReports_ReportMetricsHelp'|translate }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row segmentFilterGroup">
+                <div class="col s12">
+                    <div>
+                        <label style="margin: 8px 0;display: inline-block;">{{ 'CustomReports_Filter'|translate }}</label>
+                        <p>{{ 'CustomReports_ReportSegmentHelp'|translate }}</p>
+                        <div piwik-segment-generator
+                             idsite="editReport.report.site.id"
+                             ng-change="editReport.setSegmentFilterHasChanged()"
+                             ng-model="editReport.report.segment_filter"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row" ng-show="editReport.report.report_type == 'table'">
+                <div class="col s12">
+                    <br /><br />
+                    <div piwik-save-button
+                         class="showPreviewButton"
+                         disabled="!editReport.report.metrics.length || !editReport.report.dimensions.length"
+                         onconfirm="editReport.showPreview()"
+                         value="{{ 'CustomReports_PreviewReport'|translate }}">
+                    </div>
+                </div>
+            </div>
+
+
+            <div piwik-field uicontrol="select" name="reportCategories"
+                 introduction="{{ 'CustomReports_ReportPage'|translate }}"
+                 ng-change="editReport.setValueHasChanged()"
+                 title="{{ 'CustomReports_ReportCategory'|translate }}"
+                 ng-model="editReport.report.category.id"
+                 disabled="!editReport.report.canEdit"
+                 inline-help="{{ 'CustomReports_ReportCategoryHelp'|translate }}"
+                 options="editReport.categories">
+            </div>
+
+            <div piwik-field uicontrol="select" name="reportSubcategories"
+                 ng-change="editReport.setValueHasChanged()"
+                 title="{{ 'CustomReports_ReportSubcategory'|translate }}"
+                 ng-model="editReport.report.subcategory.id"
+                 disabled="!editReport.report.canEdit"
+                 inline-help="{{ 'CustomReports_ReportSubcategoryHelp'|translate }}"
+                 options="editReport.subcategories[editReport.report.category.id]">
+            </div>
+
+            <div ng-show="editReport.report.isUnlocked" class="alert alert-warning">
+                {{ 'CustomReports_WarningOnUpdateReportMightGetLost'|translate }}
+            </div>
+
+            <div ng-show="!editReport.report.canEdit" class="alert alert-danger">
+                {{ 'CustomReports_ReportEditNotAllowedAllWebsites'|translate }}
+            </div>
+
+            <div piwik-save-button
+                 class="createButton"
+                 ng-show="editReport.report.canEdit"
+                 onconfirm="editReport.edit ? editReport.updateReport() : editReport.createReport()"
+                 disabled="editReport.model.isUpdating || !editReport.isDirty"
+                 value="{{ editReport.edit ? ('CoreUpdater_UpdateTitle'|translate) : ('CustomReports_CreateNewReport'|translate) }}"
+                 saving="editReport.model.isUpdating">
+            </div>
+
+            <div class='entityCancel'>
+                <a ng-click="editReport.cancel()">{{ 'General_Cancel'|translate }}</a>
+            </div>
+        </div>
+    </form>
+
+
+    <div class="ui-confirm" id="confirmUnlockReport">
+        <h2>{{ 'CustomReports_ConfirmUnlockReport'|translate }}</h2>
+        <input role="yes" type="button" value="{{ 'General_Yes'|translate }}"/>
+        <input role="no" type="button" value="{{ 'General_No'|translate }}"/>
+    </div>
+
+    <div class="ui-confirm" id="infoReportIsLocked">
+        <h2>{{ 'CustomReports_InfoReportIsLocked'|translate }}</h2>
+        <input role="unlock" type="button" value="{{ 'CustomReports_Unlock'|translate }}"/>
+        <input role="ok" type="button" value="{{ 'General_Cancel'|translate }}"/>
+    </div>
+
+</div>

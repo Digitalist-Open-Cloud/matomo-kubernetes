@@ -1,0 +1,93 @@
+.editReport {
+  min-width: 1070px;
+
+  .icon-help {
+    color: #888;
+    cursor: help;
+    &:hover {
+      color: @theme-color-text;
+    }
+  }
+
+  .alertUnlocked,
+  .unlockAlert {
+    margin-top: -24px;
+    margin-left: 0.75rem;
+  }
+
+  .icon-close {
+    cursor: pointer;
+  }
+
+  .metricsGroup,
+  .dimensionsGroup {
+    padding: 0 0.75rem;
+
+    .groupValueSelect {
+      min-width: 300px;
+      display: inline-block;
+
+      .expandableList {
+        margin-top: -32px;
+        margin-left: 12px;
+      }
+    }
+
+    .selectedMetric,
+    .selectedDimension {
+      .select-dropdown {
+        background: #e4e4e4 !important;
+      }
+    }
+
+    .icon-minus {
+      display: inline-block;
+      vertical-align: top;
+      margin-top: 20px;
+      margin-left: 36px;
+      color: #666;
+      cursor: pointer;
+    }
+
+    label {
+      font-size: 0.8rem;
+    }
+    .form-group.row {
+      margin-top: 11px;
+      margin-bottom: 0;
+    }
+
+    .input-field {
+      margin-top: 0;
+      .caret {
+        right: -25px;
+        top: 10px;
+        z-index: 9;
+        cursor: pointer;
+      }
+      .select-dropdown {
+        margin-bottom: 0;
+        font-size: 15px;
+        border: 0;
+        background: #f2f2f2;
+        display: inline-block;
+        height: 32px;
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(0,0,0,0.6);
+        line-height: 32px;
+        border-radius: 3em;
+        padding-left: 12px;
+        padding-right: 30px;
+        box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12) !important;
+      }
+    }
+  }
+
+  .expandableSelector {
+    label {
+      white-space: nowrap;
+      top: -0.8rem;
+    }
+  }
+}

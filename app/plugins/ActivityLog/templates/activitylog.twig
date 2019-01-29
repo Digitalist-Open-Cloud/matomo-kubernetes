@@ -1,0 +1,21 @@
+<div class="ActivityLogContainer">
+    <div ng-controller="ActivityLogController" class="ActivityLog">
+
+        <div ng-include="'plugins/ActivityLog/templates/activitylog/paging.html?cb={{ cacheBuster }}'" class="paging-wrapper"></div>
+
+        <div class="activity-list">
+            <div class="activity row" ng-class="{loading: activityLogModel.busy}" ng-repeat="activity in activityLogModel.activities"
+                 ng-include="'plugins/ActivityLog/templates/activitylog/fields.html?cb={{ cacheBuster }}'">
+            </div>
+            <div ng-show="!activityLogModel.activities.length && !activityLogModel.busy"
+                 class="no-entries activity">
+                {{ 'ActivityLog_NoActivities'|translate }}
+            </div>
+        </div>
+
+        {% if showPagingBottom %}
+        <div ng-include="'plugins/ActivityLog/templates/activitylog/paging.html?cb={{ cacheBuster }}'" class="paging-wrapper"></div>
+        {% endif %}
+
+    </div>
+</div>

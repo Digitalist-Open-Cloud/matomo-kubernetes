@@ -1,0 +1,53 @@
+<h3>{{ 'Funnels_HelpRequiredStepsTitle'|translate }}</h3>
+<p>
+    {{ 'Funnels_HelpRequiredStepsDescription'|translate }}
+</p>
+<h3>{{ 'Funnels_HelpDefiningPatternsTitle'|translate }}</h3>
+<ul>
+    <li>{{ 'Funnels_HelpDefiningPatternsDescription1'|translate }}</li>
+    <li>
+        {{ 'Funnels_HelpDefiningPatternsDescription2'|translate('<a rel="noreferrer" target="_blank" href="https://en.wikipedia.org/wiki/Regular_expression">', '</a>')|raw }}
+        <br /> "{{ urlPrefixes|join('", "') }}"
+        <br />
+        {{ 'Funnels_HelpDefiningPatternsDescription2Example'|translate('<code>http://www.example.com</code>', '<code>^example.com</code>')|raw }}
+    </li>
+    <li>
+        {{ 'Funnels_HelpDefiningPatternsDescription3'|translate }}
+    </li>
+    <li>
+        {{ 'Funnels_HelpDefiningPatternsDescription4'|translate('<code>/path/test/</code>', '<code>/path/test</code>')|raw }}
+    </li>
+</ul>
+
+<h3>{{ 'Funnels_HelpKnownUrlsTitle'|translate }}</h3>
+
+{% if pattern and patternType %}
+    {% set stepPattern %}"{% if patternTranslations[patternType] is defined %}{{ patternTranslations[patternType] }}{% else %}{{ patternType }}{% endif %} {{ pattern }}"{% endset %}
+
+    {% if urls|length %}
+        <p>
+            {{ 'Funnels_HelpKnownUrlsTheseUrlsMatch'|translate(urls|length, stepPattern) }}
+            <br />
+        </p>
+
+        <ul style="list-style-type: disc">
+            {% for url in urls %}
+                <li>{{ url }}</li>
+            {% endfor %}
+        </ul>
+        {% if hasMoreUrls %}
+            <p>
+                <br />
+            <span class="icon-info"></span> {{ 'Funnels_HelpKnownUrlsMoreUrlsCouldMatch'|translate(urlLimit) }}
+            </p>
+        {% endif %}
+    {% else %}
+        <p>
+            {{ 'Funnels_HelpKnownUrlsNoUrlsMatch'|translate(stepPattern) }}
+        </p>
+    {% endif %}
+{% else %}
+    <p>
+        {{ 'Funnels_HelpKnownUrlsWhenPatternDefined'|translate }}
+    </p>
+{% endif %}

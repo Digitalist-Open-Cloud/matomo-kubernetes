@@ -1,0 +1,233 @@
+<div class="editForm"
+     piwik-content-block
+     content-title="{{ editForm.editTitle|translate:(editForm.form.name ? ('&quot;' + editForm.form.name + '&quot;') : '') }}">
+
+    <p ng-show="editForm.model.isLoading">
+        <span class="loadingPiwik"><img src="plugins/Morpheus/images/loading-blue.gif"/> {{ 'General_LoadingData'|translate }}</span>
+    </p>
+
+    <p ng-show="editForm.model.isUpdating">
+        <span class="loadingPiwik"><img src="plugins/Morpheus/images/loading-blue.gif"/> {{ 'FormAnalytics_UpdatingData'|translate }}</span>
+    </p>
+
+    <form ng-submit="editForm.edit ? editForm.updateForm() : editForm.createForm()">
+        <div>
+            <div piwik-field uicontrol="text" name="name"
+                 ng-model="editForm.form.name"
+                 maxlength="50"
+                 placeholder="{{ 'FormAnalytics_FieldNamePlaceholder'|translate }}"
+                 ng-change="editForm.setValueHasChanged()"
+                 title="{{ 'General_Name'|translate }}"
+                 inline-help="{{ 'FormAnalytics_FormNameHelp'|translate }}">
+            </div>
+
+            <div piwik-field uicontrol="textarea" name="description"
+                 ng-model="editForm.form.description"
+                 maxlength="1000"
+                 rows="3"
+                 placeholder="{{ 'FormAnalytics_FieldDescriptionPlaceholder'|translate }}"
+                 ng-change="editForm.setValueHasChanged()"
+                 title="{{ 'General_Description'|translate }} (optional)"
+                 inline-help="{{ 'FormAnalytics_FormDescriptionHelp'|translate }}">
+            </div>
+
+            <div class="form-group row" style="margin-bottom: 0;">
+                <div class="col s12">
+                    <h3>1) {{ 'FormAnalytics_FormSetupFormRules'|translate }}</h3>
+                </div>
+            </div>
+
+            <div class="form-group row" style="margin-bottom: 0;"
+                 ng-show="!editForm.form.matchPageOnly">
+                <div class="col s12">
+                    <p>
+                        <span ng-bind-html="'FormAnalytics_FormSetupFormRulesHelp'|translate:'&lt;a target=\'blank\' rel=\'noreferrer\' href=\'https://matomo.org/faq/form-analytics/faq_23727/\'>':'&lt;/a>'"></span>
+                        <span title="{{ 'FormAnalytics_ComparisonsCaseInsensitive'|translate }}" class="icon-help"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div ng-repeat="(index, matchFormRule) in editForm.form.match_form_rules"
+                 ng-show="!editForm.form.matchPageOnly"
+                 class="matchFormRules {{ index }} valign-wrapper">
+
+                <div class="form-group row">
+                    <div class="col s12 m4 matchAttribute">
+                        <div piwik-field uicontrol="select" name="matchAttribute"
+                             ng-change="editForm.setValueHasChanged()"
+                             full-width="true"
+                             ng-model="editForm.form.match_form_rules[index].attribute"
+                             options="editForm.formRulesAttributes">
+                        </div>
+                    </div>
+                    <div class="col s12 m4 matchPattern">
+                        <div piwik-field uicontrol="select" name="matchType"
+                             ng-change="editForm.setValueHasChanged()"
+                             full-width="true"
+                             ng-model="editForm.form.match_form_rules[index].pattern"
+                             options="editForm.formRulesPatterns[matchFormRule.attribute]">
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div piwik-field uicontrol="text" name="matchValue"
+                             ng-change="editForm.setValueHasChanged()"
+                             ng-model="editForm.form.match_form_rules[index].value"
+                             placeholder="eg '{{ editForm.formRulesExamples[matchFormRule.attribute] }}'"
+                             full-width="true"
+                             maxlength="1000">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <span ng-click="editForm.addMatchFormRule()"
+                          title="{{ 'General_Add'|translate }}"
+                          class="icon-plus"></span>
+
+                    <span ng-click="editForm.removeMatchFormRule(index)"
+                          ng-show="editForm.form.match_form_rules.length > 1"
+                          title="{{ 'General_Remove'|translate }}"
+                          class="icon-minus"></span>
+                </div>
+            </div>
+
+            <div>
+                <div piwik-field uicontrol="checkbox" name="matchPageOnly"
+                     ng-model="editForm.form.matchPageOnly"
+                     ng-change="editForm.setValueHasChanged()"
+                     title="{{ 'FormAnalytics_SettingAllowCreationByPageOnly'|translate }}"
+                     inline-help="{{ 'FormAnalytics_SettingAllowCreationByPageOnlyDescription'|translate }}">
+                </div>
+            </div>
+
+            <div class="form-group row" style="margin-bottom: 0;">
+                <div class="col s12">
+                    <h3>2) {{ 'FormAnalytics_FormSetupPageRules'|translate }}:</h3>
+                </div>
+            </div>
+
+            <div class="form-group row" style="margin-bottom: 0;">
+                <div class="col s12">
+                    <p>{{ 'FormAnalytics_FormSetupPageRulesHelp'|translate }}
+                       <span title="{{ 'FormAnalytics_ComparisonsCaseInsensitive'|translate }} {{ 'FormAnalytics_ComparisonsIgnoredValues'|translate }}" class="icon-help"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div ng-repeat="(index, matchPageUrl) in editForm.form.match_page_rules" class="matchPageRules {{ index }} valign-wrapper">
+
+                <div class="form-group row">
+                    <div class="col s12 m4 matchAttribute">
+                        <div piwik-field uicontrol="select" name="matchAttribute"
+                             ng-change="editForm.setValueHasChanged()"
+                             full-width="true"
+                             ng-model="editForm.form.match_page_rules[index].attribute"
+                             options="editForm.pageRulesAttributes">
+                        </div>
+                    </div>
+                    <div class="col s12 m4 matchPattern">
+                        <div piwik-field uicontrol="select" name="matchType"
+                             ng-change="editForm.setValueHasChanged()"
+                             full-width="true"
+                             ng-model="editForm.form.match_page_rules[index].pattern"
+                             options="editForm.pageRulesPatterns[matchPageUrl.attribute]">
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div piwik-field uicontrol="text" name="matchValue"
+                             ng-change="editForm.setValueHasChanged()"
+                             ng-model="editForm.form.match_page_rules[index].value"
+                             placeholder="eg '{{ editForm.pageRulesExamples[matchPageUrl.attribute] }}'"
+                             full-width="true"
+                             maxlength="1000">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <span ng-click="editForm.addMatchPageRule()"
+                          title="{{ 'General_Add'|translate }}"
+                          class="icon-plus"></span>
+
+                    <span ng-click="editForm.removeMatchPageRule(index)"
+                          ng-show="editForm.form.match_page_rules.length > 1"
+                          title="{{ 'General_Remove'|translate }}"
+                          class="icon-minus"></span>
+                </div>
+            </div>
+
+
+            <div class="form-group row" style="margin-bottom: 0;">
+                <div class="col s12">
+                    <h3>3) {{ 'FormAnalytics_FormSetupConversionRules'|translate }}:</h3>
+                </div>
+            </div>
+
+            <div class="form-group row" style="margin-bottom: 0;">
+                <div class="col s12">
+                    <p>{{ 'FormAnalytics_FormSetupConversionRulesHelp1'|translate }}
+                        <br /><br />
+
+                        <span ng-bind-html="'FormAnalytics_FormSetupConversionRulesHelp2'|translate:'&lt;a target=\'blank\' rel=\'noreferrer\' href=\'https://developer.matomo.org/guides/form-analytics/reference\'>':'&lt;/a>'"></span>
+
+                        <span title="{{ 'FormAnalytics_ComparisonsCaseInsensitive'|translate }} {{ 'FormAnalytics_ComparisonsIgnoredValues'|translate }}" class="icon-help"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div ng-repeat="(index, conversionRule) in editForm.form.conversion_rules" class="conversionRules {{ index }} valign-wrapper">
+
+                <div class="form-group row">
+                    <div class="col s12 m4 matchAttribute">
+                        <div piwik-field uicontrol="select" name="matchAttribute"
+                             ng-change="editForm.setValueHasChanged()"
+                             full-width="true"
+                             ng-model="editForm.form.conversion_rules[index].attribute"
+                             options="editForm.pageRulesAttributes">
+                        </div>
+                    </div>
+                    <div class="col s12 m4 matchPattern">
+                        <div piwik-field uicontrol="select" name="matchType"
+                             ng-change="editForm.setValueHasChanged()"
+                             full-width="true"
+                             ng-model="editForm.form.conversion_rules[index].pattern"
+                             options="editForm.pageRulesPatterns[conversionRule.attribute]">
+                        </div>
+                    </div>
+                    <div class="col s12 m4">
+                        <div piwik-field uicontrol="text" name="matchValue"
+                             ng-change="editForm.setValueHasChanged()"
+                             ng-model="editForm.form.conversion_rules[index].value"
+                             placeholder="eg '{{ editForm.pageRulesExamples[conversionRule.attribute] }}'"
+                             full-width="true"
+                             maxlength="1000">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <span ng-click="editForm.addConversionRule()"
+                          title="{{ 'General_Add'|translate }}"
+                          class="icon-plus"></span>
+
+                    <span ng-click="editForm.removeConversionRule(index)"
+                          ng-show="editForm.form.conversion_rules.length > 1"
+                          title="{{ 'General_Remove'|translate }}"
+                          class="icon-minus"></span>
+                </div>
+            </div>
+
+            <div piwik-save-button
+                 class="createButton"
+                 onconfirm="editForm.edit ? editForm.updateForm() : editForm.createForm()"
+                 disabled="editForm.model.isUpdating || !editForm.isDirty"
+                 value="{{ editForm.edit ? ('CoreUpdater_UpdateTitle'|translate) : ('FormAnalytics_CreateNewForm'|translate) }}"
+                 saving="editForm.model.isUpdating">
+            </div>
+
+            <div class='entityCancel'>
+                <a ng-click="editForm.cancel()">{{ 'General_Cancel'|translate }}</a>
+            </div>
+        </div>
+    </form>
+</div>

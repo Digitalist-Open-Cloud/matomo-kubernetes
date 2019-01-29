@@ -1,0 +1,232 @@
+.uiTest {
+    .piwikUsersFlowVisualization {
+        .sankeyChartOuter {
+            overflow: visible;
+        }
+    }
+
+    #widgetUsersFlowgetUsersFlow,
+    #widgetUsersFlowgetUsersFlow .card {
+        width: 4000px;
+    }
+}
+.reporting-page {
+    .piwikUsersFlowVisualization {
+        .sankeyChart {
+            margin-left: -5px;
+        }
+    }
+}
+body.widgetized {
+    .piwikUsersFlowVisualization {
+        margin-left: 10px;
+        margin-right: 10px;
+        .sankeyChart {
+            margin-left: -5px;
+        }
+    }
+    .usersFlowIntroduction {
+        margin: 10px;
+    }
+}
+
+.piwikUsersFlowVisualization {
+    .sankeyChartOuter {
+        overflow: scroll;
+    }
+
+    .exploringTraffic {
+        margin-bottom: 30px !important;
+    }
+
+    .userFlowSource,
+    .actionsPerStep,
+    .levelOfDetail {
+        .form-group {
+            margin-top: 0 !important;
+        }
+        width: 250px;
+        display: inline-block;
+    }
+
+    .levelOfDetail {
+        .input-field {
+            margin-left: -0.75rem;
+        }
+    }
+
+    .linkDetail1 {
+        .linkSize1 {
+            display: none;
+        }
+        .linkSize2 {
+            display: none;
+        }
+        .linkSize3 {
+            display: none;
+        }
+        .linkSize4 {
+            display: none;
+        }
+        .linkSize5 {
+            display: none;
+        }
+    }
+
+    .linkDetail2 {
+        .linkSize1 {
+            display: none;
+        }
+        .linkSize2 {
+            display: none;
+        }
+        .linkSize3 {
+            display: none;
+        }
+        .linkSize4 {
+            display: none;
+        }
+    }
+
+    .linkDetail3 {
+        .linkSize1 {
+            display: none;
+        }
+        .linkSize2 {
+            display: none;
+        }
+        .linkSize3 {
+            display: none;
+        }
+    }
+
+    .linkDetail4 {
+        .linkSize1 {
+            display: none;
+        }
+        .linkSize2 {
+            display: none;
+        }
+    }
+
+    .linkDetail5 {
+        .linkSize1 {
+            display: none;
+        }
+    }
+
+    .depthContainerTitle {
+        font-weight:bold;
+    }
+
+    .addNewStepContainer rect,
+    .depthContainerTitle,
+    .addNewStepContainer,
+    .addNewStep,
+    .removeStep {
+        cursor: pointer;
+    }
+
+    .addNewStep {
+        fill: #999;
+    }
+
+    .link {
+        fill: none;
+        stroke: #A9E2F3;
+        stroke-opacity: .8;
+    }
+
+
+    .highlightedLink,
+    .link:not(.outNodeLink):hover {
+        stroke-opacity: 1 !important;
+        stroke: #94c8d8 !important;
+    }
+
+    .node {
+        &.highlightedNode rect {
+            fill-opacity: 1 !important;
+            stroke-opacity: 1 !important;
+            stroke-width: 2;
+        }
+
+        &.outNode {
+            display: none;
+        }
+        rect {
+            cursor: pointer;
+            fill-opacity: .9;
+            shape-rendering: crispEdges;
+            stroke-width: 1;
+        }
+        text {
+            pointer-events: none;
+            font: normal 12px Arial;
+        }
+    }
+
+}
+
+.usersFlowPopupMenu {
+    position: absolute;
+    display: none;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: @theme-color-background-tinyContrast;
+    border: 1px solid @theme-color-border;
+    min-width: 160px;
+    z-index:1500;
+
+    ul {
+        margin: 0;
+        list-style-type: none;
+        padding: 0;
+        cursor: default;
+        li {
+            cursor: pointer;
+            padding: 4px 16px;
+
+            a {
+                color: @theme-color-text;
+                text-decoration: none;
+            }
+
+            &:not(.divider):hover a,
+            &:not(.divider):hover {
+                background-color: @theme-color-link;
+                color: @theme-color-background-lowContrast;
+                text-decoration: none;
+            }
+        }
+    }
+
+    .divider {
+        cursor: default;
+        padding: 0;
+        border: 0;
+        height: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        background-color: @theme-color-background-tinyContrast;
+    }
+}
+
+.userFlowNodeTooltip {
+    font-size: 14px;
+    line-height: 21px;
+    font-weight: normal;
+
+    .nodeTooltipVisits {
+        color: #DF9D27;
+    }
+
+    .nodeTooltipProceeded {
+        color: #1AA282;
+    }
+
+    .nodeTooltipExits {
+        color: #D73F36;
+    }
+
+}

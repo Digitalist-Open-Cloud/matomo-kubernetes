@@ -1,0 +1,153 @@
+.ActivityLogContainer {
+
+  overflow: auto;
+
+  .item-name {
+    font-weight: bold;
+
+    .item-icon {
+      margin: 0 5px;
+    }
+  }
+
+  .item-data-title {
+    text-transform: uppercase;
+    padding: 0 5px
+  }
+
+  .activity-list {
+    border-top: 1px solid #ccc;
+    min-height: 50px;
+    position: relative;
+    clear: both;
+  }
+
+  .loadingPiwik {
+    float: right;
+    height: 36px;
+    line-height: 25px;
+    box-sizing: border-box;
+  }
+
+  .activity {
+    border-bottom: 1px solid #ccc;
+    padding: 15px 0;
+    margin: 0;
+
+    &.loading {
+      opacity: 0.5;
+    }
+  }
+
+  .activity-avatar {
+    float: left;
+    margin-right: 15px;
+    opacity: 0.6;
+    cursor: pointer;
+  }
+
+  .activity-country {
+    height: 15px;
+    float: left;
+    opacity: 0.7;
+    margin-right: 5px;
+    margin-top: 2px;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .activity-time {
+    padding-bottom: 3px;
+
+    > span {
+      color: #ccc;
+    }
+
+    /* Avoids flickering on hover */
+    &.ng-hide.ng-hide-animate {
+      display: none !important;
+    }
+  }
+
+  .activity-items {
+    border-left: 1px solid #ccc;
+  }
+
+  .activity-item {
+    margin: 0 0 0 5px;
+    line-height: 25px;
+    padding: 0 0 0 30px;
+
+    & > div > span:first-child {
+      margin: 0 0 0 -30px;
+    }
+  }
+  
+  .activity-action-login {
+    cursor: pointer;
+  }
+
+  .no-entries {
+    font-style: italic;
+  }
+
+  .user-filter {
+
+    select {
+      height: 36px;
+      margin: 0 0 0 5px;
+      display: inline-block;
+      width: auto;
+    }
+  }
+
+  .paging {
+    float: right;
+
+    .counter {
+      margin: 0 10px;
+    }
+  }
+
+  .btn.reload {
+    float: left;
+    margin-right: 10px;
+  }
+
+  .paging-wrapper {
+    display: block;
+    width: 100%;
+    float: left;
+    margin: 10px 0;
+  }
+
+}
+
+
+.col.m4, .col.m3, .col.m6 {
+  .activityLogWidget {
+    .paging {
+      margin: 10px;
+      float: none;
+    }
+    .user-filter {
+      clear: right;
+      margin: 0 10px;
+    }
+    .activity > .col.m6 {
+      width: 100%;
+      border-left: 0 !important;
+    }
+    .activity-items {
+      border-left: 0 !important;
+      margin-top: 16px;
+      word-break: break-all;
+    }
+  }
+}
+
+.activityLogWidget {
+  margin:10px;
+}

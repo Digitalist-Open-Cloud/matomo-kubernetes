@@ -1,0 +1,51 @@
+<li class="media-action"
+    title="{{ postEvent('Live.renderActionTooltip', action, visitInfo) }}">
+    <div>
+        {% if action.media_type == 'audio' %}
+            <span class="icon-audio action-list-action-icon" title="{{ 'MediaAnalytics_TypeAudio'|translate }}"></span>
+        {% else %}
+            <span class="icon-play action-list-action-icon" title="{{ 'MediaAnalytics_TypeVideo'|translate }}"></span>
+        {% endif %}
+
+        {% set url -%}
+        {% if action.url is not empty %}
+            {% if action.url|trim|lower starts with 'javascript:' or
+            action.url|trim|lower starts with 'vbscript:' or
+            action.url|trim|lower starts with 'data:' %}
+                {{ action.url }}
+            {% else %}
+                <a href="{{ action.url }}" rel="noreferrer" target="_blank">
+                    {{ action.url|replace({'http://': '', 'https://': ''}) }}
+                </a>
+            {% endif %}
+        {% endif %}
+        {%- endset %}
+
+        <span class="truncated-text-line {% if action.media_length > 0 %}mediatitle{% endif %}">
+            {% set mediaTitle %}
+            {% if action.media_title %}
+                <strong>{{ action.media_title|rawSafeDecoded }}</strong>
+            {% elseif url is not empty %}
+                <strong>{{ url }}</strong>
+            {% else %}
+                <i>{{ 'General_Unknown'|translate }}</i>
+            {% endif %}
+            {% endset %}
+
+            {{ mediaTitle }}
+        </span>
+        {% if action.media_type == 'audio' %}
+            ({{ 'MediaAnalytics_TimeListened'|translate(action.watched_time|sumtime) }})
+        {% else %}
+            ({{ 'MediaAnalytics_TimeWatched'|translate(action.watched_time|sumtime) }})
+        {% endif %}
+
+        {% if (url is not empty) and (action.media_title is not empty) %}
+            <p>
+                <span class="truncated-text-line">
+                {{ url }}
+                </span>
+            </p>
+        {% endif %}
+    </div>
+</li>

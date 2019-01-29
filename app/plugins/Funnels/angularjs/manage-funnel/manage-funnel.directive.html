@@ -1,0 +1,164 @@
+<div class="manageFunnel">
+
+    <p>{{ 'Funnels_Introduction'|translate }}</p>
+
+    <ul class="benefits">
+        <li>{{ 'Funnels_IntroductionListItem1'|translate }}</li>
+        <li>{{ 'Funnels_IntroductionListItem2'|translate }}</li>
+        <li>{{ 'Funnels_IntroductionListItem3'|translate }}</li>
+        <li>{{ 'Funnels_IntroductionListItem4'|translate }}</li>
+    </ul>
+    <p><br />{{ 'Funnels_IntroductionFollowSteps'|translate }}</p>
+
+    <div ng-show="manageFunnelCtrl.funnel.isLocked" class="alert alert-info">
+        {{ 'Funnels_WarningFunnelIsActivatedRequiredUnlock'|translate }}
+        <br />
+        <input type="button" class="btn unlockFunnel" value="{{ 'Funnels_Unlock'|translate }}"
+               ng-click="manageFunnelCtrl.unlockFunnel()">
+    </div>
+
+    <div ng-show="manageFunnelCtrl.funnel.isUnlocked" class="alert alert-warning">
+        {{ 'Funnels_WarningOnUpdateReportMightGetLost'|translate }}
+    </div>
+
+    <div class="loadingPiwik" ng-show="manageFunnelCtrl.isLoading">
+        <img src="plugins/Morpheus/images/loading-blue.gif" alt=""/>{{ 'General_LoadingData'|translate }}
+    </div>
+
+    <p class="funnelStepSection">
+        <strong>1. {{ 'Funnels_ConfigureFunnelSteps'|translate }}</strong>
+        <br />
+        {{ 'Funnels_ConfigureFunnelStepsDescription1'|translate }}
+        <br />
+        <br />
+        {{ 'Funnels_ConfigureFunnelStepsDescription2'|translate }}
+        <br />
+        <br />
+        {{ 'Funnels_ConfigureFunnelStepsDescription3'|translate }}
+    </p>
+
+    <table piwik-content-table ng-show="!manageFunnelCtrl.isLoading" class="funnelsTable">
+        <thead><tr>
+            <th>{{ 'Funnels_Step'|translate }}</th>
+            <th>{{ 'General_Name'|translate }}</th>
+            <th>{{ 'Funnels_ComparisonColumnTitle'|translate }}</th>
+            <th>{{ 'Goals_Pattern'|translate }}</th>
+            <th>{{ 'Funnels_RequiredColumnTitle'|translate }}</th>
+            <th>{{ 'General_Help'|translate }}</th>
+            <th>{{ 'General_Remove'|translate }}</th>
+        </tr></thead>
+        <tbody>
+            <tr ng-repeat="(index, step) in manageFunnelCtrl.funnel.steps"
+                class="step step{{ index + 1 }}"
+                ng-class="[manageFunnelCtrl.matches[index], manageFunnelCtrl.funnel.isLocked  ? 'inactive' : '']">
+                <td>{{ index + 1 }}</td>
+                <td><input type="text"
+                           class="stepName"
+                           maxlength="150"
+                           ng-disabled="manageFunnelCtrl.funnel.isLocked"
+                           ng-model="step.name" placeholder="eg. 'Cart'"></td>
+                <td>
+                    <div piwik-field uicontrol="select" name="pattern_type"
+                         ng-model="step.pattern_type"
+                         disabled="manageFunnelCtrl.funnel.isLocked"
+                         full-width="true"
+                         ng-change="manageFunnelCtrl.validateSteps()"
+                         options='manageFunnelCtrl.patternMatchOptions'>
+                    </div>
+                </td>
+                <td><input type="text" placeholder="{{ manageFunnelCtrl.patternExamples[step.pattern_type] }}"
+                           ng-model="step.pattern"
+                           maxlength="1000"
+                           class="stepPattern"
+                           ng-disabled="manageFunnelCtrl.funnel.isLocked"
+                           ng-change="manageFunnelCtrl.validateSteps()"></td>
+                <td><input type="checkbox"
+                           ng-disabled="manageFunnelCtrl.funnel.isLocked"
+                           class="stepRequired"
+                           id="stepRequired{{ index + 1 }}"
+                           ng-model="step.required"><label for="stepRequired{{ index + 1 }}"> </label></td>
+                <td><span class="icon-info table-action"
+                          title="{{ 'Funnels_HelpStepTooltip'|translate }}"
+                          ng-click="manageFunnelCtrl.showHelpForStep(index)"></span></td>
+                <td><span class="icon-minus table-action" title="{{ 'Funnels_RemoveStepTooltip'|translate }}"
+                          ng-show="manageFunnelCtrl.funnel.steps.length > 1"
+                          ng-click="manageFunnelCtrl.removeStep(index)"></span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div ng-show="!manageFunnelCtrl.isLoading"  class="tableActionBar">
+        <button class="addNewStep" ng-click="manageFunnelCtrl.addStep()">
+            <span class="icon-add"></span>
+            {{ 'Funnels_AddStep'|translate }}
+        </button>
+    </div>
+
+    <p class="funnelStepSection">
+        <strong>2. {{ 'Funnels_ValidateFunnelSteps'|translate }}</strong>
+        <br />
+        {{ 'Funnels_ValidateUrlMatchesDescription'|translate }}
+    </p>
+
+    <div class="targetValidator alert alert-info">
+        {{ 'Funnels_EnterURLToValidate'|translate }}<br />
+
+        <input class="urlField"
+               type="text"
+               ng-focus="manageFunnelCtrl.prefillValidateUrl()"
+               ng-model="manageFunnelCtrl.validateUrl"
+               placeholder="eg. http://www.example.com"
+               ng-change="manageFunnelCtrl.validateSteps()">
+
+        <span ng-click="manageFunnelCtrl.validateUrl = '';manageFunnelCtrl.validateSteps();"
+              class="icon-close resetField"
+              ng-show="manageFunnelCtrl.validateUrl"></span>
+
+        <span class="loadingPiwik loadingMatchingSteps" ng-show="manageFunnelCtrl.isLoadingMatchingSteps">
+            <img src="plugins/Morpheus/images/loading-blue.gif" alt=""/>{{ 'General_LoadingData'|translate }}
+        </span>
+
+    </div>
+
+    <p class="funnelStepSection">
+        <strong>3. {{ 'Funnels_ActivateFunnel'|translate }}</strong>
+        <br />
+        {{ 'Funnels_ActivateFunnelDescription'|translate }}
+    </p>
+
+    <p>
+        <input type="checkbox"
+               class="activateFunnel"
+               ng-change="manageFunnelCtrl.toggleFunnelActivated()"
+               ng-model="manageFunnelCtrl.funnel.isActivated">
+        <label ng-click="manageFunnelCtrl.toggleFunnelActivated()">{{ 'Funnels_ActivateFunnel'|translate }}</label>
+    </p>
+
+    <div ng-show="manageFunnelCtrl.funnel.isUnlocked" class="alert alert-warning">
+        {{ 'Funnels_WarningOnUpdateReportMightGetLost'|translate }}
+    </div>
+
+    <div class="ui-confirm" id="infoFunnelIsLocked">
+        <h2>{{ 'Funnels_InfoFunnelIsLocked'|translate }}</h2>
+        <input role="unlock" type="button" value="{{ 'Funnels_Unlock'|translate }}"/>
+        <input role="ok" type="button" value="{{ 'General_Cancel'|translate }}"/>
+    </div>
+
+    <div class="ui-confirm" id="cannotActivateIncompleteSteps">
+        <h2>{{ 'Funnels_InfoCannotActivateFunnelIncomplete'|translate }}</h2>
+        <input role="ok" type="button" value="{{ 'General_Ok'|translate }}"/>
+    </div>
+
+    <div class="ui-confirm" id="confirmUnlockFunnel">
+        <h2>{{ 'Funnels_ConfirmUnlockFunnel'|translate }}</h2>
+        <input role="yes" type="button" value="{{ 'General_Yes'|translate }}"/>
+        <input role="no" type="button" value="{{ 'General_No'|translate }}"/>
+    </div>
+
+    <div class="ui-confirm" id="confirmDeactivateFunnel">
+        <h2>{{ 'Funnels_ConfirmDeactivateFunnel'|translate }}</h2>
+        <input role="yes" type="button" value="{{ 'General_Yes'|translate }}"/>
+        <input role="no" type="button" value="{{ 'General_No'|translate }}"/>
+    </div>
+
+</div>

@@ -1,0 +1,35 @@
+{
+    "name": "CustomOptOut",
+    "version": "1.0.3",
+    "description": "Create your own opt-out iframe css styles",
+    "keywords": [
+        "Opt-Out",
+        "CSS"
+    ],
+    "theme": false,
+    "license": "GPL-3.0+",
+    "homepage": "https:\/\/www.zwei-entwickler.de",
+    "require": {
+        "piwik": ">=3.0.0-b1,<4.0.0-b1",
+        "php": ">=5.5.9"
+    },
+    "donate": {
+        "paypal": "info@two-developers.com"
+    },
+    "support": {
+        "issues": "https://github.com/Zeichen32/PiwikCustomOptOut/issues",
+        "source": "https://github.com/Zeichen32/PiwikCustomOptOut/"
+    },
+    "authors": [
+        {
+            "name": "Jens Averkamp",
+            "email": "j.averkamp@two-developers.com",
+            "homepage": "https:\/\/github.com\/Zeichen32"
+        },
+        {
+            "name": "Sven Motz",
+            "email": "s.motz@two-developers.com",
+            "homepage": "https:\/\/github.com\/xMysteriox"
+        }
+    ]
+}

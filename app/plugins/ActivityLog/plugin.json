@@ -1,0 +1,30 @@
+{
+    "name": "ActivityLog",
+    "version": "3.1.2",
+    "description": "Get a detailed audit log of all activities happening in your Matomo Analytics for increased security, risk management, and problem diagnostic.",
+    "theme": false,
+    "require": {
+        "piwik": ">=3.0.0-b1,<4.0.0-b1",
+        "php": ">=5.5"
+    },
+    "authors": [
+        {
+            "name": "InnoCraft",
+            "email": "contact@innocraft.com",
+            "homepage": "https:\/\/www.innocraft.com"
+        }
+    ],
+    "price": {
+        "base": 15
+    },
+    "homepage": "https://plugins.matomo.org/ActivityLog",
+    "license": "InnoCraft EULA",
+    "keywords": [
+        "log",
+        "audit",
+        "activity",
+        "administration",
+        "security",
+        "monitoring"
+    ]
+}

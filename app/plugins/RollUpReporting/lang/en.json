@@ -1,0 +1,22 @@
+{
+  "RollUpReporting": {
+    "RollUpSitePrefixName": "Roll-Up",
+    "RollUpMeasurableSettingTitle": "Source measurables",
+    "RollUpMeasurableSettingHelp": "Defines the source measurables that should be aggregated for this measurable. To add a measurable (or website) to this roll-up, select a measurable from the measurable chooser. To remove a measurable click on the minus icon next to the site name. At least one measurable has to be linked to this site. E-commerce and Site-Search will be enabled automatically if one of the assigned measurables has ecommerce or site search enabled. When you add or remove measurables at a later point, previously generated reports may need to be re-generated.",
+    "SystemSettingCreationDateSyncTitle": "Synchronize creation date",
+    "SystemSettingCreationDateSyncHelp": "When enabled, the creation date of a Roll-Up will be automatically set to the creation date of the oldest source measurable. This allows you to view reports in the past for a Roll-Up after you created it. You may want to disable this setting if you have high traffic and archiving these reports would take too long.",
+    "ErrorNoSiteAssigned": "At least one children site needs to be assigned to the Roll-Up site",
+    "ErrorCannotAssignRollUpToAnotherRollUp": "It is not possible to assign the Roll-Up idsite %s to this Roll-Up because the Roll-Up idsite %s already includes the site you are currently updating.",
+    "NoMeasurableAssignedYet": "No measurable has been assigned yet, please select a measurable from the selector above.",
+    "GoalCreationNotPossible": "It is not possible to create a goal for a Roll-Up site",
+    "FindMeasurables": "Find measurables",
+    "SelectMeasurable": "Select a measurable to add to this roll up",
+    "SelectMeasurablesMatchingSearch": "or add all measureables that contain the following search term",
+    "MatchingSearchNotFound": "There is no measurable matching the search term %s.",
+    "MatchingSearchConfirmTitle": "Are you sure you want to add %s matching measurables?",
+    "MatchingSearchConfirmTitleAlreadyAdded": "%s matching measurables are already added",
+    "MatchingSearchMatchedAdd": "These %s measurables matched %s and will be added to this roll up",
+    "MatchingSearchMatchedAlreadyAdded": "These %s measurables matched %s but are already added to this roll up",
+    "AllMeasurablesAssigned": "All measurables have been assigned to this Roll-Up. When you create new measurables, they will be automatically included in this Roll-Up."
+  }
+}

@@ -1,0 +1,9 @@
+{% if customDimensions %}
+    <div class="visitorCustomDimensions">
+    {% for customDimension in customDimensions if customDimension.value|length > 0 %}
+        <br/>
+        <abbr class="visitorLogTooltip" title="{{ 'CustomDimensions_CustomDimensionId'|translate(customDimension.id) }}">{{ customDimension.name|truncate(30) }}:</abbr>
+        {{ customDimension.value|truncate(50) }}
+    {% endfor %}
+    </div>
+{% endif %}

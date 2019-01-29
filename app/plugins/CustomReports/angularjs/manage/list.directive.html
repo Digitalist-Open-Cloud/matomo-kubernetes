@@ -1,0 +1,63 @@
+<div>
+    <div piwik-content-block content-title="{{ 'CustomReports_ManageReports'|translate }}"
+         feature="{{ 'CustomReports_ManageReports'|translate }}"
+    >
+
+    <p>{{ 'CustomReports_CustomReportIntroduction'|translate }}</p>
+
+    <table piwik-content-table>
+        <thead>
+        <tr>
+            <th class="index">{{ 'General_Id'|translate }}</th>
+            <th class="name">{{ 'General_Name'|translate }}</th>
+            <th class="description">{{ 'General_Description'|translate }}</th>
+            <th class="reportType">{{ 'CustomReports_Type'|translate }}</th>
+            <th class="reportCategory">{{ 'CustomReports_Category'|translate }}</th>
+            <th class="action">{{ 'General_Actions'|translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-show="reportsList.model.isLoading || reportsList.model.isUpdating">
+            <td colspan="7">
+                <span class="loadingPiwik"><img src="plugins/Morpheus/images/loading-blue.gif"/> {{ 'General_LoadingData'|translate }}</span>
+            </td>
+        </tr>
+        <tr ng-show="!reportsList.model.isLoading && (reportsList.model.reports|length) == 0">
+            <td colspan="7">
+                {{ 'CustomReports_NoCustomReportsFound'|translate }}
+            </td>
+        </tr>
+        <tr ng-repeat="report in reportsList.model.reports|orderBy:'idcustomreport'"
+            id="report{{ report.idcustomreport }}"
+            class="customReports">
+            <td class="index">{{ report.idcustomreport }}</td>
+            <td class="name">{{ report.name }} <span ng-show="!report.idsite && !reportsList.isSuperUser" title="{{ 'CustomReports_ReportEditNotAllowedAllWebsites'|translate }}" class="icon-locked"></span><span ng-show="!report.idsite && reportsList.isSuperUser" title="{{ 'CustomReports_ReportAvailableToAllWebsites'|translate }}" class="icon-info2"></span></td>
+            <td class="description" title="{{ report.description }}">{{ report.description|trim|truncateText2:60 }}</td>
+            <td class="reportType" >{{ reportsList.model.reportTypesReadable[report.report_type] }}</td>
+            <td class="reportCategory" title="{{ report.category.name }}">{{ report.category.name|trim|truncateText2:60 }}</td>
+            <td class="action">
+                <a ng-click="reportsList.editReport(report.idcustomreport)" class="table-action icon-edit" title="{{ 'CustomReports_EditReport'|translate }}"></a>
+                <a ng-href="?module=CoreHome&action=index&idSite={{report.idsite}}&period=day&date=yesterday#?category={{report.category.id}}&idSite={{report.idsite}}&period=day&date=yesterday&subcategory={{report.subcategoryLink }}"
+                   target="_blank"
+                   title="{{ 'CustomReports_ViewReportInfo'|translate }}"
+                   class="table-action icon-show"></a>
+                <a ng-click="reportsList.deleteReport(report)" class="table-action icon-delete"
+                   title="{{ 'CustomReports_DeleteReportInfo'|translate }}"
+                ></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="tableActionBar">
+        <a class="createNewReport" ng-click="reportsList.createReport()"
+        ><span class="icon-add"></span> {{ 'CustomReports_CreateNewReport'|translate }}</a>
+    </div>
+    </div>
+
+    <div class="ui-confirm" id="confirmDeleteReport">
+        <h2>{{ 'CustomReports_DeleteReportConfirm'|translate }} </h2>
+        <input role="yes" type="button" value="{{ 'General_Yes'|translate }}"/>
+        <input role="no" type="button" value="{{ 'General_No'|translate }}"/>
+    </div>
+</div>

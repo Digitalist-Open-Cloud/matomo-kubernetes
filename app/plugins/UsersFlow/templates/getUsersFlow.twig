@@ -1,0 +1,27 @@
+{% if showTitle %}<h2 piwik-enriched-headline
+    >{{ 'UsersFlow_UsersFlow'|translate }}<div class="inlineHelp">{{ 'UsersFlow_UsersFlowReportDescription'|translate(maxLinksPerInteractions, '<code>[UsersFlow] usersflow_num_max_links_per_interaction</code>', '<code>config/config.ini.php</code>')|raw }}</div></h2>
+{% endif %}
+
+<p class="widgetBody usersFlowIntroduction">
+    {{ 'UsersFlow_UsersFlowVisualizationDescription1'|translate }}
+    {{ 'UsersFlow_UsersFlowVisualizationDescription2'|translate('General_Others'|translate, 'UsersFlow_ColumnInteraction'|translate, 'UsersFlow_ActionShowDetails'|translate, 'UsersFlow_ExploreTraffic'|translate) }}
+</p>
+{% if showTitle %}
+<div class="card">
+    <div class="card-content">
+{% else %}
+<div class="widgetBody">
+{% endif %}
+
+<div piwik-users-flow-visualization
+     actions-per-step="{{ numActionsPerStep }}"
+     level-of-detail="{{ levelOfDetail }}"
+     user-flow-source="{{ userFlowSource }}">
+
+</div>
+
+{% if showTitle %}
+    </div>
+</div>
+{% else %}</div>{% endif %}
+

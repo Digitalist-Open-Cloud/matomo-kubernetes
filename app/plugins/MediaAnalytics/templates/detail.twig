@@ -1,0 +1,44 @@
+<div class="mediaDetailPage">
+    <h2>{{ title }}</h2>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p class="segmentLinkInfo">
+                {{ 'MediaAnalytics_SegmentToGetMoreDetails'|translate('<a href="javascript:void(0);" class="segmentLink">', title, '</a>')|raw }}
+            </p>
+        </div>
+    </div>
+
+    <div class="row frequency">
+        <div class="col-md-12">
+            <h3>{{ watchedTimeTitle|translate }}</h3>
+            <div class="frequencyChart">
+                {{ watchedTime|raw }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row frequency">
+        <div class="col-md-12" >
+            <h3>{{ watchedProgressTitle|translate }}</h3>
+            <div class="frequencyChart">{{ watchedProgress|raw }}</div>
+        </div>
+    </div>
+
+    <div class="row tableReport">
+        <div class="col-md-12">
+            <h3>{{ hoursTitle|translate }}</h3>
+            {{ hours|raw }}
+        </div>
+    </div>
+
+    {% if resolutions is defined and resolutions %}
+        <div class="row tableReport">
+            <div class="col-md-12">
+                <h3>{{ 'MediaAnalytics_TopResolutions'|translate }}</h3>
+                {{ resolutions|raw }}
+            </div>
+        </div>
+    {% endif %}
+
+</div>

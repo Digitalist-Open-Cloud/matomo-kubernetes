@@ -1,0 +1,47 @@
+<div class="manageRollUp">
+    <br />
+
+    <div ng-show="!manageRollUp.showAllSites">
+        <span for="rollupsiteid" class="siteSelectorLabel">{{ 'RollUpReporting_SelectMeasurable'|translate }}</span>
+
+        <div piwik-siteselector ng-model="manageRollUp.selectedSite"
+             switch-site-on-select="false"
+             id="rollupsiteid"
+             show-selected-site="true" only-sites-with-admin-access="true"
+             ng-change="manageRollUp.addSite(manageRollUp.selectedSite)">
+        </div>
+    </div>
+
+    <div ng-show="!manageRollUp.showAllSites">
+        <span for="rollupcontains">{{ 'RollUpReporting_SelectMeasurablesMatchingSearch'|translate }}</span><br />
+        <input class="control_text rollUpSearchMeasurablesField"
+               type="text"
+               placeholder="{{ 'General_Search'|translate }}"
+               id="rollupcontains"
+               ng-model="manageRollUp.containsText"
+        >
+        <input ng-disabled="!manageRollUp.containsText"
+               class="btn rollUpSearchFindMeasurables" value="{{ 'RollUpReporting_FindMeasurables'|translate }}"
+               type="button" ng-click="manageRollUp.addSitesContaining(manageRollUp.containsText)">
+    </div>
+
+    <table class="entityTable">
+        <thead>
+        <tr>
+            <th class="siteId">{{ 'General_Id'|translate }}</th>
+            <th class="siteName">{{ 'General_Name'|translate }}</th>
+            <th class="siteAction">{{ 'General_Remove'|translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-show="!manageRollUp.sites.length">
+                <td colspan="3">{{ 'RollUpReporting_NoMeasurableAssignedYet'|translate }}</td>
+            </tr>
+            <tr ng-repeat="site in manageRollUp.sites" ng-show="manageRollUp.sites.length > 0">
+                <td>{{ site.id }}</td>
+                <td>{{ site.name }}</td>
+                <td class="siteAction"><span class="icon-minus table-action" ng-click="manageRollUp.removeSite(site)"></span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

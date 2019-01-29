@@ -1,0 +1,11 @@
+<div class="alert alert-info">
+    {% if isAdmin %}
+        <p>{{ 'FormAnalytics_NoActiveForm'|translate }} {{ 'FormAnalytics_HowToGetStartedAdminAccess'|translate('<a href="' ~ linkTo({'module':"FormAnalytics", 'action':"manage"}) ~ '">', '</a>')|raw }}</p>
+    {% else %}
+        <p>{{ 'FormAnalytics_NoActiveForm'|translate }} {{ 'FormAnalytics_HowToGetStartedUserAccess'|translate }}</p>
+    {% endif %}
+
+    <p>
+        {{ 'FormAnalytics_ManageFormsIntroduction'|translate }}
+    </p>
+</div>

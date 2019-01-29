@@ -1,0 +1,8 @@
+{
+    "CustomOptOut": {
+        "ShowEditorOptionName": "Habilitar editor css",
+        "ShowEditorDescription": "Habilitar esta opción que visualiza el código \"css personalizado\" en un simple editor css.",
+        "EditorThemeOptionName": "Editor de tema",
+        "EditorThemeDescription": "Elija un tema para el editor."
+    }
+}

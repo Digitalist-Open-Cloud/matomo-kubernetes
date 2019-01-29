@@ -1,0 +1,28 @@
+{
+    "name": "CustomDimensions",
+    "version": "3.1.2",
+    "description": "Extend Piwik to your needs by defining and tracking Custom Dimensions in scope Action or Visit",
+    "theme": false,
+    "keywords": [
+        "custom dimensions",
+        "track"
+    ],
+    "license": "GPL v3+",
+    "homepage": "http:\/\/piwik.org",
+    "require": {
+        "piwik": ">=3.2.0-b3,<4.0.0-b1"
+    },
+    "support": {
+        "issues": "https://github.com/piwik/plugin-CustomDimensions/issues",
+        "forum": "https://forum.piwik.org",
+        "source": "https://github.com/piwik/plugin-CustomDimensions",
+        "wiki": "https://github.com/piwik/plugin-CustomDimensions/wiki"
+    },
+    "authors": [
+        {
+            "name": "Piwik",
+            "email": "hello@piwik.org",
+            "homepage": "http:\/\/piwik.org"
+        }
+    ]
+}

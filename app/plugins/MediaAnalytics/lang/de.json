@@ -1,0 +1,15 @@
+{
+  "MediaAnalytics": {
+    "Media": "Medien",
+    "MediaType": "Medientyp",
+    "MediaDetails": "Medien Details",
+    "ColumnImpressions": "Impressionen",
+    "Summary": "Medien Zusammenfassung",
+    "MediaPlayers": "Medien Player",
+    "DimensionTitle": "Titel",
+    "MediaTitle": "Medien Titel",
+    "SegmentNameMediaTitle": "Medien Titel",
+    "TypeRealTime": "Echtzeit",
+    "Hour": "Stunde"
+  }
+}

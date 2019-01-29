@@ -1,0 +1,44 @@
+<div class="piwikUsersFlowVisualization">
+    <div class="usersFlowActionBar">
+        <div piwik-field uicontrol="select" name="levelOfDetail"
+             title="{{ 'UsersFlow_OptionLevelOfDetail'|translate }}"
+             ng-model="usersFlow.levelOfDetail"
+             full-width="true"
+             options='usersFlow.levelOfDetailOptions'
+             ng-change="usersFlow.updateViewParams()"
+             class="levelOfDetail">
+        </div>
+        <div piwik-field uicontrol="select" name="actionsPerStep"
+             title="{{ 'UsersFlow_OptionNumActionsPerStep'|translate }}"
+             ng-model="usersFlow.numActionsPerStep"
+             full-width="true"
+             options='usersFlow.actionsPerStepOptions'
+            class="actionsPerStep">
+        </div>
+
+        <div piwik-field uicontrol="select" name="userFlowSource"
+             title="{{ 'General_Source'|translate }}"
+             ng-model="usersFlow.userFlowSource"
+             full-width="true"
+             options='usersFlow.flowSources'
+             class="userFlowSource">
+        </div>
+    </div>
+
+    <div class="exploringTraffic alert alert-info " ng-show="usersFlow.exploreStep && usersFlow.exploreUrl">
+        {{ 'UsersFlow_ExploringInfo'|translate:usersFlow.exploreUrl:usersFlow.exploreStep }}
+    </div>
+
+    <div piwik-activity-indicator loading="usersFlow.isLoading"></div>
+
+    <div class="sankeyChartOuter" ng-show="!usersFlow.isLoading">
+        <div ng-class="['linkDetail' + usersFlow.levelOfDetail]" class="sankeyChart"></div>
+    </div>
+
+    <div class="usersFlowPopupMenu"></div>
+
+    <div class="pk-emptyDataTable" ng-show="!usersFlow.hasData">
+        {{ 'CoreHome_ThereIsNoDataForThisReport'|translate }}
+    </div>
+
+</div>

@@ -1,0 +1,15 @@
+<li class="form-action"
+    title="{{ postEvent('Live.renderActionTooltip', action, visitInfo) }}">
+    <div>
+        {% if action.submitted %}
+            <span class="icon-form action-list-action-icon" title="{{ 'FormAnalytics_ColumnFormSubmissions'|translate }}"></span>
+        {% else %}
+            <span class="icon-form action-list-action-icon" title="{{ 'FormAnalytics_ColumnFormViews'|translate }}"></span>
+        {% endif %}
+        {% if action.submitted > 0 %}
+            {{ 'FormAnalytics_SubmittedFormX'|translate("<strong>" ~ action.formName ~ "</strong>")|raw }}
+        {% else %}
+            {{ 'FormAnalytics_InteractedWithFormX'|translate("<strong>" ~ action.formName ~ "</strong>")|raw }}
+        {% endif %}
+    </div>
+</li>

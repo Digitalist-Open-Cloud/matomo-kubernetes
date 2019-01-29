@@ -1,0 +1,31 @@
+{
+  "name": "SearchEngineKeywordsPerformance",
+  "version": "3.1.0",
+  "description": "All keywords searched by your users on search engines are now visible into your Referrers reports! The ultimate solution to 'Keyword not defined'.",
+  "theme": false,
+  "require": {
+    "piwik": ">=3.0.1,<4.0.0-b1",
+    "php": ">=5.5"
+  },
+  "authors": [
+    {
+      "name": "InnoCraft",
+      "email": "contact@innocraft.com",
+      "homepage": "https://www.innocraft.com"
+    }
+  ],
+  "price": {
+    "base": 125
+  },
+  "homepage": "https://plugins.matomo.org/SearchEngineKeywordsPerformance",
+  "license": "InnoCraft EULA",
+  "keywords": [
+    "Keyword",
+    "Crawling",
+    "Search",
+    "Google",
+    "Bing",
+    "Yahoo",
+    "SEO"
+  ]
+}

@@ -1,0 +1,127 @@
+<div piwik-content-intro>
+    <h2>{{ 'FormAnalytics_FormX'|translate(form.name) }}</h2>
+
+    {% macro matchRule(rule, attributeTranslations, patternTranslations) %}
+        {% if attributeTranslations[rule.attribute] is defined %}{{ attributeTranslations[rule.attribute] }}{% else %}{{ rule.attribute }}{% endif %}
+        {% if patternTranslations[rule.pattern] is defined %}{{ patternTranslations[rule.pattern] }}{% else %}{{ rule.pattern }}{% endif %}
+        {{ rule.value }}
+    {% endmacro %}
+
+    <div class="formSummary">
+        <p>
+            {% if form.description %}
+                <strong>{{ 'General_Description'|translate }}:</strong> {{ form.description }}
+                <br />
+            {% endif %}
+
+            <strong>{{ 'FormAnalytics_DataIsCollectedWhen'|translate }}:</strong>
+            {% if form.match_form_rules and form.match_form_rules|length %}
+                {% for rule in form.match_form_rules %}
+                    {{ _self.matchRule(rule, attributeTranslations, patternTranslations) }}
+                    {% if not loop.last %}
+                        {{ 'General_Or'|translate }}
+                    {% endif %}
+                {% endfor %}
+                <br />
+            {% endif %}
+
+            {% if form.match_form_rules and form.match_form_rules|length and form.match_page_rules and form.match_page_rules|length %}
+                {{ 'FormAnalytics_AndWhen'|translate }}
+            {% endif %}
+
+            {% if form.match_page_rules and form.match_page_rules|length %}
+                {% for rule in form.match_page_rules %}
+                    {{ _self.matchRule(rule, attributeTranslations, patternTranslations) }}
+                    {% if not loop.last %}
+                        {{ 'General_Or'|translate }}
+                    {% endif %}
+                {% endfor %}
+                <br />
+            {% endif %}
+
+            <strong>{{ 'FormAnalytics_FormIsConvertedWhen'|translate }}:</strong>
+            {% if form.conversion_rules and form.conversion_rules|length %}
+                {% for rule in form.conversion_rules %}
+                    {{ _self.matchRule(rule, attributeTranslations, patternTranslations) }}
+                    {% if not loop.last %}
+                        {{ 'General_Or'|translate }}
+                    {% endif %}
+                {% endfor %}
+                <br />
+            {% else %}
+                <span class="icon-warning"></span>
+                {% if canEditForm %}
+                    {{ 'FormAnalytics_NoConversionRulesDefinesAdmin'|translate('<a href="' ~ linkTo({'module': 'FormAnalytics', 'action': 'manage'}) ~ '#?idForm=' ~ form.idsiteform ~ '">', '</a>')|raw }}
+                {% else %}
+                    {{ 'FormAnalytics_NoConversionRulesDefinesView'|translate }}
+                {% endif %}
+                <br />
+            {% endif %}
+        </p>
+        <p>
+            {% if canEditForm %}
+                <a href="{{ linkTo({'module': 'FormAnalytics', 'action': 'manage'}) }}#?idForm={{ form.idsiteform }}"
+                ><span class="icon-edit"></span> {{ 'FormAnalytics_EditForm'|translate }}</a>
+            {% endif %}
+
+            {% if form.fields is defined and form.fields|length %}
+                <a href="javascript:void 0;"
+                   {% if canEditForm %}style="margin-left: 5px;"{% endif %}
+                   onclick="$('.formSummary .knownFormFields').toggle()"
+                   class="toggleKnownFormFields"
+                ><span class="{% if canEditForm %}icon-edit{% else %}icon-show{% endif %}"></span> {% if canEditForm %}{{ 'FormAnalytics_EditFormFields'|translate }}{% else %}{{ 'FormAnalytics_ViewFormFields'|translate }}{% endif %}</a>
+            {% endif %}
+
+            <br />
+
+            <a href="javascript:void(0)" class="segmentVisitorsByStarters" onclick="SegmentedVisitorLog.show('FormAnalytics.get', 'form_name=={{ form.idsiteform }};form_num_starts>0{% if segment %};{{ segment|e('js') }}{% endif %}', {})"
+            ><span class="icon-visitor-profile"></span> {{ 'FormAnalytics_ShowVisitorLogStarters'|translate }}</a>
+
+            <a href="javascript:void(0)" style="margin-left: 5px;" class="segmentVisitorsBySubmitters" onclick="SegmentedVisitorLog.show('FormAnalytics.get', 'form_name=={{ form.idsiteform }};form_num_submissions>0{% if segment %};{{ segment|e('js') }}{% endif %}', {})"
+            ><span class="icon-visitor-profile"></span> {{ 'FormAnalytics_ShowVisitorLogSubmitters'|translate }}</a>
+
+            <a href="javascript:void(0)" style="margin-left: 5px;" class="segmentVisitorsByConverters" onclick="SegmentedVisitorLog.show('FormAnalytics.get', 'form_name=={{ form.idsiteform }};form_converted==1{% if segment %};{{ segment|e('js') }}{% endif %}', {})"
+            ><span class="icon-visitor-profile"></span> {{ 'FormAnalytics_ShowVisitorLogConverters'|translate }}</a>
+            <br />
+        </p>
+        <a name="editformfields"></a>
+        <div class="knownFormFields" ng-controller="FormFieldsController as fieldCtrl">
+            <table piwik-content-table>
+                <thead>
+                    <tr>
+                        <th>{{ 'FormAnalytics_FieldName'|translate }}</th>
+                        <th>{{ 'FormAnalytics_FieldType'|translate }}</th>
+                        <th>{{ 'FormAnalytics_DisplayName'|translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for field in form.fields %}
+                    <tr>
+                        <td>{{ field.name|default('') }}</td>
+                        <td>{{ field.type|default('') }}</td>
+                        <td class="{% if canEditForm %}fieldDisplayNameInput{% endif %}">
+                            {% if canEditForm %}
+                                <div piwik-field uicontrol="text"
+                                     maxlength="50"
+                                     ng-model="fieldCtrl.names[{{ field.name|json_encode }}]"
+                                     value="{{ field.displayName|default('') }}"
+                                     full-width="true">
+                                </div>
+                            {% else %}
+                                <span title="{{ 'FormAnalytics_DisplayNameRequiresAdminAccess'|translate }}">{{ field.displayName|default('-') }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% if canEditForm %}
+                <tr>
+                    <td colspan="3"><div piwik-save-button
+                                         onconfirm="fieldCtrl.renameFields({{ form.idsiteform }})"
+                                         saving="fieldCtrl.isLoading"></div></td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

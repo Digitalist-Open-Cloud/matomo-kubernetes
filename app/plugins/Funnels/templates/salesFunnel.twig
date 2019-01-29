@@ -1,0 +1,32 @@
+<div ng-controller="SalesFunnelController as salesFunnel">
+    <div piwik-save-button
+         class="toggleEditSalesFunnel"
+         disabled="salesFunnel.showEditForm"
+         onconfirm="salesFunnel.showEditForm = !salesFunnel.showEditForm"
+         value="Edit sales funnel"
+         saving="salesFunnel.isLoading">
+    </div>
+
+    {% if idFunnel is not empty %}
+        <a class="btn" ng-click="salesFunnel.openFunnelReport({{ idFunnel }})">
+            <span class="icon-show"></span> {{ 'Funnels_ViewSalesFunnelReport'|translate }}
+        </a>
+    {% endif %}
+
+    <div ng-show="salesFunnel.showEditForm">
+        <br /><br />
+        <div piwik-manage-funnel show-goal="0"></div>
+        <div piwik-save-button
+             class="saveSalesFunnel"
+             onconfirm="salesFunnel.save()"
+             disabled="salesFunnel.isEnabled"
+             saving="salesFunnel.isLoading">
+        </div>
+
+        <div class="ui-confirm" id="funnelIsLockedCannotBeSaved">
+            <h3>{{ 'Funnels_FunnelIsLockedCannotBeSaved'|translate }}</h3>
+            <input role="yes" type="button" value="{{ 'General_Ok'|translate }}">
+        </div>
+    </div>
+
+</div>

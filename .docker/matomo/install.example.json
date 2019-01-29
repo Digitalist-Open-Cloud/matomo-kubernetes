@@ -1,0 +1,46 @@
+{
+    "document_root": "/var/www/html",
+    "login": "yourlogin",
+    "password": "yourpassword",
+    "email": "foo@bar.com",
+    "site_name": "Sydney Morning Herald",
+    "site_url": "http://www.smh.com.au",
+    "base_domain": "domain.where.piwik.is.installed",
+    "session_save_handler": "dbtable",
+    "geo_provider": "geoip_pecl",
+    "database": {
+        "host": "db",
+        "adapter": "Pdo\\Mysql",
+        "username": "piwik",
+        "password": "yoursuperstrongpiwikdatabasepasswordhere",
+        "dbname": "piwik",
+        "tables_prefix": "piwik_"
+    },
+    "branding": {
+        "header_url": "https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.6/assets/png/261d-1f3fb.png"
+    },
+    "privacy": {
+        "anonymize_ip": true,
+        "honor_do_not_track": true
+    },
+    "plugins": [
+        "YourPluginWhichYouveAlreadyPutInThePLUGINSDirectory"
+    ],
+    "deactivate_plugins": [
+        "ExamplePlugin"
+    ],
+    "extras": {
+        "General": {
+            "enable_framed_pages": 1,
+            "enable_framed_settings": 1,
+            "proxy_client_headers[]": "HTTP_X_FORWARDED_FOR"
+        },
+        "Tracker": {
+            "trust_visitors_cookies": 1,
+            "use_third_party_id_cookie": 1
+        }
+    },
+    "options": {
+        "Plugin_XXX_Settings": "Copy From Your Options Of A Manually Setup Plugin"
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "CustomOptOut": {
+        "ShowEditorOptionName": "CSS エディタを有効にします",
+        "ShowEditorDescription": "このエディターの単純な css の「カスタム css」コードを表示するオプション有効にします。",
+        "EditorThemeOptionName": "エディターのテーマ",
+        "EditorThemeDescription": "エディターのテーマを選択します。"
+    }
+}

@@ -1,0 +1,29 @@
+{% macro funnelSparkline(funnel, isWidget) %}
+
+    {% if not isWidget %}
+        <div class="row">
+        <div class="col-md-6">
+    {% endif %}
+
+    <div class="sparkline" title="{{ 'Funnels_ColumnNumFunnelConversionsDocumentation'|translate }}">
+        {{ sparkline(funnel.urlSparklineConversions) }}
+        {{ 'Goals_Conversions'|translate("<strong>"~funnel.numConversions|number~"</strong>")|raw }}
+    </div>
+
+    {% if not isWidget %}
+    </div>
+    <div class="col-md-6">
+    {% endif %}
+
+    <div class="sparkline" title="{{ 'Funnels_ColumnRateFunnelConversionDocumentation'|translate }}">
+        {{ sparkline(funnel.urlSparklineConversionRate) }}
+        {{ 'Goals_ConversionRate'|translate("<strong>"~funnel.conversionRate|percent~"</strong>")|raw }}
+    </div>
+
+    {% if not isWidget %}
+        </div>
+        </div>
+    {% endif %}
+
+
+{% endmacro %}

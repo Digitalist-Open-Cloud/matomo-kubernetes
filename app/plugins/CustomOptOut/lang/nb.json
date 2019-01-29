@@ -1,0 +1,8 @@
+{
+    "CustomOptOut": {
+        "ShowEditorOptionName": "Aktiver CSS-redigeringsprogram",
+        "ShowEditorDescription": "Aktiver dette valget for å vise «tilpasset css»-kode i en enkel css-redigerer.",
+        "EditorThemeOptionName": "Redigeringstema",
+        "EditorThemeDescription": "Velg et tema for redigeringsvinduet."
+    }
+}

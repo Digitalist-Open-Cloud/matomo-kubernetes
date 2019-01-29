@@ -1,0 +1,257 @@
+.keywordproviders, .accounts {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.keywordprovider {
+  width: 300px;
+  float: left;
+  padding: 20px;
+  border: 1px solid #D73F36;
+  margin-right: 20px;
+  position: relative;
+  text-align: justify;
+  padding-bottom: 70px;
+
+  .logo {
+    height: 200px;
+    line-height: 200px;
+    text-align: center;
+
+    &:after {
+      font-family: "piwik";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      line-height: 100%;
+      font-size: 50px;
+      content: "\e630";
+      color: #D73F36;
+    }
+
+    + .logo:after {
+      content: '';
+    }
+
+    img {
+      text-align: center;
+      max-height: 200px;
+      max-width: 100%;
+    }
+  }
+
+  .logo.double {
+    height: 100px;
+    line-height: 100px;
+
+    img {
+      max-height: 100px;
+    }
+  }
+
+  h3 {
+    margin-top: 15px;
+  }
+
+  .cta {
+    text-align: center;
+    bottom: 20px;
+    position: absolute;
+    width: inherit;
+    margin-left: -20px;
+  }
+
+  &.configured {
+
+    border-color: #1AA282;
+
+    .logo:after {
+      content: "\e63d";
+      color: #1AA282;
+    }
+
+    .cta button {
+      background-color: #1AA282;
+    }
+  }
+
+  &.warning {
+
+    border-color: #DF9D27;
+
+    .logo:after {
+      content: "\e621";
+      color: #DF9D27;
+    }
+
+    .cta button {
+      background-color: #DF9D27;
+    }
+  }
+}
+
+.clientconfighelp {
+  &:after {
+    font-family: "piwik";
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    line-height: 100%;
+    font-size: 50px;
+    content: "\e624";
+    color: #838383;
+  }
+}
+
+.websiteconfiguration, .clientconfiguration, .oauthconfiguration, .accountconfiguration {
+
+  border: 2px solid #D73F36;
+
+  &:after {
+    font-family: "piwik";
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    line-height: 100%;
+    font-size: 50px;
+    content: "\e630";
+    color: #D73F36;
+  }
+
+  &.configured {
+    border: inherit;
+
+    &:after {
+      content: "\e63d";
+      color: #1AA282;
+    }
+  }
+}
+
+.account {
+  width: 300px;
+  float: left;
+  padding: 20px;
+  border: 1px solid #1AA282;
+  margin-right: 20px;
+  position: relative;
+  text-align: justify;
+  padding-bottom: 70px;
+
+  h3 {
+    text-align: center;
+  }
+
+  ul {
+    margin-bottom: 15px;
+  }
+
+  &.add {
+    border: 1px solid #838383;
+  }
+
+  &.invalid {
+    border: 1px solid #D73F36;
+
+    .logo.icon-add {
+      color: #D73F36
+    }
+  }
+
+  .logo {
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+
+    &.icon-warning {
+      font-size: 50px;
+      color: #D73F36;
+    }
+
+    &.icon-add {
+      font-size: 50px;
+      color: #838383;
+    }
+
+    &.icon-success {
+      font-size: 50px;
+      color: #1AA282;
+    }
+
+    img {
+      text-align: center;
+      max-height: 100px;
+      max-width: 100%;
+    }
+  }
+
+  .cta {
+    text-align: center;
+    bottom: 20px;
+    position: absolute;
+    width: 100%;
+    margin-left: -20px;
+  }
+
+  .accounterror {
+    color: #D73F36!important;
+    font-weight: bolder;
+
+    .icon-warning {
+      display: block;
+      float: left;
+      font-size: 1.5em;
+      line-height: 2em;
+      padding-right: 5px;
+    }
+  }
+}
+
+.configureMeasurableForm {
+  .form-group {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  input[type=submit] {
+    margin-top: 20px;
+  }
+
+  .col {
+    padding: 0;
+  }
+
+  label {
+    left: 0;
+  }
+}
+
+.measurableList {
+
+  th.error {
+    border: 1px solid #D73F36;
+  }
+
+  .icon-error {
+    color: #D73F36;
+  }
+
+  button.icon-delete {
+    line-height: inherit;
+    height: inherit;
+  }
+}
+
+#googleurlinfo {
+  h2 {
+    word-break: break-all;
+  }
+
+  ul, li {
+    list-style: disc outside;
+    padding-top: 6px;
+    margin-left: 10px;
+    word-break: break-all;
+  }
+}

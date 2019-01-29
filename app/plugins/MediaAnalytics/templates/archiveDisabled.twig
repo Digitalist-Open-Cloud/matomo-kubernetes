@@ -1,0 +1,38 @@
+<div class="mediaNoBrowserSegmentation system notification notification-warning" style="margin-top: 24px;">
+    <strong>{{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledTitle'|translate }}</strong><br />
+
+    {{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledWaysToFix'|translate }}
+    <br />
+
+    <ul>
+        <li>{{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledWay1'|translate('<code>browser_archiving_disabled_enforce = 0</code>', '<code>config/config.ini.php</code>')|raw }}
+            <br />{{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledWay1_2'|translate }}
+        </li>
+        <li>{{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledWay2'|translate('<code>config/config.ini.php</code>')|raw }}<br />
+            <pre><code>[Segments]
+; needed for Media Analytics "Audience Map" report
+Segments[]="media_spent_time>0"</code></pre>
+            {{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledWay2_1'|translate }}</li>
+        {% if canAddSegment %}
+            <li>{{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledWay3'|translate('MediaAnalytics_NameOfActualSegmentHasPlayedMedia'|translate) }}
+                <br />
+                <input id="addSegmentPlay" type="button" class="btn" value="{{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledAdd'|translate('MediaAnalytics_NameOfActualSegmentHasPlayedMedia'|translate) }}">
+
+                <script type="text/javascript">
+                    $('#addSegmentPlay').click(function () {
+                        var ajax = new ajaxHelper();
+                        ajax.addParams({module: 'API', format: 'json', method: 'MediaAnalytics.addMediaPlaySegment'}, 'GET');
+                        ajax.setCallback(function () {
+                            location.reload();
+                        });
+                        ajax.send();
+                    });
+                </script>
+
+            </li>
+        {% else %}
+            <li>{{ 'MediaAnalytics_SegmentBrowserArchivingIsDisabledWay4'|translate }}</li>
+        {% endif %}
+
+    </ul>
+</div>

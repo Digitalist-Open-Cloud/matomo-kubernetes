@@ -1,0 +1,34 @@
+<div class="col m6" ng-mouseleave="activity.showtimezone = false">
+    <img width="40" ng-if="activity.avatar" ng-click="activityLogModel.filter.userLogin = activity.user_login; activityLogModel.applyFilter();" ng-src="{{ activity.avatar }}" class="activity-avatar"/>
+
+    <img class="activity-country" ng-if="activity.ip || activity.country" ng-src="{{ activity.country_flag }}" ng-attr-title="{{activity.ip && ('ActivityLog_UserCountryWithIP'|translate:activity.country_name:activity.ip) || ('ActivityLog_UserCountry'|translate:activity.country_name) }}" />
+    <div class="activity-time"
+         ng-show="!activity.showtimezone || !activity.time_relative_pretty"
+         data-timestamp="{{ activity.datetime }}"
+         ng-mouseover="activity.showtimezone = true"
+         ng-mouseleave="activity.showtimezone = false">
+        {{ activity.datetime_pretty }} <span>(UTC)</span>
+    </div>
+    <div class="activity-time"
+         ng-show="activity.showtimezone && activity.time_relative_pretty"
+         data-timestamp="{{ activity.datetime }}"
+         ng-mouseover="activity.showtimezone = true"
+         ng-mouseleave="activity.showtimezone = false">
+        {{ activity.time_relative_pretty }}
+    </div>
+    <div class="activity-action">
+        <span ng-click="activityLogModel.filter.userLogin = activity.user_login; activityLogModel.applyFilter();" class="activity-action-login">
+            <span ng-if="activity.user_login == 'Console Command'"><strong>{{ 'ActivityLog_ConsoleCommand'|translate }}</strong></span>
+            <span ng-if="activity.user_login == 'Matomo System'"><strong>{{ 'ActivityLog_System'|translate }}</strong></span>
+            <span ng-if="activity.user_login != 'Console Command' && activity.user_login != 'Matomo System' ">
+                <strong>{{ activity.user_login }}</strong> <span
+                    ng-if="(activityLogModel.availableUsers|filter:{key:activity.user_login}).length == 0">({{
+                'CorePluginsAdmin_Inactive'|translate }})</span>
+            </span>
+        </span>
+        {{ activity.description }}
+    </div>
+</div>
+<div class="activity-items col m6" ng-mouseleave="activity.showtimezone = false">
+    <div class="activity-item" ng-repeat="item in activity.parameters.items" activity-item="item"></div>
+</div>

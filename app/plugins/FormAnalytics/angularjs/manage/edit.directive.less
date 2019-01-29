@@ -1,0 +1,28 @@
+
+.editForm {
+  .icon-help {
+    color: #888;
+    cursor: help;
+    &:hover {
+      color: @theme-color-text;
+    }
+  }
+  .icon-minus,
+  .icon-plus {
+    cursor: pointer;
+  }
+  .icon-minus {
+    margin-left: 8px;
+  }
+
+  .conversionRules > .row,
+  .matchPageRules > .row,
+  .matchFormRules > .row {
+    width: ~"calc(100% - 60px)";
+    margin: 0 !important;
+
+    > .col {
+      padding-left: 0;
+    }
+  }
+}

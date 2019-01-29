@@ -1,0 +1,8 @@
+{
+    "CustomOptOut": {
+        "ShowEditorOptionName": "Schakel css editor in",
+        "ShowEditorDescription": "Schakel deze optie in om de \"custom css\" in een simpele css Editor weer te geven.",
+        "EditorThemeOptionName": "Editor Thema",
+        "EditorThemeDescription": "Kies een thema voor de editor"
+    }
+}

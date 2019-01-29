@@ -1,0 +1,25 @@
+{
+    "name": "UsersFlow",
+    "description": "Users Flow is a visual representation of the most popular paths your users take through your website & app which lets you understand your users needs",
+    "version": "3.1.4",
+    "theme": false,
+    "require": {
+        "piwik": ">=3.0.0-b5,<4.0.0-b1"
+    },
+    "authors": [
+        {
+            "name": "InnoCraft",
+            "email": "contact@innocraft.com",
+            "homepage": "https://www.innocraft.com"
+        }
+    ],
+    "price": {
+        "base": 75
+    },
+    "archive": {
+        "exclude": ["/CHANGELOG.md"]
+    },
+    "homepage": "https://plugins.matomo.org/UsersFlow",
+    "license": "InnoCraft EULA",
+    "keywords": ["visitors", "users", "flow", "path", "goal", "sales", "click", "interaction", "cro", "conversion", "optimization", "marketing"]
+}

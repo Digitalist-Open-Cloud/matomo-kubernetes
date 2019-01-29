@@ -1,0 +1,72 @@
+<div piwik-content-block content-title="{{ 'Funnels_FunnelX'|translate('General_Overview'|translate)|e('html_attr') }}">
+    <div class="funnelsReport">
+
+        <div class="funnelSummary">
+            <ul>
+                <li>
+                {{ 'Funnels_FunnelMetricsSummary'|translate('<strong>' ~ funnel.numConversions, funnel.numEntries, '</strong>', '<strong>' ~ funnel.conversionRate, '</strong>', '<strong>' ~ funnel.abandonedRate, '</strong>')|raw }}
+                </li>
+                {% if goalsSummary %}
+                    <li>
+                    {{ 'Funnels_GoalMetricSummary1'|translate('<strong>' ~ goalsSummary.getColumn('nb_conversions'), '</strong>', '<strong>' ~ goalsSummary.getColumn('conversion_rate'), '</strong>')|raw }}
+                    {%- if goalsSummary.getColumn('revenue') %}
+                    {{ 'Funnels_GoalMetricSummary2'|translate('<strong>' ~ goalsSummary.getColumn('revenue')|money(idsite) ~ '</strong>')|raw }}
+                    {%- endif -%}.
+                    </li>
+                {% endif %}
+            </ul>
+            <p>
+                <a href="javascript:void(0)" class="segmentVisitorsByFunnel" onclick="SegmentedVisitorLog.show('Funnel.getFunnelFlow', 'funnels_name=={{ funnel.idfunnel }}{% if segment %};{{ segment|e('js') }}{% endif %}', {})"
+                ><span class="icon-visitor-profile"></span> {{ 'Live_RowActionTooltipWithDimension'|translate('Funnels_Funnel'|translate) }}</a>
+                <br />
+
+                <a href="javascript:void(0)" onclick="$('.funnelsReport .funnelsConfiguration').toggle()"
+                   class="toggleFunnelConfiguration"
+                    ><span class="icon-show"></span> {{ 'Funnels_ShowFunnelSummary'|translate }}</a>
+                <br />
+                <br />
+            </p>
+        </div>
+
+        <div class="funnelsConfiguration">
+            <table piwik-content-table>
+                <thead>
+                    <tr>
+                        <th>{{ 'Funnels_Step'|translate }}</th>
+                        <th>{{ 'Goals_Pattern'|translate }}</th>
+                        <th>{{ 'Funnels_RequiredColumnTitle'|translate }}</th>
+                        <th>{{ 'Funnels_Entries'|translate }}</th>
+                        <th>{{ 'General_ColumnNbVisits'|translate }}</th>
+                        <th>{{ 'Funnels_Exits'|translate }}</th>
+                        <th>{{ 'Funnels_ColumnProceededRate'|translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in funnel.steps %}
+                    <tr>
+                        <td>{{ step.position }}. {{ step.name }}</td>
+                        <td>{% if patternTranslations[step.pattern_type] is defined %}{{ patternTranslations[step.pattern_type] }}{% else %}{{ step.pattern_type }}{% endif %} "{{ step.pattern }}"</td>
+                        <td>{% if step.required %}{{ 'General_Yes'|translate }}{% else %}{{ 'General_No'|translate }}{% endif %}</td>
+                        <td>{% if funnelFlow and funnelFlow.getRowFromLabel(step.name) %}{{ funnelFlow.getRowFromLabel(step.name).getColumn('step_nb_entries')|default(0) }}{% else %}0{% endif %}</td>
+                        <td>{% if funnelFlow and funnelFlow.getRowFromLabel(step.name) %}{{ funnelFlow.getRowFromLabel(step.name).getColumn('step_nb_visits')|default(0) }}{% else %}0{% endif %}</td>
+                        <td>{% if funnelFlow and funnelFlow.getRowFromLabel(step.name) %}{{ funnelFlow.getRowFromLabel(step.name).getColumn('step_nb_exits')|default(0) }}{% else %}0{% endif %}</td>
+                        <td>{% if funnelFlow and funnelFlow.getRowFromLabel(step.name) %}{{ funnelFlow.getRowFromLabel(step.name).getColumn('step_proceeded_rate')|default('-') }}{% else %}-{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <tr>
+                        <td>{{ funnel.final_step_position }}. {{ 'Funnels_Completed'|translate }} </td>
+                        <td>{{ 'Funnels_ConvertsGoal'|translate }} "{{ funnel.name }}"</td>
+                        <td>{{ 'General_Yes'|translate }}</td>
+                        <td>{% if funnelFlow and funnelFlow.getRowFromLabel(funnel.name) %}{{ funnelFlow.getRowFromLabel(funnel.name).getColumn('step_nb_entries')|default(0) }}{% else %}0{% endif %}</td>
+                        <td>{{ funnel.numConversions }}</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <br />
+        </div>
+    </div>
+</div>

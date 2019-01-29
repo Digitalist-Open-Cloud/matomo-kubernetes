@@ -1,0 +1,24 @@
+{% extends 'admin.twig' %}
+
+{% set title %}{{ 'ActivityLog_ActivityLog'|translate }}{% endset %}
+
+{% block content %}
+
+    <div piwik-content-block
+         content-title="{{ title|e('html_attr') }}"
+         feature="true"
+    >
+
+    {% if isSuperUser %}
+        <p>With the Activity Log, also known as audit log or audit trail, you keep an eye on everything that is happening on your Matomo.
+           Below you see a record of all important activities performed by your Matomo users. It helps you for example
+            to monitor data for any potential security breach and to identify problems, why something happened and when.
+        </p>
+    {% else %}
+        <p>With the Activity Log, also known as audit log or audit trail, you keep an eye on all of your activities in Matomo.</p>
+    {% endif %}
+
+    {% include '@ActivityLog/activitylog.twig' %}
+    </div>
+
+{% endblock %}

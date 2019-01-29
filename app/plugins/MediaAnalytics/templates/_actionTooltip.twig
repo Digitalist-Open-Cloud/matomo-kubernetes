@@ -1,0 +1,33 @@
+
+{% if action.media_type == 'audio' %}
+    {{ 'MediaAnalytics_MediaType'|translate }}: {{ 'MediaAnalytics_TypeVideo'|translate }}
+{% elseif action.media_type == 'video' %}
+    {{ 'MediaAnalytics_MediaType'|translate }}: {{ 'MediaAnalytics_TypeAudio'|translate }}
+{% endif %}
+{% if action.player_name %}
+    {{ 'MediaAnalytics_PlayerName'|translate }}: {{ action.player_name|rawSafeDecoded }}
+{% endif %}
+{% if action.media_length != '' %}
+    {{ 'MediaAnalytics_MediaLength'|translate }}: {{ action.media_length|sumtime }}
+    {%- if action.media_length > 0 %}
+        {% set progress = (100 * action.media_progress / action.media_length) %}
+        {% set fraction = progress < 2 ? 2 : (progress < 5 ? 1 : 0) %}
+        {% if action.media_type == 'audio' %}
+            ({{ 'MediaAnalytics_TimeListened'|translate(progress|percent(fraction)) }})
+        {% else %}
+            ({{ 'MediaAnalytics_TimeWatched'|translate(progress|percent(fraction)) }})
+        {% endif %}
+    {% endif -%}
+{% endif %}
+{% if action.time_to_initial_play != '' %}
+    {{ 'MediaAnalytics_TimeToInitialPlay'|translate }}: {{ action.time_to_initial_play|sumtime }}
+{% endif %}
+{% if action.watched_time != '' %}
+    {{ 'MediaAnalytics_WidgetTitleSpentTime'|translate }}: {{ action.watched_time|sumtime }}
+{% endif %}
+{% if action.media_type == 'video' and action.resolution %}
+    {{ 'MediaAnalytics_Resolution'|translate }}: {{ action.resolution }}
+{% endif %}
+{% if action.media_type == 'video' %}
+    {{ 'MediaAnalytics_Fullscreen'|translate }}: {% if action.fullscreen %}{{ 'General_Yes'|translate }}{% else %}{{ 'General_No'|translate }}{% endif %}
+{% endif %}

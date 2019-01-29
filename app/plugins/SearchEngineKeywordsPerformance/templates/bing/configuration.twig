@@ -1,0 +1,210 @@
+{% extends 'admin.twig' %}
+
+{% set title %}{{ 'SearchEngineKeywordsPerformance_SearchEngineKeywordsPerformance'|translate }}{% endset %}
+
+{% block content %}
+
+    <div piwik-content-block
+         content-title="{{ title|e('html_attr') }}"
+    >
+
+        <h2>{{ 'SearchEngineKeywordsPerformance_BingConfigurationTitle'|translate }}</h2>
+
+        {{ 'SearchEngineKeywordsPerformance_BingConfigurationDescription'|translate }}
+
+    </div>
+
+    {% if accounts|length > 0 %}
+
+        <div piwik-content-block class="websiteconfiguration{% if configuredMeasurables %} configured{% endif %}"
+             content-title="{{ 'SearchEngineKeywordsPerformance_ConfigureMeasurables'|translate|e('html_attr') }}">
+
+            <p>{{ 'SearchEngineKeywordsPerformance_ConfigureMeasurableBelow'|translate }}</p>
+
+
+            <div class="ui-confirm" id="confirmRemoveAccountConfig">
+                <h2>{{ 'SearchEngineKeywordsPerformance_ConfigRemovalConfirm'|translate('<span id="removeaccountconfig"></span>')|raw }}</h2>
+                <input role="yes" type="button" value="{{ 'General_Yes'|translate }}"/>
+                <input role="no" type="button" value="{{ 'General_No'|translate }}"/>
+            </div>
+
+            <div>
+                <table piwik-content-table class="measurableList">
+                    <thead>
+                    <tr>
+                        <th>{{ 'General_Measurable'|translate }}</th>
+                        <th>{{ 'Mobile_Account'|translate }}</th>
+                        <th>{{ 'Goals_URL'|translate }}</th>
+                        <th>{{ 'SearchEngineKeywordsPerformance_LastImport'|translate }}</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if configuredMeasurables|length == 0 %}
+                        <tr>
+                            <td colspan="5">
+                                <strong>{{ 'SearchEngineKeywordsPerformance_NoWebsiteConfigured'|translate }}</strong>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    {% for siteId,config in configuredMeasurables %}
+
+                        {% set accountAndUrl = config.bingSiteUrl|split('##') %}
+
+                        {% if accounts[accountAndUrl[0]] is defined %}
+                            <tr class="{% if not sitesInfos[siteId]['accountValid'] or not sitesInfos[siteId]['urlValid'] %}error{% endif %}">
+                                <td>
+                                    {{ sitesInfos[siteId].name }} <span>({{ sitesInfos[siteId].main_url }})</span>
+                                </td>
+
+                                {% set apiKeyDisplay = accounts[accountAndUrl[0]].apiKey|slice(0, 5) ~ '*****' ~ accounts[accountAndUrl[0]].apiKey|slice(-5, 5) %}
+
+                                <td>{% if not sitesInfos[siteId]['accountValid'] %}<span class="icon-error"></span> {% endif %}{{ apiKeyDisplay }}</td>
+                                <td>{% if not sitesInfos[siteId]['urlValid'] %}<span class="icon-error"></span> {% endif %}{{ accountAndUrl[1] }}</td>
+                                <td>{{ sitesInfos[siteId].lastRun }}</td>
+                                <td>
+                                    <form method="POST" action=""
+                                          onsubmit="$('#removeaccountconfig').html('{{ sitesInfos[siteId].name|e('html_attr') }}'); var form = this; piwikHelper.modalConfirm('#confirmRemoveAccountConfig', {yes: function() { form.submit(); }}); return false;">
+                                        <input type="hidden" name="removeConfig" value="{{ siteId }}">
+                                        <button type="submit" class="btn-flat icon-delete" title="{{ 'General_Delete'|translate }}"></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr>
+                        <td colspan="5" align="right">
+                            <button class="btn"
+                                    onclick="$('.configureMeasurableForm').show(); $(this).parents('tr').hide(); return false">
+                                {{ 'SearchEngineKeywordsPerformance_AddConfiguration'|translate }}
+                            </button>
+                        </td>
+                    </tr>
+                    <tr style="display: none;" class="configureMeasurableForm">
+                        <td>
+                            <div piwik-field uicontrol="site" ng-model="form.site"
+                                 title="{{ 'CoreHome_ChooseX'|translate('General_Measurable'|translate) }}">
+                            </div>
+                        </td>
+                        <td>
+                            <div piwik-field uicontrol="select" ng-model="form.bingAccountAndUrl"
+                                 title="{{ 'SearchEngineKeywordsPerformance_UrlOfAccount'|translate|e('html_attr') }}"
+                                 options='{{ urlOptions|json_encode }}'>
+                            </div>
+                        </td>
+                        <td colspan="3">
+                            <form action="" method="post">
+                                <input type="hidden" name="bingSiteId" ng-value="form.site.id">
+                                <input type="hidden" name="bingAccountAndUrl" ng-value="form.bingAccountAndUrl">
+                                <input type="submit" class="btn" value="{{ 'General_Save'|translate }}" />
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    <div piwik-content-block class="accountconfiguration{% if accounts|length > 0 %} configured{% endif %}"
+         content-title="{{ 'SearchEngineKeywordsPerformance_ManageAPIKeys'|translate|e('html_attr') }}"
+    >
+
+        <div class="ui-confirm" id="confirmDeleteAccount">
+            <h2>{{ 'SearchEngineKeywordsPerformance_AccountRemovalConfirm'|translate('<span id="removeaccountname"></span>')|raw }}</h2>
+            <input role="yes" type="button" value="{{ 'General_Yes'|translate }}"/>
+            <input role="no" type="button" value="{{ 'General_No'|translate }}"/>
+        </div>
+
+        <div class="accounts">
+
+            {% for account in accounts %}
+                <div class="account {% if account.urls|length == 0 or account.hasError is defined %}invalid{% endif %}">
+
+                    <div class="icon-{% if account.urls|length == 0 or account.hasError is defined %}warning{% else %}success{% endif %} logo"></div>
+
+                    {% set apiKeyDisplay = account.apiKey|slice(0, 5) ~ '*****' ~ account.apiKey|slice(-5, 5) %}
+
+                    <h3>{{ apiKeyDisplay }}</h3>
+
+                    <p>
+                        {{ 'SearchEngineKeywordsPerformance_AccountAddedBy'|translate(account.username, account.created_formated)|raw }}
+                    </p>
+
+                    {% if account.hasError is defined %}
+                        <p class="accounterror"><span
+                                    class="icon-warning"></span> {{ 'SearchEngineKeywordsPerformance_BingAccountError'|translate(account.hasError ) }}
+                        </p>
+                    {% else %}
+                        {% if account.urls|length == 0 %}
+                            <p class="accounterror"><span
+                                        class="icon-warning"></span> {{ 'SearchEngineKeywordsPerformance_AccountNoAccess'|translate }}
+                            </p>
+                        {% else %}
+                            {% if true in account.urls %}
+                                <p>{{ 'SearchEngineKeywordsPerformance_AvailableSites'|translate }}</p>
+
+                                <ul>
+                                    {% for url,isVerified in account.urls %}
+                                        {% if isVerified %}
+                                            <li><span class="icon-success"></span> {{ url }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="accounterror"><span
+                                            class="icon-warning"></span> {{ 'SearchEngineKeywordsPerformance_AccountNoAccess'|translate }}
+                                </p>
+                            {% endif %}
+
+                            {% if false in account.urls %}
+                                <p>{{ 'SearchEngineKeywordsPerformance_UnverifiedSites'|translate }}</p>
+
+                                <ul>
+                                    {% for url,isVerified in account.urls %}
+                                        {% if not isVerified %}
+                                            <li><span class="icon-error"></span> {{ url }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    <div class="cta">
+                        <form method="POST" action=""
+                              onsubmit="$('#removeaccountname').text('{{ apiKeyDisplay }}'); var form = this; piwikHelper.modalConfirm('#confirmDeleteAccount', {yes: function() { form.submit(); }}); return false;">
+                            <input type="hidden" name="remove" value="{{ account.apiKey }}">
+                            <button type="submit" class="btn">{{ 'General_Remove'|translate }}</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="account add {% if error is defined %}invalid{% endif %}">
+                <form method="POST" action="">
+                    <div class="icon-add logo"></div>
+
+                    <h3>{{ 'SearchEngineKeywordsPerformance_AddAPIKey'|translate }}</h3>
+
+                    {{ 'SearchEngineKeywordsPerformance_BingAPIKeyInstruction'|translate('<a href="http://www.bing.com/toolbox/webmaster/" target="_new">', '</a>', '<a href="https://www.bing.com/webmaster/home/api" target="_new">', '</a>')|raw }}
+
+                    {% if error is defined %}
+                        <p class="accounterror"><br /><span
+                                    class="icon-warning"></span> {{ 'SearchEngineKeywordsPerformance_BingAccountError'|translate(error ) }}
+                        </p>
+                    {% endif %}
+
+                    <div piwik-field uicontrol="text" full-width="true" name="apikey" value="{{ apikey }}"
+                         title="{{ 'SearchEngineKeywordsPerformance_APIKey'|translate|e('html_attr') }}"></div>
+
+                    <div class="cta">
+                        <button type="submit" class="btn">{{ 'SearchEngineKeywordsPerformance_AddAPIKey'|translate }}</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="clear"></div>
+        </div>
+
+    </div>
+{% endblock %}

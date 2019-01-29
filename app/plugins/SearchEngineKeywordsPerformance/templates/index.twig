@@ -1,0 +1,44 @@
+{% extends 'admin.twig' %}
+
+{% set title %}{{ 'SearchEngineKeywordsPerformance_SearchEngineKeywordsPerformance'|translate }}{% endset %}
+
+{% block content %}
+
+    <div piwik-content-block
+         content-title="{{ title|e('html_attr') }}"
+    >
+
+        <p>{{ 'SearchEngineKeywordsPerformance_ConfigurationDescription'|translate }}</p>
+
+        <p>{{ 'SearchEngineKeywordsPerformance_ProviderListDescription'|translate }}</p>
+
+        <div class="keywordproviders">
+
+            {% for provider in providers %}
+                {% set problems = provider.getConfigurationProblems() %}
+                <div class="keywordprovider {% if provider.isConfigured() and (provider.getConfiguredSiteIds()|length == 0 or problems.sites|length or problems.accounts|length) %}warning{% elseif provider.isConfigured() %}configured{% endif %}">
+                    {% set logos = provider.getLogoUrls() %}
+                    {% for logo in logos %}
+                        <div class="logo {% if logos|length > 1 %}double{% endif %}" title=" {% if provider.isConfigured() and provider.getConfiguredSiteIds()|length == 0 %}{{ 'SearchEngineKeywordsPerformance_ConfigAvailableNoWebsiteConfigured'|translate }}{% elseif provider.isConfigured() %}{{ 'SearchEngineKeywordsPerformance_IntegrationConfigured'|translate }}{% else %}{{ 'SearchEngineKeywordsPerformance_IntegrationNotConfigured'|translate }}{% endif %}">
+                            <img src="{{ logo }}" alt="{{ provider.getName() }}">
+                        </div>
+                    {% endfor %}
+                    <h3>{{ provider.getName() }}</h3>
+                    <p>{{ provider.getDescription()|raw }}</p>
+                    <p><em>{{ provider.getNote()|raw }}</em></p>
+
+                    <a href="{{ linkTo({'action': 'configure' ~ provider.getId() }) }}" class="cta">
+                        {% if provider.isConfigured() %}
+                            <button class="btn">{{ 'SearchEngineKeywordsPerformance_ChangeConfiguration'|translate }}</button>
+                        {% else %}
+                            <button class="btn">{{ 'SearchEngineKeywordsPerformance_SetupConfiguration'|translate }}</button>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+
+            <div class="clear"></div>
+        </div>
+    </div>
+
+{% endblock %}

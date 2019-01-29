@@ -1,0 +1,8 @@
+{
+    "CustomOptOut": {
+        "ShowEditorOptionName": "Ενεργοποίηση του επεξεργαστή css",
+        "ShowEditorDescription": "Ενεργοποιήστε αυτή την επιλογή για να εμφανίζεται ο \"προσαρμοσμένος κώδικας css\" στον απλό επεξεργαστή css.",
+        "EditorThemeOptionName": "Θεματική παραλλαγή του επεξεργαστή",
+        "EditorThemeDescription": "Επιλέξτε μια θεματική παραλλαγή για τον επεξεργαστή."
+    }
+}

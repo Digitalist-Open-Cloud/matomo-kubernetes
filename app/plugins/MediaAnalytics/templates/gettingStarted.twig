@@ -1,0 +1,31 @@
+<div class="isFirstWidgetInPage">
+    <div piwik-content-block content-title="{{ 'MediaAnalytics_GettingStarted'|translate }}">
+        <p style="width: 600px;">
+            <br />
+            <strong>{{ 'MediaAnalytics_NoMediaTrackedYet'|translate('"' ~ (siteName|rawSafeDecoded) ~ '"')|raw }}.</strong>
+            <br /><br />
+            {{ 'MediaAnalytics_NoMediaTrackedYetDescription'|translate }} <br />
+            <a href="https://developer.matomo.org/guides/media-analytics/setup"
+               rel="noreferrer" target="_blank">{{ 'MediaAnalytics_NoMediaTrackedYetMoreInfo'|translate }}</a>.
+        </p>
+        <p style="width: 600px;">
+            {{ 'MediaAnalytics_NoMediaTrackedYetWillDisappear'|translate }}
+        </p>
+
+        {% if not piwikJsWritable %}
+            <br />
+            <div class="alert alert-warning">
+                {{ 'MediaAnalytics_PiwikJsNotWritable1'|translate }}
+
+                <br />
+                <pre piwik-select-on-focus><code>chmod 0755 piwik.js</code></pre>
+
+                {{ 'MediaAnalytics_PiwikJsNotWritable2'|translate }}
+
+                <br />
+                <pre piwik-select-on-focus><code>&lt;script type="text/javascript" src="{{ piwikUrl|default('') }}plugins/MediaAnalytics/tracker.js"&gt;&lt;/script&gt;</code></pre>
+
+            </div>
+        {% endif %}
+    </div>
+</div>

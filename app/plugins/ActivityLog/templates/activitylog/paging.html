@@ -1,0 +1,34 @@
+<div class="paging" ng-show="!activityLogModel.busy && (activityLogModel.hasPrev || activityLogModel.hasNext)">
+    <a class="btn prev" ng-disabled="!activityLogModel.hasPrev" ng-click="activityLogModel.previousPage()">
+        <span style="cursor:pointer;">&#171; {{ 'General_Previous'|translate }}</span>
+    </a>
+    <span class="counter" ng-show="activityLogModel.hasPrev || activityLogModel.hasNext">
+        <span ng-if="activityLogModel.searchTerm">
+            {{ 'General_PaginationWithoutTotal'|translate:activityLogModel.offsetStart:activityLogModel.offsetEnd }}
+        </span>
+        <span ng-if="!activityLogModel.searchTerm">
+            {{ 'General_Pagination'|translate:activityLogModel.offsetStart:activityLogModel.offsetEnd:activityLogModel.totalNumberOfSites }}
+        </span>
+    </span>
+    <a class="btn next" ng-disabled="!activityLogModel.hasNext" ng-click="activityLogModel.nextPage()">
+        <span style="cursor:pointer;" class="pointer">{{ 'General_Next'|translate }} &#187;</span>
+    </a>
+</div>
+
+<div class="loadingPiwik" ng-show="activityLogModel.busy">
+    <img src="plugins/Morpheus/images/loading-blue.gif" alt="{{ 'General_LoadingData'|translate }}"/>
+    {{ 'General_LoadingData'|translate }}
+</div>
+
+<a class="btn reload"  ng-click="activityLogModel.applyFilter()">
+    <span class="icon icon-reload"></span> {{ 'General_Refresh'|translate }}
+</a>
+
+<div class="user-filter" ng-if="hasSuperUserAccess">
+    <span>{{ 'ActivityLog_FilterByUser'|translate }}:</span>
+
+    <select ng-model="activityLogModel.filter.userLogin"
+            ng-change="activityLogModel.applyFilter()"
+            ng-options="o.key as o.value for o in activityLogModel.availableUsers">
+    </select>
+</div>

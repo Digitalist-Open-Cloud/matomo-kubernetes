@@ -1,0 +1,9 @@
+<span class="item-data-title icon-admin-development"></span>
+<span class="item-name">{{ 'General_Plugin'|translate }} {{ item.data.name }}:</span>
+<span class="item-data-text">
+    <span ng-if="item.data.active === true">{{ 'CorePluginsAdmin_Active'|translate }}</span>
+    <span ng-if="item.data.active === false">{{ 'CorePluginsAdmin_Inactive'|translate }}</span>
+    <span ng-if="item.data.installed === true">{{ 'General_Installed'|translate }}</span>
+    <span ng-if="item.data.installed === false">{{ 'General_NotInstalled'|translate }}</span>
+    <span ng-if="item.data.version">{{ 'CorePluginsAdmin_Version'|translate }} {{ item.data.version }}</span>
+</span>

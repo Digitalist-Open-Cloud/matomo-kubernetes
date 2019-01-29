@@ -1,0 +1,9 @@
+<div>
+    <div piwik-manage-roll-up
+         name="{{ formField.name }}"
+         piwik-attributes="{{formField.uiControlAttributes}}"
+         id="{{ formField.name }}"
+         ng-model="formField.value"
+    ></div>
+    <label for="{{ formField.name }}" class="active" ng-bind-html="formField.title"></label>
+</div>

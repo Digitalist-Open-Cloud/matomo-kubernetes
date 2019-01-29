@@ -1,0 +1,8 @@
+{
+    "CustomOptOut": {
+        "ShowEditorOptionName": "CSS संपादक सक्षम क",
+        "ShowEditorDescription": "एक साधारण सीएसएस संपादक में \"कस्टम CSS\" कोड को दिखाने के लिए इस विकल्प को सक्रिय ।",
+        "EditorThemeOptionName": "संपादक थीम",
+        "EditorThemeDescription": "संपादक के लिए एक विषय चुनें ।"
+    }
+}

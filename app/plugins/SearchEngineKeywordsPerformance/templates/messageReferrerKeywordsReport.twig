@@ -1,0 +1,13 @@
+<p style="margin-top:2em;margin-bottom:2em" class=" alert-info alert">
+    {% if reportEnabled %}
+            Your additional Search Keywords can be found in the <a href="#"
+                                                   onclick="this.href=broadcast.buildReportingUrl('category=Referrers_Referrers&subcategory=SearchEngineKeywordsPerformance_KeywordStatistics');">Referrers > Search Keywords report</a>.
+    {% elseif not hasAdminPriviliges %}
+        Did you know?<br/>
+        An Admin or Super User can Configure Search Performance to import all your search keywords into Piwik.
+    {% else %}
+        Did you know?<br/>
+        You can <a href="{{ linkTo({'module': 'SearchEngineKeywordsPerformance', 'action': 'index'}) }}">Configure
+            Search Performance</a> to import all your search keywords into Piwik.
+    {% endif %}
+</p>

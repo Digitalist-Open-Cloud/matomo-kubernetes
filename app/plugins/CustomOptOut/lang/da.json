@@ -1,0 +1,5 @@
+{
+    "CustomOptOut": {
+        "OptOutDntFound": "Sporing er ikke aktiv, fordi din browser har meddelt, at du ikke vil spores. Det er en browser indstilling. For at begynde at sporing igen, skal du deaktivere den såkaldte \"Do Not Track\" indstillingen i dine browserindstillinger."
+    }
+}
