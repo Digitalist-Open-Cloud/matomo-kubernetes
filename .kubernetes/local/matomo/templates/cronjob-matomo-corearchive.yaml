@@ -18,7 +18,7 @@ spec:
             env:
             - name: MATOMO_ADMIN_PASSWORD
               value: {{.Values.matomo.adminPassword}}
-            - name: MATOMO_DB_PASSWORD
+            - name: MATOMO_DB_PASSWORDe
               valueFrom:
                 secretKeyRef:
                   name: matomo-mysql
