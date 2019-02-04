@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo-queuedtracking-process
+  namespace: {{.Values.namespace}}
+  labels:
+    app: matomo-queuedtracking-process
+spec:
+  replicas: {{.Values.matomo.queuedTrackingProcess.replicas}}
+  selector:
+    matchLabels:
+      app: matomo-queuedtracking-process
+  template:
+    metadata:
+      labels:
+        app: matomo-queuedtracking-process
+      annotations:
+        kubernetes.io/change-cause: "20190124-2 activated more plugins plus tagmanager"
+    spec:
+      initContainers:
+      - name: matomo-init
+        image: {{.Values.matomo.image}}
+        imagePullPolicy: Always
+        env:
+        - name: MATOMO_ADMIN_PASSWORD
+          value: {{.Values.matomo.adminPassword}}
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: matomo-mysql
+              key: mysql-root-password
+        command: [ 'sh' , '-c' , 'rm -rf /var/www/html/* && tar cf - --one-file-system -C /usr/src/piwik . | tar xf - && chown -R www-data:www-data /var/www/html && php /scripts/install.php /tmp/matomo/install.json && chown www-data:www-data -R /var/www/html' ]
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-configuration
+            mountPath: /tmp/matomo/
+            readOnly: true
+      containers:
+      - name: matomo
+        image: {{.Values.matomo.image}}
+        imagePullPolicy: Always
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - '/usr/bin/supervisorctl status | grep FATAL | wc -l | grep 0'
+          initialDelaySeconds: 5
+          periodSeconds: 2
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - '/usr/bin/supervisorctl status | grep FATAL | wc -l | grep 0'
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        env:
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: matomo-mysql
+              key: mysql-root-password
+        command: [ 'sh' , '-c' , 'supervisord -n' ]
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-supervisor-queuedtrackingprocess
+            mountPath: /etc/supervisor.d
+            readOnly: true
+      imagePullSecrets:
+      - name: matomo-registry-secret
+      volumes:
+      - name: matomo-configuration
+        configMap:
+          name: matomo-configuration
+      - name: static-data
+        emptyDir: {}
+      - name: matomo-supervisor-queuedtrackingprocess
+        configMap:
+          name: matomo-supervisor-queuedtrackingprocess

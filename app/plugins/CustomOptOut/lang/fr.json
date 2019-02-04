@@ -1,8 +1,0 @@
-{
-    "CustomOptOut": {
-        "ShowEditorOptionName": "Activer l'éditeur CSS",
-        "ShowEditorDescription": "Activez cette option pour afficher le \"css personnalisé\" dans un éditeur de css simple.",
-        "EditorThemeOptionName": "Editeur de Thème",
-        "EditorThemeDescription": "Sélectionnez un thème pour l'éditeur."
-    }
-}

@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    app: matomo-dashboard
+  name: matomo-dashboard
+  namespace: {{.Values.namespace}}
+spec:
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - backend:
+          serviceName: matomo-dashboard
+          servicePort: 80
+        path: /

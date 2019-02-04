@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matomo-configuration
+  namespace: {{.Values.namespace}}
+data:
+  install.json: |
+    {
+      "document_root": "/var/www/html",
+      "login": "admin",
+      "password": "admin",
+      "email": "christian.nilsson@digitalistgroup.com",
+      "site_name": "digitalist",
+      "site_url": "https://www.digitalist.se/",
+      "base_domain": "www.digitalist.se",
+      "session_save_handler": "dbtable",
+      "geo_provider": "geoip_pecl",
+      "database": {
+        "host": "matomo-mysql",
+        "adapter": "Pdo\\Mysql",
+        "username": "root",
+        "password": "<?php getenv( 'MATOMO_DB_PASSWORD'); ?>",
+        "dbname": "matomo"
+      },
+      "plugins": [
+        "ActivityLog",
+        "CustomAlerts",
+        "CustomDimensions",
+        "CustomOptOut",
+        "CustomReports",
+        "FormAnalytics",
+        "Funnels",
+        "MediaAnalytics",
+        "RollUpReporting",
+        "SearchEngineKeywordsPerformance",
+        "UsersFlow",
+        "QueuedTracking",
+        "TagManager",
+        "MarketingCampaignsReporting",
+        "GroupPermissions"
+      ],
+      "privacy": {
+        "anonymize_ip": true,
+        "honor_do_not_track": true,
+        "ip_address_mask_length": 2
+      },
+      "extras": {
+        "General": {
+          "enable_framed_pages": 1,
+          "enable_framed_settings": 1,
+          "enable_trusted_host_check": 0,
+          "enable_plugin_update_communication": 0,
+          "enable_auto_update": 0,
+          "enable_installer": 0,
+          "enable_internet_features": 0,
+          "enable_plugins_admin": 0,
+          "enable_plugin_upload": 0,
+          "enable_geolocation_admin": 0,
+          "proxy_client_headers[]": "HTTP_X_FORWARDED_FOR",
+          "browser_archiving_disabled_enforce": 1,
+          "enable_browser_archiving_triggering": 0,
+          "archiving_range_force_on_browser_request": 0,
+          "enable_sql_optimize_queries": 0,
+          "enabled_periods_UI": "day,week,month,year,range",
+          "enabled_periods_API": "day,week,month,year,range",
+          "session_save_handler": "dbtable",
+          "enable_marketplace": 0,
+          "enable_general_settings_admin": 0,
+          "piwik_pro_ads_enabled": 0,
+          "assume_secure_protocol": 0,
+          "cors_domains[]": "*",
+          "datatable_archiving_maximum_rows_referrers": 2000,
+          "datatable_archiving_maximum_rows_subtable_referrers": 2000,
+          "datatable_archiving_maximum_rows_actions": 2000,
+          "datatable_archiving_maximum_rows_subtable_actions": 2000,
+          "datatable_archiving_maximum_rows_events": 2000,
+          "datatable_archiving_maximum_rows_subtable_events": 2000,
+          "datatable_archiving_maximum_rows_custom_variables": 2000,
+          "datatable_archiving_maximum_rows_subtable_custom_variables": 2000
+        },
+        "CustomReports": {
+          "datatable_archiving_maximum_rows_custom_reports": 2000,
+          "datatable_archiving_maximum_rows_subtable_custom_reports": 2000
+        },
+        "Tracker": {
+          "trust_visitors_cookies": 1,
+          "use_third_party_id_cookie": 1
+        }
+      }
+    }

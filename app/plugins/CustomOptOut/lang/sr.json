@@ -1,8 +1,0 @@
-{
-    "CustomOptOut": {
-        "ShowEditorOptionName": "Omogući CSS editor",
-        "ShowEditorDescription": "Uključite ovu opciju kako biste prikazali korisnički definisan CSS kod u CSS editoru.",
-        "EditorThemeOptionName": "Tema editora",
-        "EditorThemeDescription": "Izaberite temu za ovaj editor."
-    }
-}

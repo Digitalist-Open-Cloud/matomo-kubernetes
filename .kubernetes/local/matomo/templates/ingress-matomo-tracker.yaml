@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    app: matomo-tracker
+  name: matomo-tracker
+  namespace: {{.Values.namespace}}
+spec:
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - backend:
+          serviceName: matomo-tracker
+          servicePort: 80
+        path: /piwik.php
+      - backend:
+          serviceName: matomo-tracker
+          servicePort: 80
+        path: /piwik.js

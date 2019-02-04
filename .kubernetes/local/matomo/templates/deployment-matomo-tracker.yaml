@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo-tracker
+  namespace: {{.Values.namespace}}
+  labels:
+    app: matomo-tracker
+spec:
+  replicas: {{.Values.matomo.tracker.replicas}}
+  selector:
+    matchLabels:
+      app: matomo-tracker
+  template:
+    metadata:
+      labels:
+        app: matomo-tracker
+      annotations:
+        kubernetes.io/change-cause: "20190124-2 activated more plugins plus tagmanager"
+    spec:
+      initContainers:
+      - name: matomo-init
+        image: {{.Values.matomo.image}}
+        imagePullPolicy: Always
+        env:
+        - name: MATOMO_ADMIN_PASSWORD
+          value: {{.Values.matomo.adminPassword}}
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: matomo-mysql
+              key: mysql-root-password
+        command: [ 'sh' , '-c' , 'rm -rf /var/www/html/* && tar cf - --one-file-system -C /usr/src/piwik . | tar xf - && chown -R www-data:www-data /var/www/html && php /scripts/install.php /tmp/matomo/install.json && chown www-data:www-data -R /var/www/html' ]
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-configuration
+            mountPath: /tmp/matomo/
+            readOnly: true
+      containers:
+      - name: nginx
+        image: nginx:latest
+        volumeMounts:
+          - name: nginx-matomo-tracker
+            mountPath: /etc/nginx
+            readOnly: true
+          - name: static-data
+            mountPath: /var/www/html
+            readOnly: true
+        ports:
+        - containerPort: 80
+          #        resources:
+          #limits:
+          #  cpu: 1
+          #  memory: 256Mi
+      - name: matomo
+        image: {{.Values.matomo.image}}
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /piwik.php?idsite=1&rec=1
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 2
+        readinessProbe:
+          httpGet:
+            path: /piwik.php?idsite=1&rec=1
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        env:
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: matomo-mysql
+              key: mysql-root-password
+        ports:
+        - containerPort: 9000
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+      imagePullSecrets:
+      - name: matomo-registry-secret
+      volumes:
+      - name: nginx-matomo-tracker
+        configMap:
+          name: nginx-matomo-tracker
+      - name: matomo-configuration
+        configMap:
+          name: matomo-configuration
+      - name: static-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo-tracker
+  labels:
+    app: matomo-tracker
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+  selector:
+    app: matomo-tracker

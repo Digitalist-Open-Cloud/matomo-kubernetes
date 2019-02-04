@@ -1,9 +1,0 @@
-{% extends 'admin.twig' %}
-
-{% set title %}{{ 'SitesManager_GlobalWebsitesSettings'|translate }}{% endset %}
-
-{% block content %}
-
-    <div ng-include="'plugins/SitesManager/templates/global-settings.html?cb={{ cacheBuster }}'"></div>
-
-{% endblock %}

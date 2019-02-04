@@ -1,0 +1,61 @@
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: matomo-jobs-corearchive
+  namespace: {{.Values.namespace}}
+spec:
+  schedule: "45 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: {{.Values.matomo.cron.coreArchive.activeDeadlineSeconds}}
+      template:
+        spec:
+          initContainers:
+          - name: matomo-init
+            image: {{.Values.matomo.image}}
+            env:
+            - name: MATOMO_ADMIN_PASSWORD
+              value: {{.Values.matomo.adminPassword}}
+            - name: MATOMO_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: matomo-mysql
+                  key: mysql-root-password
+            resources:
+              requests:
+                memory: "512Mi"
+                cpu: "1"
+              limits:
+                memory: "1Gi"
+                cpu: "2"
+            command: [ 'sh' , '-c' , 'rm -rf /var/www/html/* && tar cf - --one-file-system -C /usr/src/piwik . | tar xf - && chown -R www-data:www-data /var/www/html && php /scripts/install.php /tmp/matomo/install.json && chown www-data:www-data -R /var/www/html' ]
+            volumeMounts:
+              - name: static-data
+                mountPath: /var/www/html
+              - name: matomo-configuration
+                mountPath: /tmp/matomo/
+                readOnly: true
+          containers:
+          - name: matomo-jobs-corearchive
+            image: {{.Values.matomo.image}}
+            command: [ 'sh' , '-c' , 'php /var/www/html/console core:archive --skip-idsites=4,8' ]
+            env:
+            - name: MARIADB_MATOMO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: matomo-mysql
+                  key: mysql-password
+            volumeMounts:
+              - name: static-data
+                mountPath: /var/www/html
+          restartPolicy: OnFailure
+          imagePullSecrets:
+          - name: matomo-registry-secret
+          volumes:
+          - name: matomo-configuration
+            configMap:
+              name: matomo-configuration
+          - name: static-data
+            emptyDir: {}

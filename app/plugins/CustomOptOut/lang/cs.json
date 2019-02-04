@@ -1,8 +1,0 @@
-{
-    "CustomOptOut": {
-        "ShowEditorOptionName": "Povolit editor css",
-        "ShowEditorDescription": "Povolte tuto možnost pro zobrazení vlastního css kódu v jednoduchém css editoru.",
-        "EditorThemeOptionName": "Motiv editoru",
-        "EditorThemeDescription": "Zvolte motiv editoru"
-    }
-}

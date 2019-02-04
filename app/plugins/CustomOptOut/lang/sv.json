@@ -1,8 +1,0 @@
-{
-    "CustomOptOut": {
-        "ShowEditorOptionName": "Aktivera CSS-editor",
-        "ShowEditorDescription": "Aktivera detta val för att visa anpassad CSS-kod i simple CSS editor.",
-        "EditorThemeOptionName": "Tema",
-        "EditorThemeDescription": "Välj tema för editorn."
-    }
-}
