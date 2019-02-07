@@ -1,0 +1,14 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{.Values.clusterRoleName}}
+  namespace: {{.Values.namespace}}
+rules:
+  - apiGroups:
+      - policy
+    resources:
+      - podsecuritypolicies
+    resourceNames:
+      - {{.Values.podSecurityPolicyName}}
+    verbs:
+      - use
