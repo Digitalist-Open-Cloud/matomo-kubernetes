@@ -1,25 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: matomo-dashboard
+  name: matomo-queuedtracking-process
   namespace: {{.Values.namespace}}
   labels:
-    app: matomo-dashboard
+    app: matomo-queuedtracking-process
 spec:
-  replicas: {{.Values.matomo.dashboard.replicas}}
+  replicas: {{.Values.matomo.queuedTrackingProcess.replicas}}
   selector:
     matchLabels:
-      app: matomo-dashboard
+      app: matomo-queuedtracking-process
   template:
     metadata:
       labels:
-        app: matomo-dashboard
+        app: matomo-queuedtracking-process
       annotations:
-        kubernetes.io/change-cause: "20190124-2 activated more plugins plus tagmanager"
+        kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
       initContainers:
       - name: matomo-init
         image: {{.Values.matomo.image}}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
         env:
         - name: MATOMO_ADMIN_PASSWORD
@@ -29,7 +31,7 @@ spec:
             secretKeyRef:
               name: matomo-mysql
               key: mysql-root-password
-        command: [ 'sh' , '-c' , 'rm -rf /var/www/html/* && tar cf - --one-file-system -C /usr/src/piwik . | tar xf - && chown -R www-data:www-data /var/www/html && php /scripts/install.php /tmp/matomo/install.json && chown www-data:www-data -R /var/www/html' ]
+        command: [ 'sh' , '-c' , '{{.Values.matomo.installCommand}}' ]
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
@@ -37,34 +39,25 @@ spec:
             mountPath: /tmp/matomo/
             readOnly: true
       containers:
-      - name: nginx
-        image: nginx:latest
-        volumeMounts:
-          - name: nginx-matomo-dashboard
-            mountPath: /etc/nginx
-            readOnly: true
-          - name: static-data
-            mountPath: /var/www/html
-            readOnly: true
-        ports:
-        - containerPort: 80
-          #        resources:
-          #limits:
-          #  cpu: 1
-          #  memory: 256Mi
       - name: matomo
         image: {{.Values.matomo.image}}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
         livenessProbe:
-          httpGet:
-            path: /piwik.php?idsite=1&rec=1
-            port: 80
+          exec:
+            command:
+              - sh
+              - -c
+              - '/usr/bin/supervisorctl status | grep FATAL | wc -l | grep 0'
           initialDelaySeconds: 5
           periodSeconds: 2
         readinessProbe:
-          httpGet:
-            path: /piwik.php?idsite=1&rec=1
-            port: 80
+          exec:
+            command:
+              - sh
+              - -c
+              - '/usr/bin/supervisorctl status | grep FATAL | wc -l | grep 0'
           initialDelaySeconds: 5
           periodSeconds: 5
         env:
@@ -73,34 +66,21 @@ spec:
             secretKeyRef:
               name: matomo-mysql
               key: mysql-root-password
-        ports:
-        - containerPort: 9000
+        command: [ 'sh' , '-c' , 'supervisord -n' ]
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
+          - name: matomo-supervisor-queuedtrackingprocess
+            mountPath: /etc/supervisor.d
+            readOnly: true
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
-      - name: nginx-matomo-dashboard
-        configMap:
-          name: nginx-matomo-dashboard
       - name: matomo-configuration
         configMap:
           name: matomo-configuration
       - name: static-data
         emptyDir: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: matomo-dashboard
-  labels:
-    app: matomo-dashboard
-spec:
-  ports:
-    - port: 80
-      targetPort: 80
-      protocol: TCP
-  selector:
-    app: matomo-dashboard
-  type: LoadBalancer
+      - name: matomo-supervisor-queuedtrackingprocess
+        configMap:
+          name: matomo-supervisor-queuedtrackingprocess

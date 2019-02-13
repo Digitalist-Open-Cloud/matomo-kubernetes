@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-matomo-tracker
+  name: nginx-matomo-dashboard
   namespace: {{.Values.namespace}}
 data:
   nginx.conf: |
@@ -24,7 +24,7 @@ data:
       keepalive_timeout 0; 
 
       server {
-        listen 80 default_server;
+        listen 8080 default_server;
         server_name _;
           
         root /var/www/html;
@@ -32,13 +32,6 @@ data:
         index index.html index.htm index.debian-default.html index.php;
 
         location / {
-          return 404;
-        }
-
-        location /piwik.js {
-          try_files $uri $uri/ /index.php$is_args$args;
-        }
-        location /piwik.php {
           try_files $uri $uri/ /index.php$is_args$args;
         }
 
@@ -74,7 +67,7 @@ data:
     fastcgi_param   SCRIPT_FILENAME         $document_root$fastcgi_script_name;
     fastcgi_param   SCRIPT_NAME             $fastcgi_script_name;
     fastcgi_param   PATH_INFO               $fastcgi_path_info;
-    fastcgi_param       PATH_TRANSLATED         $document_root$fastcgi_path_info;
+    fastcgi_param   PATH_TRANSLATED         $document_root$fastcgi_path_info;
     fastcgi_param   REQUEST_URI             $request_uri;
     fastcgi_param   DOCUMENT_URI            $document_uri;
     fastcgi_param   DOCUMENT_ROOT           $document_root;

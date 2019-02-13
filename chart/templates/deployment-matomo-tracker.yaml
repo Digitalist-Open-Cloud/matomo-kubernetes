@@ -1,25 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: matomo-queuedtracking-process
+  name: matomo-tracker
   namespace: {{.Values.namespace}}
   labels:
-    app: matomo-queuedtracking-process
+    app: matomo-tracker
 spec:
-  replicas: {{.Values.matomo.queuedTrackingProcess.replicas}}
+  replicas: {{.Values.matomo.tracker.replicas}}
   selector:
     matchLabels:
-      app: matomo-queuedtracking-process
+      app: matomo-tracker
   template:
     metadata:
       labels:
-        app: matomo-queuedtracking-process
+        app: matomo-tracker
       annotations:
-        kubernetes.io/change-cause: "20190124-2 activated more plugins plus tagmanager"
+        kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
       initContainers:
       - name: matomo-init
         image: {{.Values.matomo.image}}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
         env:
         - name: MATOMO_ADMIN_PASSWORD
@@ -29,7 +31,7 @@ spec:
             secretKeyRef:
               name: matomo-mysql
               key: mysql-root-password
-        command: [ 'sh' , '-c' , 'rm -rf /var/www/html/* && tar cf - --one-file-system -C /usr/src/piwik . | tar xf - && chown -R www-data:www-data /var/www/html && php /scripts/install.php /tmp/matomo/install.json && chown www-data:www-data -R /var/www/html' ]
+        command: [ 'sh' , '-c' , '{{.Values.matomo.installCommand}}' ]
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
@@ -37,23 +39,38 @@ spec:
             mountPath: /tmp/matomo/
             readOnly: true
       containers:
+      - name: nginx
+        image: {{.Values.nginx.image}}
+        securityContext:
+          runAsUser: {{.Values.nginx.runAsUser}}
+        volumeMounts:
+          - name: nginx-matomo-tracker
+            mountPath: /etc/nginx
+            readOnly: true
+          - name: static-data
+            mountPath: /var/www/html
+            readOnly: true
+        ports:
+        - containerPort: 8080
+          #        resources:
+          #limits:
+          #  cpu: 1
+          #  memory: 256Mi
       - name: matomo
         image: {{.Values.matomo.image}}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
         livenessProbe:
-          exec:
-            command:
-              - sh
-              - -c
-              - '/usr/bin/supervisorctl status | grep FATAL | wc -l | grep 0'
+          httpGet:
+            path: /piwik.php?idsite=1&rec=1
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 2
         readinessProbe:
-          exec:
-            command:
-              - sh
-              - -c
-              - '/usr/bin/supervisorctl status | grep FATAL | wc -l | grep 0'
+          httpGet:
+            path: /piwik.php?idsite=1&rec=1
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
         env:
@@ -62,21 +79,32 @@ spec:
             secretKeyRef:
               name: matomo-mysql
               key: mysql-root-password
-        command: [ 'sh' , '-c' , 'supervisord -n' ]
+        ports:
+        - containerPort: 9000
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
-          - name: matomo-supervisor-queuedtrackingprocess
-            mountPath: /etc/supervisor.d
-            readOnly: true
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
+      - name: nginx-matomo-tracker
+        configMap:
+          name: nginx-matomo-tracker
       - name: matomo-configuration
         configMap:
           name: matomo-configuration
       - name: static-data
         emptyDir: {}
-      - name: matomo-supervisor-queuedtrackingprocess
-        configMap:
-          name: matomo-supervisor-queuedtrackingprocess
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo-tracker
+  labels:
+    app: matomo-tracker
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+  selector:
+    app: matomo-tracker

@@ -1,24 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: matomo-tracker
+  name: matomo-dashboard
   namespace: {{.Values.namespace}}
   labels:
-    app: matomo-tracker
+    app: matomo-dashboard
 spec:
-  replicas: {{.Values.matomo.tracker.replicas}}
+  replicas: {{.Values.matomo.dashboard.replicas}}
   selector:
     matchLabels:
-      app: matomo-tracker
+      app: matomo-dashboard
   template:
     metadata:
       labels:
-        app: matomo-tracker
+        app: matomo-dashboard
       annotations:
-        kubernetes.io/change-cause: "20190124-2 activated more plugins plus tagmanager"
+        kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
       initContainers:
       - name: matomo-init
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         image: {{.Values.matomo.image}}
         imagePullPolicy: Always
         env:
@@ -29,7 +31,7 @@ spec:
             secretKeyRef:
               name: matomo-mysql
               key: mysql-root-password
-        command: [ 'sh' , '-c' , 'rm -rf /var/www/html/* && tar cf - --one-file-system -C /usr/src/piwik . | tar xf - && chown -R www-data:www-data /var/www/html && php /scripts/install.php /tmp/matomo/install.json && chown www-data:www-data -R /var/www/html' ]
+        command: [ 'sh' , '-c' , '{{.Values.matomo.installCommand}}' ]
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
@@ -38,33 +40,37 @@ spec:
             readOnly: true
       containers:
       - name: nginx
-        image: nginx:latest
+        image: {{.Values.nginx.image}}
+        securityContext:
+          runAsUser: {{.Values.nginx.runAsUser}}
         volumeMounts:
-          - name: nginx-matomo-tracker
+          - name: nginx-matomo-dashboard
             mountPath: /etc/nginx
             readOnly: true
           - name: static-data
             mountPath: /var/www/html
             readOnly: true
         ports:
-        - containerPort: 80
+        - containerPort: 8080
           #        resources:
           #limits:
           #  cpu: 1
           #  memory: 256Mi
       - name: matomo
         image: {{.Values.matomo.image}}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /piwik.php?idsite=1&rec=1
-            port: 80
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 2
         readinessProbe:
           httpGet:
             path: /piwik.php?idsite=1&rec=1
-            port: 80
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
         env:
@@ -81,9 +87,9 @@ spec:
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
-      - name: nginx-matomo-tracker
+      - name: nginx-matomo-dashboard
         configMap:
-          name: nginx-matomo-tracker
+          name: nginx-matomo-dashboard
       - name: matomo-configuration
         configMap:
           name: matomo-configuration
@@ -93,12 +99,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: matomo-tracker
+  name: matomo-dashboard
   labels:
-    app: matomo-tracker
+    app: matomo-dashboard
 spec:
   ports:
-    - port: 80
+    - port: 8080
+      targetPort: 8080
       protocol: TCP
   selector:
-    app: matomo-tracker
+    app: matomo-dashboard
+  type: LoadBalancer

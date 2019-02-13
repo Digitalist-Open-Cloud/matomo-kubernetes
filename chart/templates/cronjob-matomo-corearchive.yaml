@@ -15,6 +15,8 @@ spec:
           initContainers:
           - name: matomo-init
             image: {{.Values.matomo.image}}
+            securityContext:
+              runAsUser: {{.Values.matomo.runAsUser}}
             env:
             - name: MATOMO_ADMIN_PASSWORD
               value: {{.Values.matomo.adminPassword}}
@@ -30,7 +32,7 @@ spec:
               limits:
                 memory: "1Gi"
                 cpu: "2"
-            command: [ 'sh' , '-c' , 'rm -rf /var/www/html/* && tar cf - --one-file-system -C /usr/src/piwik . | tar xf - && chown -R www-data:www-data /var/www/html && php /scripts/install.php /tmp/matomo/install.json && chown www-data:www-data -R /var/www/html' ]
+            command: [ 'sh' , '-c' , '{{.Values.matomo.installCommand}}' ]
             volumeMounts:
               - name: static-data
                 mountPath: /var/www/html
@@ -40,6 +42,8 @@ spec:
           containers:
           - name: matomo-jobs-corearchive
             image: {{.Values.matomo.image}}
+            securityContext:
+              runAsUser: {{.Values.matomo.runAsUser}}
             command: [ 'sh' , '-c' , 'php /var/www/html/console core:archive --skip-idsites=4,8' ]
             env:
             - name: MARIADB_MATOMO_PASSWORD
