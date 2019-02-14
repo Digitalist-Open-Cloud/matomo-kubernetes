@@ -20,6 +20,10 @@
 
     `kubectl auth reconcile -f psp-crb.yaml`
 
+3. Install helm tiller to your cluster so we can use helm for deploying our applications in helm charts.
+
+    `helm init`
+
 
 ## Deploy Matomo helm chart to K8S for the first time.
 

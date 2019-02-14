@@ -1,6 +1,6 @@
 dependencies:
 - name: mysql
-  repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 0.14.0
-digest: sha256:3c8a438aadc4922c0b8f7d277794cfca0ddfc7843250abab623edeec46086fa6
-generated: 2019-02-04T09:13:42.763583969+01:00
+  repository: https://charts.bitnami.com/bitnami/
+  version: 4.2.4
+digest: sha256:d7510b38eaae21de094358a5c00e355793b2afd9d09b49f582b3cb6444ce79ee
+generated: 2019-02-13T16:54:07.828738345+01:00

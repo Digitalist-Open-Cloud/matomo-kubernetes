@@ -7,7 +7,7 @@ nginxWorkerProcesses: 5
 queuedTrackingProcess:
   numProcs: 8
 matomo:
-  image: registry.matomo.dglive.net/digitalist/matomo:3.8.1-php7.2.14-fpm-alpine3.8-not-as-root2
+  image: registry.matomo.dglive.net/digitalist/matomo:3.8.1-php7.2.14-fpm-alpine3.8-not-as-root5
   runAsUser: 82
   adminPassword: "admin123"
   installCommand: rsync -crlOt --no-owner --no-group --no-perms /usr/src/piwik/ /var/www/html/ && ls -lah /var/www/html && php /scripts/install.php /tmp/matomo/install.json
@@ -26,9 +26,16 @@ nginx:
   image: registry.matomo.dglive.net/digitalist/nginx:1.15.8-alpine-1549973547907706858
   runAsUser: 100
 mysql:
-  mysqlUser: matomo
-  mysqlDatabase: matomo
-  configurationFiles:
-    mysql_custom.cnf: |-
-      [mysqld]
-      max_allowed_packet=64mb
+  db:
+    user: matomo
+    name: matomo
+  securityContext:
+    enabled: true
+    runAsUser: 1001
+    fsGroup: 1001
+  replication:
+    enabled: false
+  # master:
+  #   config: |-
+  #     [mysqld]
+  #     max_allowed_packet=64mb

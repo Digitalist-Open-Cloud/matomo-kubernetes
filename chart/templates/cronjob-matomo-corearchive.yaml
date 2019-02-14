@@ -20,7 +20,7 @@ spec:
             env:
             - name: MATOMO_ADMIN_PASSWORD
               value: {{.Values.matomo.adminPassword}}
-            - name: MATOMO_DB_PASSWORDe
+            - name: MATOMO_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: matomo-mysql
@@ -50,7 +50,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: matomo-mysql
-                  key: mysql-password
+                  key: mysql-root-password
             volumeMounts:
               - name: static-data
                 mountPath: /var/www/html
