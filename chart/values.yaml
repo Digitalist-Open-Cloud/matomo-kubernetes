@@ -1,4 +1,4 @@
-changeCause: "Changed install script again.."
+changeCause: "Removed custom database configuration."
 namespace: matomo
 serviceAccount: matomo
 podSecurityPolicyName: matomo
@@ -27,7 +27,6 @@ nginx:
   runAsUser: 100
 mysql:
   db:
-    user: matomo
     name: matomo
   securityContext:
     enabled: true
@@ -35,7 +34,3 @@ mysql:
     fsGroup: 1001
   replication:
     enabled: false
-  # master:
-  #   config: |-
-  #     [mysqld]
-  #     max_allowed_packet=64mb
