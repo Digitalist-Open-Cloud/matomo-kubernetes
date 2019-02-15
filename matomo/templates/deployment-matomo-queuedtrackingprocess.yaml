@@ -29,7 +29,7 @@ spec:
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: matomo-mysql
+              name: matomo-db-mysql
               key: mysql-root-password
         command: [ 'sh' , '-c' , '{{.Values.matomo.installCommand}}' ]
         volumeMounts:
@@ -64,7 +64,7 @@ spec:
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: matomo-mysql
+              name: matomo-db-mysql
               key: mysql-root-password
         command: [ 'sh' , '-c' , 'supervisord -n' ]
         volumeMounts:

@@ -16,7 +16,7 @@ data:
       "session_save_handler": "dbtable",
       "geo_provider": "geoip_pecl",
       "database": {
-        "host": "matomo-mysql",
+        "host": "matomo-db-mysql",
         "adapter": "Pdo\\Mysql",
         "username": "root",
         "password": "<?php getenv( 'MATOMO_DB_PASSWORD'); ?>",

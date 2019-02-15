@@ -23,7 +23,7 @@ spec:
             - name: MATOMO_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: matomo-mysql
+                  name: matomo-db-mysql
                   key: mysql-root-password
             resources:
               requests:
@@ -49,7 +49,7 @@ spec:
             - name: MARIADB_MATOMO_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: matomo-mysql
+                  name: matomo-db-mysql
                   key: mysql-root-password
             volumeMounts:
               - name: static-data

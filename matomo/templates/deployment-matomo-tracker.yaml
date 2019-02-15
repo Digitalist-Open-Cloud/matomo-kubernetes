@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: matomo-dashboard
+  name: matomo-tracker
   namespace: {{.Values.namespace}}
   labels:
-    app: matomo-dashboard
+    app: matomo-tracker
 spec:
-  replicas: {{.Values.matomo.dashboard.replicas}}
+  replicas: {{.Values.matomo.tracker.replicas}}
   selector:
     matchLabels:
-      app: matomo-dashboard
+      app: matomo-tracker
   template:
     metadata:
       labels:
-        app: matomo-dashboard
+        app: matomo-tracker
       annotations:
         kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
       initContainers:
       - name: matomo-init
+        image: {{.Values.matomo.image}}
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
-        image: {{.Values.matomo.image}}
         imagePullPolicy: Always
         env:
         - name: MATOMO_ADMIN_PASSWORD
@@ -29,7 +29,7 @@ spec:
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: matomo-mysql
+              name: matomo-db-mysql
               key: mysql-root-password
         command: [ 'sh' , '-c' , '{{.Values.matomo.installCommand}}' ]
         volumeMounts:
@@ -44,7 +44,7 @@ spec:
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
         volumeMounts:
-          - name: nginx-matomo-dashboard
+          - name: nginx-matomo-tracker
             mountPath: /etc/nginx
             readOnly: true
           - name: static-data
@@ -77,7 +77,7 @@ spec:
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: matomo-mysql
+              name: matomo-db-mysql
               key: mysql-root-password
         ports:
         - containerPort: 9000
@@ -87,9 +87,9 @@ spec:
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
-      - name: nginx-matomo-dashboard
+      - name: nginx-matomo-tracker
         configMap:
-          name: nginx-matomo-dashboard
+          name: nginx-matomo-tracker
       - name: matomo-configuration
         configMap:
           name: matomo-configuration
@@ -99,14 +99,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: matomo-dashboard
+  name: matomo-tracker
   labels:
-    app: matomo-dashboard
+    app: matomo-tracker
 spec:
   ports:
     - port: 8080
-      targetPort: 8080
       protocol: TCP
   selector:
-    app: matomo-dashboard
-  type: LoadBalancer
+    app: matomo-tracker

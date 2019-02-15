@@ -1,0 +1,17 @@
+redis:
+  image:
+    repository: bitnami/redis
+    tag: 4.0.12
+    pullPolicy: Always
+  cluster:
+    enabled: false
+  usePassword: true
+  master:
+    port: 6379
+    service:
+      type: ClusterIP
+      port: 6379
+    securityContext:
+      enabled: true
+      fsGroup: 1001
+      runAsUser: 1001

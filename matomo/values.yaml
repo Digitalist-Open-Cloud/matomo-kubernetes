@@ -1,8 +1,5 @@
-changeCause: "Removed custom database configuration."
+changeCause: "Removed database."
 namespace: matomo
-serviceAccount: matomo
-podSecurityPolicyName: matomo
-clusterRoleName: matomo
 nginxWorkerProcesses: 5
 queuedTrackingProcess:
   numProcs: 8
@@ -25,12 +22,3 @@ matomo:
 nginx:
   image: registry.matomo.dglive.net/digitalist/nginx:1.15.8-alpine-1549973547907706858
   runAsUser: 100
-mysql:
-  db:
-    name: matomo
-  securityContext:
-    enabled: true
-    runAsUser: 1001
-    fsGroup: 1001
-  replication:
-    enabled: false
