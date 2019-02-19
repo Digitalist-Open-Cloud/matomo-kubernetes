@@ -1,17 +1,16 @@
-redis:
+redis-ha:
   image:
-    repository: bitnami/redis
-    tag: 4.0.12
-    pullPolicy: Always
-  cluster:
-    enabled: false
-  usePassword: true
-  master:
+    repository: redis
+    tag: 5.0.3-alpine
+    pullPolicy: IfNotPresent
+  replicas: 1 # Should be at least 3 on production/staging environment.
+  redis:
     port: 6379
-    service:
-      type: ClusterIP
-      port: 6379
-    securityContext:
-      enabled: true
-      fsGroup: 1001
-      runAsUser: 1001
+    masterGroupName: redisMaster
+    config:
+      min-slaves-to-write: 0 # Should be at least 3 on production/staging environment.
+      min-slaves-max-lag: 5
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+    runAsNonRoot: true

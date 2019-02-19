@@ -1,6 +1,6 @@
 dependencies:
-- name: redis
+- name: redis-ha
   repository: https://kubernetes-charts.storage.googleapis.com
-  version: 6.1.0
-digest: sha256:0d34065636e570ab6e8519cffa4c3408a245f9693d7f72088a55f02878baf685
-generated: 2019-02-15T13:44:24.974422854+01:00
+  version: 3.1.6
+digest: sha256:f804c4ab7502492dcd2e9865984df6f9df8273cc8ce4b729de2a1a80c31db459
+generated: 2019-02-19T11:02:21.698409301+01:00
