@@ -57,7 +57,7 @@
 
 ## To update the Matomo K8S setup with your changes:
 
-If you have made any changes in the helm chart, use this command to update pods, services, configmaps etc. in your cluster.
+If you have made any changes in a helm chart, use this command to update pods, services, configmaps etc. in your cluster. Go to the specific directory for the helm chart.
 
     Can either be 'matomo', 'matomo-db' or 'matomo-mysql'.
 
