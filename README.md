@@ -39,11 +39,15 @@
 
     Go to the redis directory and run:
 
+    `helm dependencies update` - Downloads dependencies for the Helm chart
+
     `helm install -n matomo-redis . --namespace=matomo -f values.yaml`
 
 4. Deploy the mysql helm chart.
 
     Go to the mysql directory and run:
+
+    `helm dependencies update` - Downloads dependencies for the Helm chart
 
     `helm install -n matomo-db . --namespace=matomo -f values.yaml`
 
