@@ -14,11 +14,13 @@ matomo:
   dashboard:
     replicas: 1
     hostname: localhost
+    port: 80
   queuedTrackingProcess:
     replicas: 1
   tracker:
     replicas: 1
     hostname: localhost
+    port: 8080
 nginx:
   image: registry.matomo.dglive.net/digitalist/nginx:1.15.8-alpine-1549973547907706858
   runAsUser: 100

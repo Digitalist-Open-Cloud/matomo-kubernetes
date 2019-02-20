@@ -9,8 +9,9 @@ spec:
   rules:
   - host: {{.Values.matomo.dashboard.hostname}}
     http:
+      port: {{.Values.matomo.dashboard.port}}
       paths:
       - backend:
           serviceName: matomo-dashboard
-          servicePort: 80
+          servicePort: 8080
         path: /
