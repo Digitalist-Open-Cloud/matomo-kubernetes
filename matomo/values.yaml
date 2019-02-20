@@ -6,7 +6,7 @@ queuedTrackingProcess:
 matomo:
   image: registry.matomo.dglive.net/digitalist/matomo:3.8.1-php7.2.14-fpm-alpine3.8-not-as-root8
   runAsUser: 82
-  adminPassword: "admin123"
+  adminPassword: "elastxDigitalistiSkonMix"
   installCommand: rsync -crlOt --no-owner --no-group --no-perms /usr/src/piwik/ /var/www/html/ && ls -lah /var/www/html && php /scripts/install.php /tmp/matomo/install.json
   cron:
     coreArchive:
