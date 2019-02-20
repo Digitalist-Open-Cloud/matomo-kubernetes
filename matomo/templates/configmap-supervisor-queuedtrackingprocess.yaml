@@ -5,13 +5,15 @@ metadata:
   namespace: {{.Values.namespace}}
 data:
   queuedtracking-process.ini: |
+    [unix_http_server]
+    file = /home/www-data/supervisord.sock
     [program:queuedtracking-process]
     process_name=%(program_name)s_%(process_num)02d
     command=sh -c 'while ( php /var/www/html/console queuedtracking:process );do sleep 1; done'
     autostart=true
     autorestart=true
     user=www-data
-    numprocs={{.Values.queuedTrackingProcess.numProcs}}
+    numprocs=8
     redirect_stderr=true
     stdout_events_enabled=true
     stderr_events_enabled=true
