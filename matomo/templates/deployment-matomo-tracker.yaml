@@ -41,7 +41,7 @@ spec:
             secretKeyRef:
               name: matomo-db-mysql
               key: mysql-root-password
-        command: [ 'sh' , '-c' , '{{.Values.matomo.installCommand}}' ]
+        command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html

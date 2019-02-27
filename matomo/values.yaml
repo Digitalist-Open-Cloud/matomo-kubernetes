@@ -1,4 +1,4 @@
-changeCause: "Changed matomo image tag."
+changeCause: "Fixed setting for master queuetracking."
 namespace: matomo
 nginxWorkerProcesses: 5
 queuedTrackingProcess:
@@ -6,7 +6,7 @@ queuedTrackingProcess:
 matomo:
   image: registry.wklive.net:5000/digi/base-matomo:3.8.1-php7.2.14-fpm-alpine3.8-not-as-root-e89566856aef00e2fca3161c19bf7b2ae40ba9e7
   runAsUser: 82
-  installCommand: rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
+  installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   cron:
     coreArchive:
       activeDeadlineSeconds: 43200
