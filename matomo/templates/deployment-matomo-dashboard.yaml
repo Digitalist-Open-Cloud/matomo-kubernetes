@@ -24,8 +24,18 @@ spec:
         image: {{.Values.matomo.image}}
         imagePullPolicy: Always
         env:
-        - name: MATOMO_ADMIN_PASSWORD
-          value: {{.Values.matomo.adminPassword}}
+        - name: MATOMO_FIRST_USER_NAME
+          value: {{.Values.matomo.dashboard.firstuser.username}}
+        - name: MATOMO_FIRST_USER_EMAIL
+          value: {{.Values.matomo.dashboard.firstuser.email}}
+        - name: MATOMO_FIRST_USER_PASSWORD
+          value: {{.Values.matomo.dashboard.firstuser.password}}
+        - name: MATOMO_DB_HOST
+          value: {{.Values.db.hostname}}
+        - name: MATOMO_DB_NAME
+          value: {{.Values.db.name}}
+        - name: MATOMO_DB_USERNAME
+          value: {{.Values.db.username}}
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
