@@ -7,6 +7,92 @@ matomo:
   image: registry.wklive.net:5000/digi/base-matomo:3.8.1-php7.2.14-fpm-alpine3.8-not-as-root-e89566856aef00e2fca3161c19bf7b2ae40ba9e7
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
+  config:
+    PluginsInstalled:
+    - Diagnostics
+    - DBStats
+    - Login
+    - CoreAdminHome
+    - UsersManager
+    - SitesManager
+    - Installation
+    - Monolog
+    - Intl
+    - CorePluginsAdmin
+    - CoreHome
+    - WebsiteMeasurable
+    - CoreVisualizations
+    - Proxy
+    - API
+    - Transitions
+    - Actions
+    - Referrers
+    - UserLanguage
+    - DevicesDetection
+    - Goals
+    - SEO
+    - Events
+    - UserCountry
+    - GeoIp2
+    - VisitsSummary
+    - VisitFrequency
+    - VisitTime
+    - VisitorInterest
+    - CoreUpdater
+    - CoreConsole
+    - UserCountryMap
+    - Live
+    - ImageGraph
+    - Annotations
+    - Insights
+    - Morpheus
+    - Contents
+    - DevicePlugins
+    - UserId
+    - CustomPiwikJs
+    - ExtraTools
+    - LanguagesManager
+    - SegmentEditor
+    - Dashboard
+    - ScheduledReports
+    - PrivacyManager
+    - CustomVariables
+    - IntranetMeasurable
+    - ExamplePlugin
+    - Widgetize
+    - MultiSites
+    - Ecommerce
+    - ExampleAPI
+    - RssWidget
+    - Feedback
+    - TwoFactorAuth
+    - MobileMessaging
+    - Overlay
+    - TestRunner
+    - BulkTracking
+    - Resolution
+    - Heartbeat
+    - Marketplace
+    - ProfessionalServices
+    - QueuedTracking
+    Site:
+      name: Localhost
+      url: http://localhost:8080
+    Config:
+      General:
+        session_save_handler: dbtable
+        enable_trusted_host_check: 0
+      QueuedTracking:
+        useSentinelBackend: 1
+        sentinelMasterName: redisMaster
+        redisHost: matomo-redis-redis-ha-announce-0
+        redisPort: "26379"
+        redisDatabase: "0"
+        redisPassword: 0
+        queueEnabled: 1
+        numQueueWorkers: 1
+        numRequestsToProcess: "25"
+        processDuringTrackingRequest: 1
   cron:
     coreArchive:
       activeDeadlineSeconds: 43200
