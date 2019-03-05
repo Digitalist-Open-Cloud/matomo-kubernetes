@@ -99,18 +99,16 @@ matomo:
   dashboard:
     replicas: 1
     hostname: localhost
-    port: 80
+    tls: true
     firstuser:
       username: admin
       password: admin123
       email: foo@example.com
-    tls: true
   queuedTrackingProcess:
     replicas: 1
   tracker:
     replicas: 1
     hostname: localhost
-    port: 8080
     tls: true
 nginx:
   image: registry.wklive.net:5000/digitalist/nginx:1.15.8-alpine-master-f152f040580cd163d7cdf4138d8ca897e63282c6
