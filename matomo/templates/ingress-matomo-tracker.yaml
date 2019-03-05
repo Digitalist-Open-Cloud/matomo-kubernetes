@@ -19,3 +19,8 @@ spec:
           serviceName: matomo-tracker
           servicePort: 8080
         path: /piwik.js
+  {{- if .Values.matomo.tracker.tls }}      
+  tls:
+  - hosts:
+    - {{.Values.matomo.tracker.hostname}}
+  {{- end -}}
