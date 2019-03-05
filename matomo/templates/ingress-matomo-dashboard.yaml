@@ -15,3 +15,8 @@ spec:
           serviceName: matomo-dashboard
           servicePort: 8080
         path: /
+  {{- if .Values.matomo.dashboard.tls }}      
+  tls:
+  - hosts:
+    - {{.Values.matomo.dashboard.hostname}}
+  {{- end -}}
