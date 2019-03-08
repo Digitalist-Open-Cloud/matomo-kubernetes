@@ -34,12 +34,16 @@ spec:
           value: {{.Values.db.hostname}}
         - name: MATOMO_DB_NAME
           value: {{.Values.db.name}}
+        {{ if .Values.db.prefix }}
+        - name: MATOMO_DB_PREFIX
+          value: {{.Values.db.prefix}}
+        {{ end }}
         - name: MATOMO_DB_USERNAME
           value: {{.Values.db.username}}
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: matomo-db-mysql
+              name: matomo-db-pxc
               key: mysql-root-password
         command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
         volumeMounts:
@@ -87,7 +91,7 @@ spec:
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: matomo-db-mysql
+              name: matomo-db-pxc
               key: mysql-root-password
         ports:
         - containerPort: 9000

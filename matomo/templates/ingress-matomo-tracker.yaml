@@ -9,7 +9,7 @@ spec:
   rules:
   - host: {{.Values.matomo.tracker.hostname}}
     http:
-      port: 8080
+      port: 80
       paths:
       - backend:
           serviceName: matomo-tracker

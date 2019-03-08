@@ -5,7 +5,7 @@ metadata:
   name: matomo-jobs-corearchive
   namespace: {{.Values.namespace}}
 spec:
-  schedule: "45 * * * *"
+  schedule: "1 1 1 1 1"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -28,12 +28,16 @@ spec:
               value: {{.Values.db.hostname}}
             - name: MATOMO_DB_NAME
               value: {{.Values.db.name}}
+            {{ if .Values.db.prefix }}
+            - name: MATOMO_DB_PREFIX
+              value: {{.Values.db.prefix}}
+            {{ end }}
             - name: MATOMO_DB_USERNAME
               value: {{.Values.db.username}}
             - name: MATOMO_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: matomo-db-mysql
+                  name: matomo-db-pxc
                   key: mysql-root-password
             resources:
               requests:
@@ -59,7 +63,7 @@ spec:
             - name: MARIADB_MATOMO_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: matomo-db-mysql
+                  name: matomo-db-pxc
                   key: mysql-root-password
             volumeMounts:
               - name: static-data

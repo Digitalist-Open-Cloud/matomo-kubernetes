@@ -1,0 +1,6 @@
+dependencies:
+- name: percona-xtradb-cluster
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 0.6.3
+digest: sha256:f016a21a52c45dccb63d3b065412c50093cd6f610bca754cd5747a708e84efc1
+generated: 2019-03-06T15:25:04.653633121+01:00

@@ -1,5 +1,0 @@
-apiVersion: v1
-appVersion: "4.2.4"
-description: A Helm chart for matomo mysql.
-name: matomo-db
-version: 1.0.0

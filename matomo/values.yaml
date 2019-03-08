@@ -77,7 +77,7 @@ matomo:
     - QueuedTracking
     Site:
       name: Localhost
-      url: http://localhost:8080
+      url: http://localhost
     Config:
       General:
         session_save_handler: dbtable
@@ -99,7 +99,7 @@ matomo:
   dashboard:
     replicas: 1
     hostname: localhost
-    tls: true
+    tls: false
     firstuser:
       username: admin
       password: admin123
@@ -109,11 +109,12 @@ matomo:
   tracker:
     replicas: 1
     hostname: localhost
-    tls: true
+    tls: false
 nginx:
   image: registry.wklive.net:5000/digitalist/nginx:1.15.8-alpine-master-f152f040580cd163d7cdf4138d8ca897e63282c6
   runAsUser: 100
 db:
-  hostname: matomo-db-mysql
+  hostname: matomo-db-pxc
   name: matomo
   username: root
+  prefix: matomo_
