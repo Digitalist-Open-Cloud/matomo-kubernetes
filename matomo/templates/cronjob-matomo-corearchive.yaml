@@ -37,8 +37,8 @@ spec:
             - name: MATOMO_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: matomo-db-pxc
-                  key: mysql-root-password
+                  name: {{ .Values.db.password.secretKeyRef.name }}
+                  key: {{ .Values.db.password.secretKeyRef.key }}
             resources:
               requests:
                 memory: "512Mi"
@@ -63,8 +63,8 @@ spec:
             - name: MARIADB_MATOMO_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: matomo-db-pxc
-                  key: mysql-root-password
+                  name: {{ .Values.db.password.secretKeyRef.name }}
+                  key: {{ .Values.db.password.secretKeyRef.key }}
             volumeMounts:
               - name: static-data
                 mountPath: /var/www/html

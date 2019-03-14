@@ -17,6 +17,16 @@ spec:
       annotations:
         kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - matomo-dashboard
+            topologyKey: "kubernetes.io/hostname"
       initContainers:
       - name: matomo-init
         securityContext:
@@ -43,8 +53,8 @@ spec:
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: matomo-db-pxc
-              key: mysql-root-password
+              name: {{ .Values.db.password.secretKeyRef.name }}
+              key: {{ .Values.db.password.secretKeyRef.key }}
         command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
         volumeMounts:
           - name: static-data
@@ -91,8 +101,8 @@ spec:
         - name: MATOMO_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: matomo-db-pxc
-              key: mysql-root-password
+              name: {{ .Values.db.password.secretKeyRef.name }}
+              key: {{ .Values.db.password.secretKeyRef.key }}
         ports:
         - containerPort: 9000
         volumeMounts:
