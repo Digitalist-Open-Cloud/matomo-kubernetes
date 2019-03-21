@@ -93,9 +93,21 @@ matomo:
         numQueueWorkers: 1
         numRequestsToProcess: "25"
         processDuringTrackingRequest: 1
-  cron:
+  cronJobs:
     coreArchive:
+      schedule: "1 1 1 1 1"
       activeDeadlineSeconds: 43200
+      command: ./console core:archive --disable-scheduled-tasks
+    scheduledTasks:
+      schedule: "1 1 1 1 1"
+      activeDeadlineSeconds: 43200
+      command: ./console scheduled-tasks:run
+    swiftDbBackup:
+      image: registry.wklive.net:5000/digitalist/k8s-db-backup:python-3.7.2-slim-stretch-master-9b1bfc8e3cff38d8bec457d193173b813325935d
+      schedule: "*/10 * * * *"
+      namePrefix: matomo
+      deleteBackupAfter: "60"
+      openStackSecret: matomo-openstack-secret
   dashboard:
     replicas: 1
     hostname: localhost

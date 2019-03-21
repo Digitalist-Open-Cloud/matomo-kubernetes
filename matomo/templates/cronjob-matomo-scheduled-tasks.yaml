@@ -2,14 +2,14 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: matomo-jobs-corearchive
+  name: matomo-jobs-scheduled-tasks
   namespace: {{.Values.namespace}}
 spec:
-  schedule: {{quote .Values.matomo.cronJobs.coreArchive.schedule}}
+  schedule: {{quote .Values.matomo.cronJobs.scheduledTasks.schedule}}
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      activeDeadlineSeconds: {{.Values.matomo.cronJobs.coreArchive.activeDeadlineSeconds}}
+      activeDeadlineSeconds: {{.Values.matomo.cronJobs.scheduledTasks.activeDeadlineSeconds}}
       template:
         spec:
           initContainers:
@@ -54,11 +54,11 @@ spec:
                 mountPath: /tmp/matomo/
                 readOnly: true
           containers:
-          - name: matomo-jobs-corearchive
+          - name: matomo-jobs-sheduledtasks
             image: {{.Values.matomo.image}}
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
-            command: [ 'sh' , '-c' , '{{.Values.matomo.cronJobs.coreArchive.command}}' ]
+            command: [ 'sh' , '-c' , {{quote .Values.matomo.cronJobs.scheduledTasks.command}} ]
             env:
             - name: MARIADB_MATOMO_PASSWORD
               valueFrom:

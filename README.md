@@ -31,11 +31,25 @@
 
     `kubectl create namespace matomo`
 
-2. Add secret about your registry to where the matomo image is and the authentication for that.
+2. Create secret about your registry to where the matomo image is and the authentication for that.
 
     `kubectl --namespace matomo create secret docker-registry matomo-registry-secret --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>`
 
-3. Deploy the redis helm chart.
+3. Create secret about your OpenStack authentication details.
+
+kubectl -n matomo create secret generic matomo-openstack-secret \
+--from-literal=ST_AUTH_VERSION=3 \
+--from-literal=OS_USERNAME=<your-username> \
+--from-literal=OS_USER_DOMAIN_NAME=<your-user-domain-name> \
+--from-literal=OS_PASSWORD=<your-password> \
+--from-literal=OS_PROJECT_NAME=<your-project-name> \
+--from-literal=OS_PROJECT_DOMAIN_NAME=<your-project-domain-name> \
+--from-literal=OS_AUTH_URL=<your-provider-auth-url> \
+--from-literal=OS_USER_ID=<your-user-id> \
+--from-literal=OS_PROJECT_ID=<your-project-id> \
+--from-literal=OS_SWIFT_CONTAINER=<your-swift-container> \
+
+4. Deploy the redis helm chart.
 
     Go to the redis directory and run:
 
@@ -43,7 +57,7 @@
 
     `helm install -n matomo-redis . --namespace=matomo -f values.yaml`
 
-4. Deploy the mysql helm chart.
+5. Deploy the mysql helm chart.
 
     Go to the mysql directory and run:
 
@@ -51,7 +65,7 @@
 
     `helm install -n matomo-db . --namespace=matomo -f values.yaml`
 
-5. Deploy the matomo helm chart.
+6. Deploy the matomo helm chart.
 
     Go to the matomo directory and run:
 
