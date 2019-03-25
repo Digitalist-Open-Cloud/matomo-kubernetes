@@ -1,10 +1,10 @@
-changeCause: "Added new image and db password reference as values."
+changeCause: "Added new image based on master."
 namespace: matomo
 nginxWorkerProcesses: 5
 queuedTrackingProcess:
   numProcs: 8
 matomo:
-  image: registry.wklive.net:5000/digi/base-matomo:3.8.1-php7.2.14-fpm-alpine3.8-not-as-root-0b4861bae7224ccb998eb58f5fb8a3bc8e2af673
+  image: registry.wklive.net:5000/digi/base-matomo:3.9.1-php7.2.16-fpm-alpine3.9-0d9e9dff918ed42149e66821f8bc36f1805ec864
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   config:
