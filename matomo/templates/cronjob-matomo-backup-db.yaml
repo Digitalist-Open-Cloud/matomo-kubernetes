@@ -20,7 +20,7 @@ spec:
             command: ["sh", "-c", "/scripts/backupdb.sh"]
             env:
             - name: DB_HOSTNAME
-              value: {{.Values.db.hostname}}
+              value: {{.Values.db.hostnameSlave}}
             - name: DB_USERNAME
               value: root
             - name: DB_PASSWORD
