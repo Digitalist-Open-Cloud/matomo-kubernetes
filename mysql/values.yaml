@@ -1,0 +1,73 @@
+mysql:
+  root:
+    password: X4FkJTs3ThT4rTHM
+  db:
+    name: matomo
+  securityContext:
+    enabled: true
+    runAsUser: 1001
+    fsGroup: 1001
+  replication:
+    enabled: true
+  master:
+    persistence:
+      size: 5Gi
+    config: |-
+      [mysqld]
+      default_authentication_plugin=mysql_native_password
+      skip-name-resolve
+      explicit_defaults_for_timestamp
+      basedir=/opt/bitnami/mysql
+      port=3306
+      socket=/opt/bitnami/mysql/tmp/mysql.sock
+      tmpdir=/opt/bitnami/mysql/tmp
+      max_allowed_packet=64M
+      bind-address=0.0.0.0
+      pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+      log-error=/opt/bitnami/mysql/logs/mysqld.log
+      character-set-server=UTF8
+      collation-server=utf8_general_ci
+      innodb_buffer_pool_size=2048000000
+      innodb_flush_log_at_trx_commit=2
+      max_connections=700
+      expire_logs_days=7
+      [client]
+      port=3306
+      socket=/opt/bitnami/mysql/tmp/mysql.sock
+      default-character-set=UTF8
+      [manager]
+      port=3306
+      socket=/opt/bitnami/mysql/tmp/mysql.sock
+      pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+  slave:
+    persistence:
+      size: 5Gi
+    replicas: 2
+    antiAffinity: hard
+    config: |-
+      [mysqld]
+      default_authentication_plugin=mysql_native_password
+      skip-name-resolve
+      explicit_defaults_for_timestamp
+      basedir=/opt/bitnami/mysql
+      port=3306
+      socket=/opt/bitnami/mysql/tmp/mysql.sock
+      tmpdir=/opt/bitnami/mysql/tmp
+      max_allowed_packet=64M
+      bind-address=0.0.0.0
+      pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+      log-error=/opt/bitnami/mysql/logs/mysqld.log
+      character-set-server=UTF8
+      collation-server=utf8_general_ci
+      innodb_buffer_pool_size=2048000000
+      innodb_flush_log_at_trx_commit=2
+      max_connections=700
+      expire_logs_days=7
+      [client]
+      port=3306
+      socket=/opt/bitnami/mysql/tmp/mysql.sock
+      default-character-set=UTF8
+      [manager]
+      port=3306
+      socket=/opt/bitnami/mysql/tmp/mysql.sock
+      pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
