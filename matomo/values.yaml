@@ -75,6 +75,7 @@ matomo:
     - Marketplace
     - ProfessionalServices
     - QueuedTracking
+    - UserConsole
     Site:
       name: Localhost
       url: http://localhost
