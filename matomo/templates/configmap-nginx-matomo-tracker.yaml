@@ -6,62 +6,46 @@ metadata:
 data:
   nginx.conf: |
     worker_processes {{.Values.nginxWorkerProcesses}};
-      
-    events {
-    }
-
     http {
-
       log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
                         '"$http_user_agent" "$http_x_forwarded_for"';
-
       access_log  /var/log/nginx/access.log  main;
-
       sendfile        on;
-      #tcp_nopush     on;
-
       keepalive_timeout 0; 
-
       server {
         listen 8080 default_server;
         server_name _;
-          
         root /var/www/html;
-
-        index index.html index.htm index.debian-default.html index.php;
-
+        index index.php;
+        
+        ## Deny access to everything...
         location / {
-          return 404;
+          deny all;
+          return 403;
         }
 
+        ## Allow access to piwik.js file.
         location /piwik.js {
           try_files $uri $uri/ /index.php$is_args$args;
         }
+        
+        ## Allow access to piwik.php file.
         location /piwik.php {
           try_files $uri $uri/ /index.php$is_args$args;
         }
 
+        ## Sends all requests to php-files over to php.
         location ~ [^/]\.php(/|$) {
           fastcgi_split_path_info ^(.+?\.php)(/.*)$;
           if (!-f $document_root$fastcgi_script_name) {
-            return 404;
+            deny all;
+            return 403;
           }
-
-          # Mitigate https://httpoxy.org/ vulnerabilities
           fastcgi_param HTTP_PROXY "";
-
           fastcgi_pass localhost:9000;
           fastcgi_index index.php;
-
-          # include the fastcgi_param setting
           include fastcgi_params;
-
-          # SCRIPT_FILENAME parameter is used for PHP FPM determining
-          #  the script name. If it is not set in fastcgi_params file,
-          # i.e. /etc/nginx/fastcgi_params or in the parent contexts,
-          # please comment off following line:
-          # fastcgi_param  SCRIPT_FILENAME   $document_root$fastcgi_script_name;
         }
       }
     }

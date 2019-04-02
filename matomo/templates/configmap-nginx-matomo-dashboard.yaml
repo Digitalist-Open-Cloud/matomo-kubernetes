@@ -6,37 +6,28 @@ metadata:
 data:
   nginx.conf: |
     worker_processes {{.Values.nginxWorkerProcesses}};
-      
-    events {
-    }
-
     http {
       include       /etc/nginx/mime.types;
       default_type  application/octet-stream;
       log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
                         '"$http_user_agent" "$http_x_forwarded_for"';
-
       access_log  /var/log/nginx/access.log  main;
-
       sendfile        on;
-      #tcp_nopush     on;
-
       keepalive_timeout 0; 
-
       server {
         listen 8080 default_server;
         server_name _;
-          
         root /var/www/html;
+        index index.php;
 
-        index index.html index.htm index.debian-default.html index.php;
-
+        ## Redirects all requests to index.php and Matomo.
         location / {
           try_files $uri $uri/ /index.php$is_args$args;
         }
 
-        location ~ ^/(index|matomo|piwik|js/index).php  {
+        ## Allow access to index.php to make dashboard work.
+        location ~ ^/(index).php  {
           fastcgi_split_path_info ^(.+?\.php)(/.*)$;
           if (!-f $document_root$fastcgi_script_name) {
             return 404;
@@ -47,6 +38,7 @@ data:
           include fastcgi_params;
         }
 
+        ## Allow access to heatmapsessionsrecording plugin is needed to make it work.
         location = /plugins/HeatmapSessionRecording/configs.php { 
           fastcgi_split_path_info ^(.+?\.php)(/.*)$;
           if (!-f $document_root$fastcgi_script_name) {
@@ -58,23 +50,7 @@ data:
           include fastcgi_params;
         }
 
-        ## deny access to all other .php files
-        location ~* ^.+\.php$ {
-            deny all;
-            return 403;
-        }
-
-        ## disable all access to the following directories 
-        location ~ /(config|tmp|core|lang) {
-            deny all;
-            return 403; # replace with 404 to not show these directories exist
-        }
-
-        location ~ /\.ht {
-            deny  all;
-            return 403;
-        }
-
+        ## Allow access to static media files.
         location ~ \.(gif|ico|jpg|png|svg|js|css|htm|html|mp3|mp4|wav|ogg|avi|ttf|eot|woff|woff2|json)$ {
             allow all;
             ## Cache images,CSS,JS and webfonts for an hour
@@ -84,14 +60,28 @@ data:
             add_header Cache-Control "public";
         }
 
-        location ~ /(libs|vendor|plugins|misc/user) {
-            deny all;
-            return 403;
+        ## Deny access to all other .php files.
+        location ~* ^.+\.php$ {
+          deny all;
+          return 403;
         }
 
-        ## properly display textfiles in root directory
-        location ~* \.(md)$ {
-            default_type text/plain;
+        ## Deny access to key matomo folders and files that dashboard should not serve.
+        location ~ /(config|tmp|core|lang|libs|vendor|plugins|misc/user|piwik.js|piwik.php|matomo.js|matomo.php) {
+          deny all;
+          return 403;
+        }
+
+        ## Deny access to all files starting with ".ht"
+        location ~ /\.ht {
+          deny  all;
+          return 403;
+        }
+
+        ## Deny access to Markdown files
+        location ~* ^.+\.md$ {
+          deny  all;
+          return 403;
         }
       }
     }
