@@ -87,13 +87,13 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
-            path: /piwik.php?idsite=1&rec=1
+            path: /index.php
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 2
         readinessProbe:
           httpGet:
-            path: /piwik.php?idsite=1&rec=1
+            path: /index.php
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5

@@ -6,6 +6,8 @@ metadata:
 data:
   nginx.conf: |
     worker_processes {{.Values.nginxWorkerProcesses}};
+    events {
+    }
     http {
       log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
@@ -39,7 +41,6 @@ data:
         location ~ [^/]\.php(/|$) {
           fastcgi_split_path_info ^(.+?\.php)(/.*)$;
           if (!-f $document_root$fastcgi_script_name) {
-            deny all;
             return 403;
           }
           fastcgi_param HTTP_PROXY "";

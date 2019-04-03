@@ -6,6 +6,8 @@ metadata:
 data:
   nginx.conf: |
     worker_processes {{.Values.nginxWorkerProcesses}};
+    events {
+    }
     http {
       include       /etc/nginx/mime.types;
       default_type  application/octet-stream;
