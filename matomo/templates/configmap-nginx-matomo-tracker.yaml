@@ -27,13 +27,8 @@ data:
           return 403;
         }
 
-        ## Allow access to piwik.js file.
-        location /piwik.js {
-          try_files $uri $uri/ /index.php$is_args$args;
-        }
-        
-        ## Allow access to piwik.php file.
-        location /piwik.php {
+        ## Allow access to piwik.js,piwik.php,matomo.js and matomo.php file.
+        location ~ /(piwik.js|piwik.php|matomo.js|matomo.php) {
           try_files $uri $uri/ /index.php$is_args$args;
         }
 

@@ -7,6 +7,10 @@ matomo:
   image: registry.wklive.net:5000/digi/base-matomo:3.9.1-php7.2.16-fpm-alpine3.9-mikke-562f40140fd7ca5615de6cf1aba12dcffbf8fa62
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
+  license:
+    secretKeyRef:
+      name: matomo-license
+      key: matomo-license
   config:
     PluginsInstalled:
     - Diagnostics

@@ -17,16 +17,6 @@ spec:
       annotations:
         kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - matomo-tracker
-            topologyKey: "kubernetes.io/hostname"
       initContainers:
       - name: matomo-init
         image: {{.Values.matomo.image}}
