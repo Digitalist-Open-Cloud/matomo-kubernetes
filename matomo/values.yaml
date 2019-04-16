@@ -21,7 +21,7 @@ matomo:
       activeDeadlineSeconds: 43200
       command: ./console scheduled-tasks:run
     swiftDbBackup:
-      image: registry.wklive.net:5000/digitalist/k8s-db-backup:python-3.7.2-slim-stretch-master-9b1bfc8e3cff38d8bec457d193173b813325935d
+      image: registry.wklive.net:5000/digitalist/k8s-db-backup:python-3.7.2-slim-stretch-master-49619e0d334ef7849658559a6086a7187178be0a
       schedule: "*/10 * * * *"
       namePrefix: matomo
       deleteBackupAfter: "60"
