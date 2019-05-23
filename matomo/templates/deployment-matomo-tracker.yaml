@@ -75,18 +75,6 @@ spec:
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: /piwik.php?idsite=1&rec=1
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 2
-        readinessProbe:
-          httpGet:
-            path: /piwik.php?idsite=1&rec=1
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
         env:
         - name: MATOMO_DB_PASSWORD
           valueFrom:

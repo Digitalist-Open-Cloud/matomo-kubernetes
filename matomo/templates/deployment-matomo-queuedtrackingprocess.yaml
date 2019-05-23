@@ -58,22 +58,6 @@ spec:
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
-        livenessProbe:
-          exec:
-            command:
-              - sh
-              - -c
-              - '/usr/bin/supervisorctl status | grep FATAL | wc -l | grep 0'
-          initialDelaySeconds: 5
-          periodSeconds: 2
-        readinessProbe:
-          exec:
-            command:
-              - sh
-              - -c
-              - '/usr/bin/supervisorctl status | grep FATAL | wc -l | grep 0'
-          initialDelaySeconds: 5
-          periodSeconds: 5
         env:
         - name: MATOMO_DB_PASSWORD
           valueFrom:
