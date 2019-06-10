@@ -1,5 +1,7 @@
 # Instructions
 
+This readme will show you how to deploy this helm chart locally on Minikube.
+
 ## Requirements
 
     * Minikube
@@ -37,6 +39,7 @@
 
 3. Create secret about your OpenStack authentication details.
 
+```
 kubectl -n matomo create secret generic matomo-openstack-secret \
 --from-literal=ST_AUTH_VERSION=3 \
 --from-literal=OS_USERNAME=<your-username> \
@@ -48,6 +51,7 @@ kubectl -n matomo create secret generic matomo-openstack-secret \
 --from-literal=OS_USER_ID=<your-user-id> \
 --from-literal=OS_PROJECT_ID=<your-project-id> \
 --from-literal=OS_SWIFT_CONTAINER=<your-swift-container> \
+```
 
 4. Deploy the redis helm chart.
 
