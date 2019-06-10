@@ -84,3 +84,52 @@ If you have made any changes in a helm chart, use this command to update pods, s
     Can either be 'matomo', 'matomo-db' or 'matomo-mysql'.
 
     `helm upgrade matomo . --namespace=matomo -f values.yaml`
+
+
+---
+
+## Description of `values.yaml`
+
+Check file for default values.
+
+| Key | Description |
+| --- | ----------- |
+| `changeCause` | Changes the changecause, which is added in all deployment files, will trigger a re-deployment of all pods. |
+| `namespace` | Describes what namespace Matomo should be deployed to. |
+| `nginxWorkerProcesses` | How many cpu cores should nginx use, should be same as number of cpu cores on server. |
+| `queuedTrackingProcess.numProcs` | How many processes should supervisor.d use for running `./console queuedtracking:process`. |
+| `matomo.image` | What image should all matomo pods use, default or a custom one (if you need premium plugins for example). |
+| `matomo.runAsUser` | Inside the matomo containers we want to run as a non root user. |
+| `matomo.installCommand` | The command that should run in the init container for all Matomo pods to install / run db migrations for Matomo |
+| `matomo.license.secretKeyRef.name` | Refers to a Kubernetes secret name for a Matomo premium plugin license key. |
+| `matomo.license.secretKeyRef.key` | Refers to the key inside above Kubernetes secret where the license key value is. |
+| `matomo.cronJobs.coreArchive.schedule` | Cronjob - Corearchive - How often should we run the `./console core:archive` cronjob. |
+| `matomo.cronJobs.coreArchive.activeDeadlineSeconds` | Cronjob - Corearchive - How long can the cronjob take before it dies. |
+| `matomo.cronJobs.coreArchive.command` | Cronjob - Corearchive - What command should we run? |
+| `matomo.cronJobs.scheduledTasks.schedule` | Cronjob - Scheduled tasks - How often should we run the `./console scheduled-tasks:run` cronjob. |
+| `matomo.cronJobs.scheduledTasks.activeDeadlineSeconds` | Cronjob - Scheduled tasks - How long can the cronjob take before it dies. |
+| `matomo.cronJobs.scheduledTasks.command` | Cronjob - Scheduled tasks - What command should we run? |
+| `matomo.cronJobs.swiftDbBackup.image` | Cronjob - swiftDbBackup - Define the image we should use for making database backups to Swift. |
+| `matomo.cronJobs.swiftDbBackup.schedule` | Cronjob - swiftDbBackup - How often should we run the database backup cronjob. |
+| `matomo.cronJobs.swiftDbBackup.namePrefix` | Cronjob - swiftDbBackup - What should the prefix of the filename on database backups? |
+| `matomo.cronJobs.swiftDbBackup.deleteBackupAfter` | Cronjob - swiftDbBackup - How many days should we keep the backups? |
+| `matomo.cronJobs.swiftDbBackup.openStackSecret` | Cronjob - swiftDbBackup - Name of the Kubernetes secret where the Openstack Swift authenticaion is. |
+| `matomo.dashboard.replicas` | Number of replicas we should run of the Matomo dashboard. |
+| `matomo.dashboard.hostname` | Hostname for the Matomo dashboard. |
+| `matomo.dashboard.tls` | Should we runt tls for the dashboard or not. |
+| `matomo.dashboard.firstuser.username` | What should the Username be for the admin user in Matomo. |
+| `matomo.dashboard.firstuser.password` | What should the Password be for the admin user in Matomo. |
+| `matomo.dashboard.firstuser.email` | What should the Email be for the admin user in Matomo. |
+| `matomo.queuedTrackingProcess.replicas` | How many replicas should we run for the queuedTrackingProcess pod. |
+| `matomo.tracker.replicas` | How many replicas should we run for the tracker pod. |
+| `matomo.tracker.hostname` | What should be the hostname be for the tracker pod. |
+| `matomo.tracker.tls` | Should we run tls for the tracker pod or not. |
+| `nginx.image` | What nginx image do we want to run in the nginx container we run in the Matomo dashboard / tracker pods. |
+| `nginx.runAsUser` | Inside the nginx containers we want to run as a non root user. |
+| `db.hostname` | Hostname for the database server |
+| `db.hostnameSlave` | Hostname for the slave database (which we run backups from). |
+| `db.password.secretKeyRef.name` | Name of the Kubernetes secret where we have our database password. |
+| `db.password.secretKeyRef.key` | Name of the key in the above Kubernetes secret where the database password value is. |
+| `db.name` | Database name for Matomo |
+| `db.username` | Username to use to access the Matomo database. |
+| `db.prefix` | Prefix for the Matomo database tables. |
