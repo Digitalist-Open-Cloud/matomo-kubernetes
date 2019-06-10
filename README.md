@@ -12,12 +12,44 @@ The setup consists of 3 helm charts, they have been split up since the Matomo de
 
 * Mysql - Helm chart - https://github.com/bitnami/charts/tree/master/bitnami/mysql
  
-    A helm chart built by Bitname, we use this and not the official one since we can run the containers as non root.
+    A helm chart built by Bitnami, we use this and not the official one since we can run the containers as non root with this chart.
 
+
+## Create a new project
+
+To use the Matomo helm chart as a base in a new project you need to create your own helm chart that uses this as a dependency, lets go through the steps on how to do that.
+
+1. Create a new folder somewhere on your computer and create your helm chart there.
+
+    `helm create <PROJECTNAME>`
+
+2. You will now have a folder called <PROJECTNAME> there with this structure.
+
+    ```
+    ├── charts
+    ├── Chart.yaml
+    ├── templates
+    │   ├── deployment.yaml
+    │   ├── _helpers.tpl
+    │   ├── ingress.yaml
+    │   ├── NOTES.txt
+    │   └── service.yaml
+    └── values.yaml
+    ```
+
+3. Remove all files in the templates folder.
+
+4. Remove all contents in the `values.yaml` file and copy the content from `matomo/values.yaml` file in this repo to your file.
+
+5. Look through the settings and adjust accordingly to your needs. Namespace, hostnames and cronjobs should be the obvious ones.
+
+6. Copy both the `redis` folder and `mysql` folder from this repo to your folder.
+
+7. Now look below for deploy instructions.
 
 ## Deploy instructions
 
-See the `README_LOCAL.md` and `README_PROD.md` for instructions.
+See the `README_LOCAL.md` for local deploy or `README_PROD.md` for a production deploy instructions.
 
 
 ## Matomo - File structure (`matomo` directory)
