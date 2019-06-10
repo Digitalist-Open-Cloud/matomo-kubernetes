@@ -1,94 +1,45 @@
-# Instructions
+# Readme
 
-This readme will show you how to deploy this helm chart locally on Minikube.
+The setup consists of 3 helm charts, they have been split up since the Matomo depends on the other 2 to be online (Redis, MySQL), if we write more logic into our init containers for matomo we can combine them to one big helm chart.
 
-## Requirements
+* Matomo - Helm chart
 
-    * Minikube
-    * Kubectl
-    * Helm
+    Digitalist own helm chart for running the matomo containers (php) and nginx containers + cronjobs and configmaps needed.
 
-## Start local development environment.
+* Redis - Helm Chart - https://github.com/helm/charts/tree/master/stable/redis-ha
 
-1. Start minikube using this command.
+    Official `redis-ha` helm chart which is a clustered redis setup with as many replicas you want (with a possibility to use anti-affinity).
 
-    `minikube start --bootstrapper kubeadm --extra-config=apiserver.enable-admission-plugins="Initializers,NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,NodeRestriction,ResourceQuota,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,PodSecurityPolicy" --memory=4096 --cpus=4`
-
-2. Go to the minikube directory (.minikube) and run these commands to get Pod security policies running.
-    
-    `kubectl apply -f psp.yaml`
-
-    `kubectl auth reconcile -f psp-cr.yaml`
-
-    `kubectl auth reconcile -f psp-crb.yaml`
-
-3. Install helm tiller to your cluster so we can use helm for deploying our applications in helm charts.
-
-    `helm init`
+* Mysql - Helm chart - https://github.com/bitnami/charts/tree/master/bitnami/mysql
+ 
+    A helm chart built by Bitname, we use this and not the official one since we can run the containers as non root.
 
 
-## Deploy Matomo helm charts to K8S for the first time.
+## Deploy instructions
 
-1. Create matomo namespace.
-
-    `kubectl create namespace matomo`
-
-2. Create secret about your registry to where the matomo image is and the authentication for that.
-
-    `kubectl --namespace matomo create secret docker-registry matomo-registry-secret --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>`
-
-3. Create secret about your OpenStack authentication details.
-
-```
-kubectl -n matomo create secret generic matomo-openstack-secret \
---from-literal=ST_AUTH_VERSION=3 \
---from-literal=OS_USERNAME=<your-username> \
---from-literal=OS_USER_DOMAIN_NAME=<your-user-domain-name> \
---from-literal=OS_PASSWORD=<your-password> \
---from-literal=OS_PROJECT_NAME=<your-project-name> \
---from-literal=OS_PROJECT_DOMAIN_NAME=<your-project-domain-name> \
---from-literal=OS_AUTH_URL=<your-provider-auth-url> \
---from-literal=OS_USER_ID=<your-user-id> \
---from-literal=OS_PROJECT_ID=<your-project-id> \
---from-literal=OS_SWIFT_CONTAINER=<your-swift-container> \
-```
-
-4. Deploy the redis helm chart.
-
-    Go to the redis directory and run:
-
-    `helm dependencies update` - Downloads dependencies for the Helm chart
-
-    `helm install -n matomo-redis . --namespace=matomo -f values.yaml`
-
-5. Deploy the mysql helm chart.
-
-    Go to the mysql directory and run:
-
-    `helm dependencies update` - Downloads dependencies for the Helm chart
-
-    `helm install -n matomo-db . --namespace=matomo -f values.yaml`
-
-6. Deploy the matomo helm chart.
-
-    Go to the matomo directory and run:
-
-    `helm install -n matomo . --namespace=matomo -f values.yaml`
-
----
-
-## To update the Matomo K8S setup with your changes:
-
-If you have made any changes in a helm chart, use this command to update pods, services, configmaps etc. in your cluster. Go to the specific directory for the helm chart.
-
-    Can either be 'matomo', 'matomo-db' or 'matomo-mysql'.
-
-    `helm upgrade matomo . --namespace=matomo -f values.yaml`
+See the `README_LOCAL.md` and `README_PROD.md` for instructions.
 
 
----
+## Matomo - File structure (`matomo` directory)
 
-## Description of `values.yaml`
+| File | Description |
+| ---- | ----------- |
+| `Chart.yaml` | Describes the chart name, version etc. |
+| `templates/configmap-matomo.yaml` | Contains the configuration for Matomo in a json-format, what plugins that should be activated etc. |
+| `templates/configmap-nginx-matomo-dashboard.yaml` | Contains the nginx conf file for the Matomo dashboard. |
+| `templates/configmap-nginx-matomo-tracker.yaml` | Contains the nginx conf file for the Matomo tracker script. |
+| `templates/configmap-supervisor-queuedtrackingprocess.yaml` | Contains the supervisor.d config for the queeudtrackingprocess |
+| `templates/cronjob-matomo-backup-db.yaml` | Cronjob - For backing up database to Openstack Object storage. |
+| `templates/cronjob-matomo-corearchive.yaml` | Cronjob - Creates visitor reports in Matomo. |
+| `templates/cronjob-matomo-scheduled-tasks.yaml` | Cronjob - Runs scheduled tasks in Matomo, like sending e-mail reports on scheduled time. |
+| `templates/deployment-matomo-dashboard.yaml` | Deployment specification for the Matomo dashboard pods. |
+| `templates/deployment-matomo-queuedtrackingprocess.yaml` | Deployment for the queuedtrackingprocess for Matomo. |
+| `templates/deployment-matomo-tracker.yaml` | Deployment for the matomo tracker js/php files. |
+| `templates/ingress-matomo-dashboard.yaml` | Ingress for the Matomo dashboard |
+| `templates/ingress-matomo-tracker.yaml` | Ingress for the matomo tracker. |
+| `Values.yaml` | Here  you can change most common things we need to change in the templates like "Change cause" and image for Matomo, instead of digging through all YAML files in the templates-folder. |
+
+## Matomo configuration (`matomo/values.yaml` file)
 
 Check file for default values.
 
