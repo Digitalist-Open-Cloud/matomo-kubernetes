@@ -17,13 +17,15 @@ The setup consists of 3 helm charts, they have been split up since the Matomo de
 
 ## Create a new project
 
-To use the Matomo helm chart as a base in a new project you need to create your own helm chart that uses this as a dependency, lets go through the steps on how to do that.
+To use the Matomo helm chart as a base in a new project you need to create your own helm chart that uses this as a dependency, so you will need to have a copy of this repo locally, lets go through the steps on how to do that.
 
-1. Create a new folder somewhere on your computer and create your helm chart there.
+1. Clone this repo and put it somewhere on your computer.
 
-    `helm create <PROJECTNAME>`
+2. Create a new directory somewhere on your computer (NOT in the `matomo-kubernetes` directory) and create your helm chart there.
 
-2. You will now have a folder called <PROJECTNAME> there with this structure.
+    `helm create <CHARTNAME>`
+
+3. You will now have a directory called <CHARTNAME> there with this structure.
 
     ```
     ├── charts
@@ -37,15 +39,28 @@ To use the Matomo helm chart as a base in a new project you need to create your 
     └── values.yaml
     ```
 
-3. Remove all files in the templates folder.
+4. Remove all files in the templates directory.
 
-4. Remove all contents in the `values.yaml` file and copy the content from `matomo/values.yaml` file in this repo to your file.
+5. Create a new file called `requirements.yaml` in root of the <CHARTNAME> directory and copy and paste this text, the repository needs to be a path to the original matomo-kubernetes helm chart you cloned.
 
-5. Look through the settings and adjust accordingly to your needs. Namespace, hostnames and cronjobs should be the obvious ones.
+    ```
+    dependencies:
+      - name: matomo
+        version: 5.0.0
+        repository: "file://../../../matomo-kubernetes/matomo"
+    ```
 
-6. Copy both the `redis` folder and `mysql` folder from this repo to your folder.
+6. Download all dependencies for this chart by running this command in the chart directory, this will put a tar ball of the dependency inside the charts directory.
 
-7. Now look below for deploy instructions.
+    `helm dependencies update`
+
+7. Remove all contents in the `values.yaml` file and copy the content from `matomo/values.yaml` file in this repo to your file.
+
+8. Look through the settings and adjust accordingly to your needs. Namespace, hostnames and cronjobs should be the obvious ones.
+
+9. Copy both the `redis` directory and `mysql` directory from this repo to your <CHARTNAME> directory.
+
+10. Now look below for deploy instructions.
 
 ## Deploy instructions
 
@@ -69,7 +84,7 @@ See the `README_LOCAL.md` for local deploy or `README_PROD.md` for a production 
 | `templates/deployment-matomo-tracker.yaml` | Deployment for the matomo tracker js/php files. |
 | `templates/ingress-matomo-dashboard.yaml` | Ingress for the Matomo dashboard |
 | `templates/ingress-matomo-tracker.yaml` | Ingress for the matomo tracker. |
-| `Values.yaml` | Here  you can change most common things we need to change in the templates like "Change cause" and image for Matomo, instead of digging through all YAML files in the templates-folder. |
+| `Values.yaml` | Here  you can change most common things we need to change in the templates like "Change cause" and image for Matomo, instead of digging through all YAML files in the templates-directory. |
 
 ## Matomo configuration (`matomo/values.yaml` file)
 
