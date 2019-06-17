@@ -7,6 +7,8 @@ metadata:
 spec:
   schedule: {{quote .Values.matomo.cronJobs.coreArchive.schedule}}
   concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 10
   jobTemplate:
     spec:
       activeDeadlineSeconds: {{.Values.matomo.cronJobs.coreArchive.activeDeadlineSeconds}}

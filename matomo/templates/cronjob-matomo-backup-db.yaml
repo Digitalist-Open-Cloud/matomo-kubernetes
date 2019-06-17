@@ -1,3 +1,4 @@
+{{- if .Values.matomo.cronJobs.swiftDbBackup }}
 ---
 apiVersion: batch/v1beta1
 kind: CronJob
@@ -7,6 +8,8 @@ metadata:
 spec:
   schedule: {{quote .Values.matomo.cronJobs.swiftDbBackup.schedule}}
   concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 10
   jobTemplate:
     metadata:
       annotations:
@@ -87,3 +90,4 @@ spec:
           restartPolicy: OnFailure
           imagePullSecrets:
           - name: matomo-registry-secret
+{{- end -}}
