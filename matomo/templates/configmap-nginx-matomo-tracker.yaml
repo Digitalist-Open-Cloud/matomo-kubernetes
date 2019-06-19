@@ -23,7 +23,6 @@ data:
         root /var/www/html;
         index matomo.php;
         
-        ## Allow access to piwik.js,piwik.php,matomo.js and matomo.php file.
         location / {
           try_files $uri $uri/ /index.php$is_args$args;
         }
