@@ -81,11 +81,13 @@ spec:
             secretKeyRef:
               name: {{ .Values.db.password.secretKeyRef.name }}
               key: {{ .Values.db.password.secretKeyRef.key }}
-        ports:
-        - containerPort: 9000
+        command: [ 'sh' , '-c' , 'supervisord -n' ]
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
+          - name: matomo-supervisor-tracker
+            mountPath: /etc/supervisor.d
+            readOnly: true
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
@@ -97,6 +99,9 @@ spec:
           name: matomo-configuration
       - name: static-data
         emptyDir: {}
+      - name: matomo-supervisor-tracker
+        configMap:
+          name: matomo-supervisor-tracker
 ---
 apiVersion: v1
 kind: Service

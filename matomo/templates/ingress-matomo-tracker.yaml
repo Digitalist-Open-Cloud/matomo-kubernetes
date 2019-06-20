@@ -27,6 +27,10 @@ spec:
           serviceName: matomo-tracker
           servicePort: 8080
         path: /matomo.js
+      - backend:
+          serviceName: matomo-tracker
+          servicePort: 8080
+        path: /js/*
   {{- if .Values.matomo.tracker.tls }}      
   tls:
   - hosts:
