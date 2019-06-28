@@ -37,7 +37,11 @@ This readme will show you how to deploy Matomo locally on Minikube.
 
     `kubectl --namespace matomo create secret docker-registry matomo-registry-secret --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>`
 
-3. Create secret about your OpenStack authentication details.
+3. Create a secret for `Matomo license`.
+
+    `kubectl -n local create secret generic matomo-license --from-literal=matomo-license=<YOUR-LICENSE-KEY>`
+
+4. Create secret about your OpenStack authentication details (if you plan to use the Swift backup).
 
 ```
 kubectl -n matomo create secret generic matomo-openstack-secret \
@@ -53,7 +57,7 @@ kubectl -n matomo create secret generic matomo-openstack-secret \
 --from-literal=OS_SWIFT_CONTAINER=<your-swift-container> \
 ```
 
-4. Deploy the redis helm chart.
+5. Deploy the redis helm chart.
 
     Go to the redis directory and run:
 
@@ -61,7 +65,7 @@ kubectl -n matomo create secret generic matomo-openstack-secret \
 
     `helm install -n matomo-redis . --namespace=matomo -f values.yaml`
 
-5. Deploy the mysql helm chart.
+6. Deploy the mysql helm chart.
 
     Go to the mysql directory and run:
 
@@ -69,7 +73,7 @@ kubectl -n matomo create secret generic matomo-openstack-secret \
 
     `helm install -n matomo-db . --namespace=matomo -f values.yaml`
 
-6. Deploy the matomo helm chart.
+7. Deploy the matomo helm chart.
 
     Go to the matomo directory and run:
 
