@@ -127,7 +127,7 @@ data:
           "queueEnabled": 1,
           "numQueueWorkers": 1,
           "numRequestsToProcess": "25",
-          "processDuringTrackingRequest": 1
+          "processDuringTrackingRequest": 0
         }
       }
     }
