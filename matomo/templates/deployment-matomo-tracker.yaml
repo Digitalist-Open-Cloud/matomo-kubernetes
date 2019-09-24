@@ -1,3 +1,5 @@
+---
+{{- if .Values.matomo.tracker.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -115,3 +117,4 @@ spec:
       protocol: TCP
   selector:
     app: matomo-tracker
+{{- end -}}
