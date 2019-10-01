@@ -19,7 +19,7 @@ spec:
   tls:
   - hosts:
     - {{.Values.matomo.dashboard.hostname}}
-      {{- if .Values.matomo.dashboard.secretName }}
-      secretName: {{.Values.matomo.dashboard.secretName}}
-      {{- end -}}
+    {{- if .Values.matomo.dashboard.secretName }}
+    secretName: {{.Values.matomo.dashboard.secretName}}
+    {{- end -}}
   {{- end -}}
