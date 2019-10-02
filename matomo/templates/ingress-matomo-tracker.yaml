@@ -35,7 +35,7 @@ spec:
   tls:
   - hosts:
     - {{.Values.matomo.tracker.hostname}}
-      {{- if .Values.matomo.tracker.secretName }}
-      secretName: {{.Values.matomo.tracker.secretName}}
-      {{- end -}}
+    {{- if .Values.matomo.tracker.secretName }}
+    secretName: {{.Values.matomo.tracker.secretName}}
+    {{- end -}}
   {{- end -}}
