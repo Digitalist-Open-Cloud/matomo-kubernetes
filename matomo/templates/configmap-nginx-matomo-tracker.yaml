@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-matomo-tracker
+  name: nginx-matomo-tracker-1
   namespace: {{.Values.namespace}}
 data:
   nginx.conf: |

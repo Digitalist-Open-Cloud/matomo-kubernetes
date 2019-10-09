@@ -3,19 +3,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: matomo-tracker
+  name: matomo-tracker-1
   namespace: {{.Values.namespace}}
   labels:
-    app: matomo-tracker
+    app: matomo-tracker-1
 spec:
   replicas: {{.Values.matomo.tracker.replicas}}
   selector:
     matchLabels:
-      app: matomo-tracker
+      app: matomo-tracker-1
   template:
     metadata:
       labels:
-        app: matomo-tracker
+        app: matomo-tracker-1
       annotations:
         kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
@@ -60,7 +60,7 @@ spec:
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
         volumeMounts:
-          - name: nginx-matomo-tracker
+          - name: nginx-matomo-tracker-1
             mountPath: /etc/nginx
             readOnly: true
           - name: static-data
@@ -93,9 +93,9 @@ spec:
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
-      - name: nginx-matomo-tracker
+      - name: nginx-matomo-tracker-1
         configMap:
-          name: nginx-matomo-tracker
+          name: nginx-matomo-tracker-1
       - name: matomo-configuration-1
         configMap:
           name: matomo-configuration-1
@@ -108,13 +108,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: matomo-tracker
+  name: matomo-tracker-1
   labels:
-    app: matomo-tracker
+    app: matomo-tracker-1
 spec:
   ports:
     - port: 8080
       protocol: TCP
   selector:
-    app: matomo-tracker
+    app: matomo-tracker-1
 {{- end -}}
