@@ -51,7 +51,7 @@ spec:
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
-          - name: matomo-configuration-1
+          - name: matomo-configuration
             mountPath: /tmp/matomo/
             readOnly: true
       containers:
@@ -76,9 +76,9 @@ spec:
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
-      - name: matomo-configuration-1
+      - name: matomo-configuration
         configMap:
-          name: matomo-configuration-1
+          name: matomo-configuration
       - name: static-data
         emptyDir: {}
       - name: matomo-supervisor-queuedtrackingprocess

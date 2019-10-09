@@ -2,8 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   labels:
-    app: matomo-tracker-1
-  name: matomo-tracker-1
+    app: matomo-tracker
+  name: matomo-tracker
   namespace: {{.Values.namespace}}
 spec:
   rules:
@@ -12,23 +12,23 @@ spec:
       port: 80
       paths:
       - backend:
-          serviceName: matomo-tracker-1
+          serviceName: matomo-tracker
           servicePort: 8080
         path: /piwik.php
       - backend:
-          serviceName: matomo-tracker-1
+          serviceName: matomo-tracker
           servicePort: 8080
         path: /piwik.js
       - backend:
-          serviceName: matomo-tracker-1
+          serviceName: matomo-tracker
           servicePort: 8080
         path: /matomo.php
       - backend:
-          serviceName: matomo-tracker-1
+          serviceName: matomo-tracker
           servicePort: 8080
         path: /matomo.js
       - backend:
-          serviceName: matomo-tracker-1
+          serviceName: matomo-tracker
           servicePort: 8080
         path: /js/*
   {{- if .Values.matomo.tracker.tls }}

@@ -56,7 +56,7 @@ spec:
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
-          - name: matomo-configuration-1
+          - name: matomo-configuration
             mountPath: /tmp/matomo/
             readOnly: true
       containers:
@@ -104,9 +104,9 @@ spec:
       - name: nginx-matomo-dashboard
         configMap:
           name: nginx-matomo-dashboard
-      - name: matomo-configuration-1
+      - name: matomo-configuration
         configMap:
-          name: matomo-configuration-1
+          name: matomo-configuration
       - name: static-data
         emptyDir: {}
 ---
