@@ -45,7 +45,6 @@ nginx:
   runAsUser: 100
 db:
   hostname: matomo-db-mysql
-  hostnameSlave: matomo-db-mysql-slave
   password:
     secretKeyRef:
       name: matomo-db-mysql
