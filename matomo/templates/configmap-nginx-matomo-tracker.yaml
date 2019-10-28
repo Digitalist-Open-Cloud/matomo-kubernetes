@@ -26,6 +26,19 @@ data:
         location / {
           try_files $uri $uri/ /index.php$is_args$args;
         }
+        ## Allow access to heatmapsessionsrecording plugin is needed to make it work.
+        location = /plugins/HeatmapSessionRecording/configs.php { 
+          fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+          if (!-f $document_root$fastcgi_script_name) {
+            return 404;
+          }
+          fastcgi_read_timeout 120s;
+          fastcgi_send_timeout 120s;
+          fastcgi_param HTTP_PROXY "";
+          fastcgi_pass localhost:9000;
+          fastcgi_index index.php;
+          include fastcgi_params;
+        }
 
         ## Sends all requests to php-files over to php.
         location ~ ^/(matomo|piwik).php {
