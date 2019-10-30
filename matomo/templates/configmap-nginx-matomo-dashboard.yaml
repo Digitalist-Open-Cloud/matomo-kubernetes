@@ -10,6 +10,7 @@ data:
     }
     pid        /tmp/nginx.pid;
     http {
+      server_tokens off;
       client_body_temp_path /tmp/client_temp;
       proxy_temp_path       /tmp/proxy_temp_path;
       fastcgi_temp_path     /tmp/fastcgi_temp;
@@ -47,18 +48,18 @@ data:
         }
 
         ## Allow access to heatmapsessionsrecording plugin is needed to make it work.
-        #location = /plugins/HeatmapSessionRecording/configs.php { 
-        #  fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-        #  if (!-f $document_root$fastcgi_script_name) {
-        #    return 404;
-        #  }
-        #  fastcgi_read_timeout 120s;
-        #  fastcgi_send_timeout 120s;
-        #  fastcgi_param HTTP_PROXY "";
-        #  fastcgi_pass localhost:9000;
-        #  fastcgi_index index.php;
-        #  include fastcgi_params;
-        #}
+        location = /plugins/HeatmapSessionRecording/configs.php { 
+          fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+          if (!-f $document_root$fastcgi_script_name) {
+            return 404;
+          }
+          fastcgi_read_timeout 120s;
+          fastcgi_send_timeout 120s;
+          fastcgi_param HTTP_PROXY "";
+          fastcgi_pass localhost:9000;
+          fastcgi_index index.php;
+          include fastcgi_params;
+        }
 
         ## Allow access to static media files.
         location ~ \.(gif|ico|jpg|png|svg|js|css|htm|html|mp3|mp4|wav|ogg|avi|ttf|eot|woff|woff2|json)$ {
