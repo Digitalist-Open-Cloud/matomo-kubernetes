@@ -8,8 +8,10 @@ metadata:
   {{- if .Values.matomo.dashboard.whitelist }}
   annotations:
     nginx.ingress.kubernetes.io/whitelist-source-range: {{.Values.matomo.dashboard.whitelist | toPrettyJson}}
-  {{- end -}}
-{{- if .Values.matomo.dashboard.whitelist }}    
+    {{ else }}
+  {{- end }}
+
+
 spec:
   rules:
   - host: {{.Values.matomo.dashboard.hostname}}
@@ -20,7 +22,6 @@ spec:
           serviceName: matomo-dashboard
           servicePort: 8080
         path: /
-    {{- end -}}
   {{- if .Values.matomo.dashboard.tls }}
   tls:
   - hosts:
@@ -29,3 +30,5 @@ spec:
     secretName: {{.Values.matomo.dashboard.secretName}}
     {{- end -}}
   {{- end -}}
+
+
