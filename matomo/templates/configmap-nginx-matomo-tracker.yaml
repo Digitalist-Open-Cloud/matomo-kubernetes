@@ -33,6 +33,10 @@ data:
         location / {
           try_files $uri $uri/ /index.php$is_args$args;
         }
+        location ~* \.(js|css)$ {
+            proxy_ignore_headers Cache-Control;
+            allow all;
+        }
         ## Allow access to heatmapsessionsrecording plugin is needed to make it work.
         location = /plugins/HeatmapSessionRecording/configs.php { 
           fastcgi_split_path_info ^(.+?\.php)(/.*)$;
@@ -46,7 +50,6 @@ data:
           fastcgi_index index.php;
           include fastcgi_params;
         }
-
         ## Sends all requests to php-files over to php.
         location ~ ^/(matomo|piwik).php {
           fastcgi_split_path_info ^(.+?\.php)(/.*)$;

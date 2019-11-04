@@ -5,36 +5,38 @@ metadata:
     app: matomo-tracker
   name: matomo-tracker
   namespace: {{.Values.namespace}}
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
   - host: {{.Values.matomo.tracker.hostname}}
     http:
       port: 80
       paths:
-      - backend:
+      - path: /piwik.php
+        backend:
           serviceName: matomo-tracker
           servicePort: 8080
-        path: /piwik.php
-      - backend:
+      - path: /piwik.js  
+        backend:
           serviceName: matomo-tracker
           servicePort: 8080
-        path: /piwik.js
-      - backend:
+      - path: /matomo.php  
+        backend:
           serviceName: matomo-tracker
           servicePort: 8080
-        path: /matomo.php
-      - backend:
+      - path: /matomo.js    
+        backend:
           serviceName: matomo-tracker
           servicePort: 8080
-        path: /matomo.js
-      - backend:
+      - path: /js/.*
+        backend:
           serviceName: matomo-tracker
           servicePort: 8080
-        path: /js/*
-      - backend:
+      - path: /plugins/HeatmapSessionRecording/* 
+        backend:
           serviceName: matomo-tracker
           servicePort: 8080
-        path: /plugins/HeatmapSessionRecording/*
 
   {{- if .Values.matomo.tracker.tls }}
   tls:

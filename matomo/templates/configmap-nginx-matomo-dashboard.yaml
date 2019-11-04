@@ -34,6 +34,11 @@ data:
         location / {
           try_files $uri $uri/ /index.php$is_args$args;
         }
+        
+        location ~* \.(js|css)$ {
+            proxy_ignore_headers Cache-Control;
+            allow all;
+        }
 
         ## Allow access to index.php to make dashboard work.
         location ~ ^/(index).php  {
