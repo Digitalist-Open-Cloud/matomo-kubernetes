@@ -33,7 +33,7 @@ spec:
         backend:
           serviceName: matomo-tracker
           servicePort: 8080
-      - path: /plugins/HeatmapSessionRecording/* 
+      - path: /plugins/HeatmapSessionRecording/.* 
         backend:
           serviceName: matomo-tracker
           servicePort: 8080
