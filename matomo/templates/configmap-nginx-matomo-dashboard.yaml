@@ -36,8 +36,9 @@ data:
           try_files $uri $uri/ /index.php$is_args$args;
         }
         
-        location ~* \.(js|css)$ {
-            proxy_ignore_headers Cache-Control;
+        location ~* /(js)/.*.(js|php)$ {
+            expires 30s;
+            add_header Cache-Control "public, no-transform";
             allow all;
         }
 
