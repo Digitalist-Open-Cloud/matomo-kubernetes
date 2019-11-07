@@ -90,7 +90,7 @@ spec:
           - name: matomo-supervisor-tracker
             mountPath: /etc/supervisor.d
             readOnly: true
-                {{- if .Values.matomo.livenessProbe }}
+        {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
           exec:
@@ -101,7 +101,15 @@ spec:
           initialDelaySeconds:  {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 10 }}
           periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 20 }}
           {{- end }}  
-        {{- end }}    
+        {{- end }}
+        {{- if .Values.matomo.readinessProbe }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.matomo.readinessProbe.httpGet.path }}
+            port: {{ .Values.matomo.readinessProbe.httpGet.port | default 80 }}
+          initialDelaySeconds: {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 5 }}
+        {{- end }}
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
