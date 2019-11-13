@@ -59,6 +59,10 @@ spec:
           - name: matomo-configuration
             mountPath: /tmp/matomo/
             readOnly: true
+          - name: matomo-phpfpm
+            mountPath: /usr/local/etc/php-fpm.d/www.conf
+            subPath: www.conf
+            readOnly: true  
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
@@ -127,6 +131,9 @@ spec:
       - name: matomo-configuration
         configMap:
           name: matomo-configuration
+      - name: matomo-phpfpm
+        confiMap:
+          name: matomo-phpfpm
       - name: static-data
         emptyDir: {}
 ---
