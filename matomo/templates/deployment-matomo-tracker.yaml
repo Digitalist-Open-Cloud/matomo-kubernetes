@@ -90,6 +90,9 @@ spec:
           - name: matomo-supervisor-tracker
             mountPath: /etc/supervisor.d
             readOnly: true
+          - name: matomo-phpfpm  
+            mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
+            subPath: zz-global.conf    
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
@@ -124,6 +127,9 @@ spec:
       - name: matomo-supervisor-tracker
         configMap:
           name: matomo-supervisor-tracker
+      - name: matomo-phpfpm
+        configMap:
+          name: matomo-phpfpm    
 ---
 apiVersion: v1
 kind: Service

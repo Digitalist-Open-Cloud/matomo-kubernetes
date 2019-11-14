@@ -3,11 +3,24 @@ kind: ConfigMap
 metadata:
   name: matomo-phpfpm
   namespace: {{.Values.namespace}}
+{{- if .Values.matomo.phpfpm }}
 data:
-  www-conf: |
+  zz-global.conf: |
+    [www]
     pm.max_children = {{ .Values.matomo.phpfpm.max_children | default 200 }}
     pm.start_servers =  {{ .Values.matomo.phpfpm.start_servers | default 50 }}
     pm.min_spare_servers =  {{ .Values.matomo.phpfpm.min_spare_servers | default 50 }}
     pm.max_spare_servers =  {{ .Values.matomo.phpfpm.max_spare_servers | default 150 }}
     pm.max_requests =  {{ .Values.matomo.phpfpm.max_requests | default 500 }}
-    pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default 60s }}
+    pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "60s" }}
+{{ else }}
+data:
+  zz-global.conf: |
+    [www]
+    pm.max_children = 200
+    pm.start_servers = 50
+    pm.min_spare_servers = 50
+    pm.max_spare_servers = 150
+    pm.max_requests =  500
+    pm.process_idle_timeout = "60s"
+{{- end }}

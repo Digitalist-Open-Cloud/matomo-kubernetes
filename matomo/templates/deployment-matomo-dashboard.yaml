@@ -59,10 +59,9 @@ spec:
           - name: matomo-configuration
             mountPath: /tmp/matomo/
             readOnly: true
-          - name: matomo-phpfpm
-            mountPath: /usr/local/etc/php-fpm.d/www.conf
-            subPath: www.conf
-            readOnly: true  
+          - name: matomo-phpfpm  
+            mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
+            subPath: zz-global.conf 
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
@@ -74,7 +73,7 @@ spec:
             readOnly: true
           - name: static-data
             mountPath: /var/www/html
-            readOnly: true
+            readOnly: true 
         ports:
         - containerPort: 8080
           #        resources:
@@ -102,6 +101,9 @@ spec:
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
+          - name: matomo-phpfpm  
+            mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
+            subPath: zz-global.conf    
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
@@ -132,7 +134,7 @@ spec:
         configMap:
           name: matomo-configuration
       - name: matomo-phpfpm
-        confiMap:
+        configMap:
           name: matomo-phpfpm
       - name: static-data
         emptyDir: {}
