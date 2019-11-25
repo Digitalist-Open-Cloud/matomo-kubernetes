@@ -10,7 +10,7 @@ data:
     }
     pid        /tmp/nginx.pid;
     http {
-      client_max_body_size 16M;
+      client_max_body_size 32M;
       server_tokens off;
       client_body_temp_path /tmp/client_temp;
       proxy_temp_path       /tmp/proxy_temp_path;
@@ -48,6 +48,12 @@ data:
           if (!-f $document_root$fastcgi_script_name) {
             return 404;
           }
+
+          proxy_set_header Connection "";
+          proxy_http_version 1.1;
+          proxy_set_header   X-Real-IP $remote_addr;
+          proxy_set_header   Host      $http_host;
+
           fastcgi_param HTTP_PROXY "";
           fastcgi_pass localhost:9000;
           fastcgi_index index.php;
