@@ -57,6 +57,13 @@ spec:
       containers:
       - name: matomo
         image: {{.Values.matomo.image}}
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+          limits:
+            memory: "256Mi"
+            cpu: "1000m"
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always

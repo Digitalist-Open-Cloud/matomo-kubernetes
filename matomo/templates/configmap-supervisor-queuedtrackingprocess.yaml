@@ -13,7 +13,7 @@ data:
     autostart=true
     autorestart=true
     user=www-data
-    numprocs={{ .Values.matomo.queuedTrackingProcess.numProcs | default 1}}
+    numprocs={{ .Values.matomo.queuedTrackingProcess.numProcs | default 1 }}
     redirect_stderr=true
     stdout_events_enabled=true
     stderr_events_enabled=true
