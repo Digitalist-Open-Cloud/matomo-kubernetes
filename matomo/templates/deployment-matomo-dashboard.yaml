@@ -65,6 +65,10 @@ spec:
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
+        {{- if .Values.nginx.resources }}
+        resources:
+{{ toYaml .Values.nginx.resources | indent 10 }}
+        {{- end }}
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
         volumeMounts:
@@ -76,12 +80,12 @@ spec:
             readOnly: true 
         ports:
         - containerPort: 8080
-          #        resources:
-          #limits:
-          #  cpu: 1
-          #  memory: 256Mi
       - name: matomo
         image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.resources }}
+        resources:
+{{ toYaml .Values.matomo.resources | indent 10 }}
+        {{- end }}
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
