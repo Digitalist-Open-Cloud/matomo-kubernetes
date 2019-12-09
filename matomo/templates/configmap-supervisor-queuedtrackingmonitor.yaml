@@ -10,7 +10,7 @@ data:
 
     [program:queuedtracking-monitor]
     process_name=%(program_name)s_%(process_num)02d
-    command=sh -c 'php /var/www/html/console queuedtracking:monitor;'
+    command=sh -c 'while ( php /var/www/html/console queuedtracking:monitor --iterations=1 );do sleep 2; done'
     autostart=true
     autorestart=true
     user=www-data
