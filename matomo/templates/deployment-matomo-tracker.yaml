@@ -68,12 +68,12 @@ spec:
             readOnly: true
         ports:
         - containerPort: 8080
-          #        resources:
-          #limits:
-          #  cpu: 1
-          #  memory: 256Mi
       - name: matomo
         image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.tracker.resources }}
+        resources:
+{{ toYaml .Values.matomo.tracker.resources | indent 10 }}
+        {{- end }}
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
@@ -90,7 +90,7 @@ spec:
           - name: matomo-supervisor-tracker
             mountPath: /etc/supervisor.d
             readOnly: true
-          - name: matomo-phpfpm  
+          - name: matomo-phpfpm-tracker
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf    
         {{- if .Values.matomo.livenessProbe }}
@@ -127,9 +127,9 @@ spec:
       - name: matomo-supervisor-tracker
         configMap:
           name: matomo-supervisor-tracker
-      - name: matomo-phpfpm
+      - name: matomo-phpfpm-tracker
         configMap:
-          name: matomo-phpfpm    
+          name: matomo-phpfpm-tracker
 ---
 apiVersion: v1
 kind: Service

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matomo-phpfpm-tracker
+  namespace: {{.Values.namespace}}
+{{- if .Values.matomo.phpfpm.tracker }}
+data:
+  zz-global.conf: |
+    [www]
+    pm = {{ .Values.tracker.phpfpm.type | default "ondemand" }}
+    pm.max_children = {{ .Values.tracker.phpfpm.max_children | default 75 }}
+    pm.process_idle_timeout = {{ .Values.tracker.phpfpm.process_idle_timeout | default "60s" }}
+    pm.max_requests =  {{ .Values.tracker.phpfpm.max_requests | default 500 }}
+{{ else }}
+data:
+  zz-global.conf: |
+    [www]
+    pm = "ondemand"
+    pm.max_children = 75
+    pm.process_idle_timeout = "10s"
+    pm.max_requests =  500
+{{- end }}

@@ -59,9 +59,12 @@ spec:
           - name: matomo-configuration
             mountPath: /tmp/matomo/
             readOnly: true
-          - name: matomo-phpfpm  
+          - name: matomo-phpfpm
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf 
+          - name: matomo-dashboard-php
+            mountPath: /usr/local/etc/php/conf.d/zz-global.conf
+            subPath: zz-global.conf
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
@@ -107,7 +110,10 @@ spec:
             mountPath: /var/www/html
           - name: matomo-phpfpm  
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
-            subPath: zz-global.conf    
+            subPath: zz-global.conf
+          - name: matomo-dashboard-php
+            mountPath: /usr/local/etc/php/conf.d/zz-global.conf
+            subPath: zz-global.conf
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
@@ -140,6 +146,9 @@ spec:
       - name: matomo-phpfpm
         configMap:
           name: matomo-phpfpm
+      - name: matomo-dashboard-php
+        configMap:
+          name: matomo-dashboard-php
       - name: static-data
         emptyDir: {}
 ---
