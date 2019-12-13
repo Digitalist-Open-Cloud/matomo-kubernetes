@@ -24,6 +24,10 @@ spec:
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
         image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.resources }}
+        resources:
+{{ toYaml .Values.matomo.resources | indent 10 }}
+        {{- end }}
         imagePullPolicy: Always
         env:
         - name: MATOMO_FIRST_USER_NAME

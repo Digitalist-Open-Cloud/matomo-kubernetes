@@ -44,11 +44,11 @@ spec:
                   key: {{ .Values.db.password.secretKeyRef.key }}
             resources:
               requests:
-                memory: "512Mi"
-                cpu: "1"
+                memory: "128Mi"
+                cpu: "500m"
               limits:
-                memory: "1Gi"
-                cpu: "2"
+                memory: "512Mi"
+                cpu: "700m"
             command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
             volumeMounts:
               - name: static-data
@@ -59,6 +59,13 @@ spec:
           containers:
           - name: matomo-jobs-corearchive
             image: {{.Values.matomo.image}}
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "500m"
+              limits:
+                memory: "512Mi"
+                cpu: "700m"
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
             command: [ 'sh' , '-c' , '{{.Values.matomo.cronJobs.coreArchive.command}}' ]
@@ -71,6 +78,12 @@ spec:
             volumeMounts:
               - name: static-data
                 mountPath: /var/www/html
+              - name: matomo-phpfpm
+                mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
+                subPath: zz-global.conf 
+              - name: matomo-dashboard-php
+                mountPath: /usr/local/etc/php/conf.d/zz-global.ini
+                subPath: zz-global.ini  
           restartPolicy: OnFailure
           imagePullSecrets:
           - name: matomo-registry-secret
@@ -80,4 +93,10 @@ spec:
               name: matomo-configuration
           - name: static-data
             emptyDir: {}
+          - name: matomo-phpfpm
+            configMap:
+             name: matomo-phpfpm
+          - name: matomo-dashboard-php
+            configMap:
+            name: matomo-dashboard-php     
 {{- end -}}
