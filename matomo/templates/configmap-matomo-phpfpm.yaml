@@ -7,20 +7,22 @@ metadata:
 data:
   zz-global.conf: |
     [www]
+    pm = {{ .Values.matomo.phpfpm.type | default "ondemand" }}
     pm.max_children = {{ .Values.matomo.phpfpm.max_children | default 100 }}
     pm.start_servers =  {{ .Values.matomo.phpfpm.start_servers | default 5 }}
     pm.min_spare_servers =  {{ .Values.matomo.phpfpm.min_spare_servers | default 5 }}
     pm.max_spare_servers =  {{ .Values.matomo.phpfpm.max_spare_servers | default 75 }}
-    pm.max_requests =  {{ .Values.matomo.phpfpm.max_requests | default 100 }}
+    pm.max_requests =  {{ .Values.matomo.phpfpm.max_requests | default 500 }}
     pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "30s" }}
 {{ else }}
 data:
   zz-global.conf: |
     [www]
+    pm ="ondemand"
     pm.max_children = 100
     pm.start_servers = 5
     pm.min_spare_servers = 5
     pm.max_spare_servers = 75
-    pm.max_requests =  100
+    pm.max_requests =  500
     pm.process_idle_timeout = "30s"
 {{- end }}

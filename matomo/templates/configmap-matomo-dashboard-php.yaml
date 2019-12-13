@@ -4,5 +4,5 @@ metadata:
   name: matomo-dashboard-php
   namespace: {{.Values.namespace}}
 data:
-  zz-global.conf: |
-    opcache.memory_consumption = 256
+  zz-global.ini: |
+    opcache.memory_consumption=512

@@ -63,8 +63,8 @@ spec:
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf 
           - name: matomo-dashboard-php
-            mountPath: /usr/local/etc/php/conf.d/zz-global.conf
-            subPath: zz-global.conf
+            mountPath: /usr/local/etc/php/conf.d/zz-global.ini
+            subPath: zz-global.ini
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
@@ -112,8 +112,8 @@ spec:
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf
           - name: matomo-dashboard-php
-            mountPath: /usr/local/etc/php/conf.d/zz-global.conf
-            subPath: zz-global.conf
+            mountPath: /usr/local/etc/php/conf.d/zz-global.ini
+            subPath: zz-global.ini
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
