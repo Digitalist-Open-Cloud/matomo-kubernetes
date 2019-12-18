@@ -12,6 +12,8 @@ data:
     http {
       client_max_body_size 32M;
       server_tokens off;
+      client_body_timeout 60;
+      client_header_timeout 60;
       client_body_temp_path /tmp/client_temp;
       proxy_temp_path       /tmp/proxy_temp_path;
       fastcgi_temp_path     /tmp/fastcgi_temp;
@@ -24,7 +26,17 @@ data:
                         '"$http_user_agent" "$http_x_forwarded_for"';
       access_log  /var/log/nginx/access.log  main;
       sendfile        on;
-      keepalive_timeout 0; 
+      keepalive_timeout 65;
+
+      gzip              on;
+      gzip_buffers      16 8k;
+      gzip_comp_level   1;
+      gzip_http_version 1.1;
+      gzip_min_length   10;
+      gzip_types        text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript image/x-icon application/vnd.ms-fontobject font/opentype application/x-font-ttf;
+      gzip_vary         on;
+      gzip_proxied      any; # Compression for all requests.
+      gzip_static on;
       server {
         listen 8080 default_server;
         server_name _;
@@ -57,6 +69,11 @@ data:
           fastcgi_param HTTP_PROXY "";
           fastcgi_pass localhost:9000;
           fastcgi_index index.php;
+          fastcgi_param PHP_VALUE "max_execution_time=1800
+                                                 post_max_size=1500M
+                                                 upload_max_filesize=32M
+                                                 max_input_time=1800
+                                                 max_file_uploads=300";
           include fastcgi_params;
         }
 

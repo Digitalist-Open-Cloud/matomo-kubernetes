@@ -5,6 +5,9 @@ metadata:
     app: matomo-dashboard
   name: matomo-dashboard
   namespace: {{.Values.namespace}}
+data:
+  proxy-hide-headers: "Server, server"
+  server-tokens: "False"
   {{- if .Values.matomo.dashboard.whitelist }}
   annotations:
     nginx.ingress.kubernetes.io/whitelist-source-range: {{.Values.matomo.dashboard.whitelist | toPrettyJson}}
