@@ -9,6 +9,7 @@ data:
     file = /home/www-data/supervisord.sock
 
     [program:queuedtracking-monitor]
+    startretries=100
     process_name=%(program_name)s_%(process_num)02d
     command=sh -c 'while ( php /var/www/html/console queuedtracking:monitor --iterations=1 );do sleep 2; done'
     autostart=true
