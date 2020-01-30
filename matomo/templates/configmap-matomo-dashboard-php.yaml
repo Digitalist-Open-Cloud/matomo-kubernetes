@@ -25,8 +25,8 @@ data:
     post_max_size=1500M
     upload_max_filesize=32M
     max_input_time=1800
-    max_file_uploads=300"
+    max_file_uploads="300"
     memory_limit=2G
     display_errors=Off
-    error_reporting=22527
+    error_reporting="22527"
 {{- end }}

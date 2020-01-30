@@ -14,10 +14,12 @@ data:
     pm.max_spare_servers =  {{ .Values.matomo.phpfpm.max_spare_servers | default 75 }}
     pm.max_requests =  {{ .Values.matomo.phpfpm.max_requests | default 500 }}
     pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "30s" }}
+    php_admin_value[memory_limit] = {{ .Values.matomo.phpfpm.memory_limit | default "2048M" }}
 {{ else }}
 data:
   zz-global.conf: |
     [www]
+    php_admin_value[memory_limit] = "2048M"
     pm ="ondemand"
     pm.max_children = 100
     pm.start_servers = 5

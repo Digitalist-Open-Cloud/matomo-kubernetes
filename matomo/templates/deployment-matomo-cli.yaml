@@ -1,0 +1,104 @@
+---
+{{- if .Values.matomo.cli.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo-cli
+  namespace: {{.Values.namespace}}
+  labels:
+    app: matomo-cli
+spec:
+  replicas: {{.Values.matomo.cli.replicas}}
+  selector:
+    matchLabels:
+      app: matomo-cli
+  template:
+    metadata:
+      labels:
+        app: matomo-cli
+      annotations:
+        kubernetes.io/change-cause: {{.Values.changeCause}}
+    spec:
+      initContainers:
+      - name: matomo-init
+        image: {{.Values.matomo.image}}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
+        imagePullPolicy: Always
+        env:
+        - name: MATOMO_FIRST_USER_NAME
+          value: {{.Values.matomo.dashboard.firstuser.username}}
+        - name: MATOMO_FIRST_USER_EMAIL
+          value: {{.Values.matomo.dashboard.firstuser.email}}
+        - name: MATOMO_FIRST_USER_PASSWORD
+          value: {{.Values.matomo.dashboard.firstuser.password}}
+        - name: MATOMO_DB_HOST
+          value: {{.Values.db.hostname}}
+        - name: MATOMO_DB_NAME
+          value: {{.Values.db.name}}
+        {{ if .Values.db.prefix }}
+        - name: MATOMO_DB_PREFIX
+          value: {{.Values.db.prefix}}
+        {{ end }}
+        - name: MATOMO_DB_USERNAME
+          value: {{.Values.db.username}}
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.password.secretKeyRef.name }}
+              key: {{ .Values.db.password.secretKeyRef.key }}
+        command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-configuration
+            mountPath: /tmp/matomo/
+            readOnly: true    
+      containers:
+      - name: matomo
+        image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.cli.resources }}
+        resources:
+{{ toYaml .Values.matomo.cli.resources | indent 10 }}
+        {{- end }}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
+        imagePullPolicy: Always
+        env:
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.password.secretKeyRef.name }}
+              key: {{ .Values.db.password.secretKeyRef.key }}
+        command: [ 'sh' , '-c' , 'supervisord -n' ]
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-supervisor-tracker
+            mountPath: /etc/supervisor.d
+            readOnly: true
+      imagePullSecrets:
+      - name: matomo-registry-secret
+      volumes:
+      - name: matomo-configuration
+        configMap:
+          name: matomo-configuration
+      - name: static-data
+        emptyDir: {}
+      - name: matomo-supervisor-tracker
+        configMap:
+          name: matomo-supervisor-tracker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo-cli
+  labels:
+    app: matomo-cli
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+  selector:
+    app: matomo-cli
+{{- end -}}
