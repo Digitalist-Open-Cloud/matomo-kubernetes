@@ -26,6 +26,7 @@ data:
       sendfile        on;
       keepalive_timeout 0;
       server {
+        listen [::]:8080 default_server;
         listen 8080 default_server;
         server_name _;
         root /var/www/html;
@@ -37,6 +38,10 @@ data:
         location ~* \.(js|css)$ {
             proxy_ignore_headers Cache-Control;
             allow all;
+        }
+        location = /favicon.ico {
+            log_not_found off;
+            access_log off;
         }
         ## Allow access to heatmapsessionsrecording plugin is needed to make it work.
         location = /plugins/HeatmapSessionRecording/configs.php { 
