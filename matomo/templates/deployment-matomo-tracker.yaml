@@ -57,6 +57,10 @@ spec:
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
+        {{- if .Values.matomo.tracker.nginx.resources }}
+        resources:
+{{ toYaml .Values.matomo.tracker.nginx.resources | indent 10 }}
+        {{- end }}
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
         volumeMounts:
