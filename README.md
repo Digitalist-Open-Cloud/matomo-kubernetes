@@ -1,4 +1,5 @@
 # Readme
+!WARNING! Readme needs update
 
 The setup consists of 3 helm charts, they have been split up since the Matomo depends on the other 2 to be online (Redis, MySQL), if we write more logic into our init containers for matomo we can combine them to one big helm chart.
 
