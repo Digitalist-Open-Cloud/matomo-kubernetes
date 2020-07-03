@@ -5,6 +5,7 @@ kind: CronJob
 metadata:
   name: matomo-jobs-scheduled-tasks
   namespace: {{.Values.namespace}}
+  {{- template "matomo.labels" .Values.matomo.cronJobs.scheduledTasks.labels }}
 spec:
   schedule: {{quote .Values.matomo.cronJobs.scheduledTasks.schedule}}
   concurrencyPolicy: Forbid
@@ -57,7 +58,10 @@ spec:
                 mountPath: /tmp/matomo/
                 readOnly: true
           containers:
-          - name: matomo-jobs-sheduledtasks
+          - name: matomo-jobs-scheduledtasks
+            {{- /* To add indentation to the inline template,
+            we need to use "include" instead of "template" */ -}}
+            {{- include "matomo.labels" .Values.matomo.cronJobs.scheduledTasks.labels | nindent 10 }}
             image: {{.Values.matomo.image}}
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
