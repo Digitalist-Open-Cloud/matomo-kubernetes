@@ -85,10 +85,10 @@ data:
           fastcgi_param HTTP_PROXY "";
           fastcgi_pass localhost:9000;
           fastcgi_index index.php;
-          fastcgi_param PHP_VALUE "max_execution_time=1800
+          fastcgi_param PHP_VALUE "max_execution_time=3600
           post_max_size=1500M
           upload_max_filesize=32M
-          max_input_time=1800
+          max_input_time=3600
           max_file_uploads=300";
           include fastcgi_params;
         }
