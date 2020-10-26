@@ -99,8 +99,8 @@ spec:
             emptyDir: {}
           - name: matomo-phpfpm
             configMap:
-             name: matomo-phpfpm
+              name: matomo-phpfpm
           - name: matomo-dashboard-php
             configMap:
-            name: matomo-dashboard-php     
+              name: matomo-dashboard-php
 {{- end -}}
