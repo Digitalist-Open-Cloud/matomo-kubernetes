@@ -74,6 +74,8 @@ See the `README_LOCAL.md` for local deploy or `README_PROD.md` for a production 
 | ---- | ----------- |
 | `Chart.yaml` | Describes the chart name, version etc. |
 | `templates/configmap-matomo.yaml` | Contains the configuration for Matomo in a json-format, what plugins that should be activated etc. |
+| `templates/configmap-matomo-cronjob-php.yaml` | Contains the php conf file for the Matomo cronjobs. |
+| `templates/configmap-matomo-dashboard-php.yaml` | Contains the php conf file for the Matomo dashboard. |
 | `templates/configmap-nginx-matomo-dashboard.yaml` | Contains the nginx conf file for the Matomo dashboard. |
 | `templates/configmap-nginx-matomo-tracker.yaml` | Contains the nginx conf file for the Matomo tracker script. |
 | `templates/configmap-supervisor-queuedtrackingprocess.yaml` | Contains the supervisor.d config for the queeudtrackingprocess |
