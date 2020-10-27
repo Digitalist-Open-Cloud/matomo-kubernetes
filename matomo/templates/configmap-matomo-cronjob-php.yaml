@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matomo-cronjob-php
+  namespace: {{.Values.namespace}}
+data:
+  zz-global.ini: |
+    expose_php=Off
+    opcache.memory_consumption=512
+    max_execution_time=3600
+    post_max_size=1500M
+    upload_max_filesize=32M
+    max_input_time=1800
+    max_file_uploads="300"
+    memory_limit=10G
+    display_errors=Off
+    error_reporting="22527"
