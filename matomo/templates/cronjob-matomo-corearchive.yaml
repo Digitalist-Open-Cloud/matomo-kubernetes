@@ -85,7 +85,7 @@ spec:
               - name: matomo-phpfpm
                 mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
                 subPath: zz-global.conf 
-              - name: matomo-dashboard-php
+              - name: matomo-cronjob-php
                 mountPath: /usr/local/etc/php/conf.d/zz-global.ini
                 subPath: zz-global.ini  
           restartPolicy: OnFailure
@@ -100,7 +100,7 @@ spec:
           - name: matomo-phpfpm
             configMap:
               name: matomo-phpfpm
-          - name: matomo-dashboard-php
+          - name: matomo-cronjob-php
             configMap:
-              name: matomo-dashboard-php
+              name: matomo-cronjob-php
 {{- end -}}
