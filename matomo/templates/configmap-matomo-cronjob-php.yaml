@@ -13,10 +13,10 @@ data:
     upload_max_filesize={{ .Values.matomo.php.upload_max_filesize | default "32M" }}
     max_input_time={{ .Values.matomo.php.max_input_time | default "3600" }}
     max_file_uploads={{ .Values.matomo.php.opcache_max_file_upload| default "300" }}
-    memory_limit={{ .Values.matomo.php.memory_limit | default "2GB" }}
+    memory_limit={{ .Values.matomo.php.memory_limit | default "2G" }}
     display_errors={{ .Values.matomo.php.display_errors | default "Off" }}
     error_reporting={{ .Values.matomo.php.error_reporting | default "22527" }}
-    mysqli.reconnect={{ .Values.matomo.php.mysqli.reconnect | default "On" }}
+    mysqli.reconnect={{ .Values.matomo.php.mysqli_reconnect | default "On" }}
 {{ else }}
 data:
   zz-global.ini: |
@@ -27,7 +27,7 @@ data:
     upload_max_filesize=32M
     max_input_time=1800
     max_file_uploads="300"
-    memory_limit=2GB
+    memory_limit=2G
     display_errors=Off
     error_reporting="22527"
     mysqli.reconnect=On
