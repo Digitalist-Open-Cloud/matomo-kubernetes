@@ -32,5 +32,5 @@ data:
     display_errors=Off
     error_reporting="22527"
     mysqli.reconnect=On
-    mysqli.allow_local_infile = On
+    mysqli.allow_local_infile=On
 {{- end }}
