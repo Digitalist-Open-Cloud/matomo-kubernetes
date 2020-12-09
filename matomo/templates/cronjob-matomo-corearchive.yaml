@@ -48,7 +48,7 @@ spec:
                 memory: "128Mi"
                 cpu: "500m"
               limits:
-                memory: "512Mi"
+                memory: "2048Mi"
                 cpu: "700m"
             command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
             volumeMounts:
