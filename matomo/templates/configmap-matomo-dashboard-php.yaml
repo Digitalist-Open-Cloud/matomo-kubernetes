@@ -18,7 +18,7 @@ data:
     error_reporting={{ .Values.matomo.php.error_reporting | default "22527" }}
     mysqli.reconnect={{ .Values.matomo.php.mysqli_reconnect | default "On" }}
     mysqli.allow_local_infile={{ .Values.matomo.php.mysqli_allow_local_infile | default "On" }}
-    default_socket_timeout={{ .Values.matomo.php.default_socket_timeout | default "-1" }}
+    default_socket_timeout={{ .Values.matomo.php.default_socket_timeout | default "20" }}
 {{ else }}
 data:
   zz-global.ini: |
@@ -34,5 +34,5 @@ data:
     error_reporting="22527"
     mysqli.reconnect="On"
     mysqli.allow_local_infile="On"
-    default_socket_timeout=-1
+    default_socket_timeout="20"
 {{- end }}
