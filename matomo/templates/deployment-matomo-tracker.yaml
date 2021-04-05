@@ -1,0 +1,150 @@
+---
+{{- if .Values.matomo.tracker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo-tracker
+  namespace: {{.Values.namespace}}
+  labels:
+    app: matomo-tracker
+spec:
+  replicas: {{.Values.matomo.tracker.replicas}}
+  selector:
+    matchLabels:
+      app: matomo-tracker
+  template:
+    metadata:
+      labels:
+        app: matomo-tracker
+      annotations:
+        kubernetes.io/change-cause: {{.Values.changeCause}}
+    spec:
+      initContainers:
+      - name: matomo-init
+        image: {{.Values.matomo.image}}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
+        imagePullPolicy: Always
+        env:
+        - name: MATOMO_FIRST_USER_NAME
+          value: {{.Values.matomo.dashboard.firstuser.username}}
+        - name: MATOMO_FIRST_USER_EMAIL
+          value: {{.Values.matomo.dashboard.firstuser.email}}
+        - name: MATOMO_FIRST_USER_PASSWORD
+          value: {{.Values.matomo.dashboard.firstuser.password}}
+        - name: MATOMO_DB_HOST
+          value: {{.Values.db.hostname}}
+        - name: MATOMO_DB_NAME
+          value: {{.Values.db.name}}
+        {{ if .Values.db.prefix }}
+        - name: MATOMO_DB_PREFIX
+          value: {{.Values.db.prefix}}
+        {{ end }}
+        - name: MATOMO_DB_USERNAME
+          value: {{.Values.db.username}}
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.password.secretKeyRef.name }}
+              key: {{ .Values.db.password.secretKeyRef.key }}
+        command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-configuration
+            mountPath: /tmp/matomo/
+            readOnly: true    
+      containers:
+      - name: nginx
+        image: {{.Values.nginx.image}}
+        {{- if .Values.matomo.tracker.nginx.resources }}
+        resources:
+{{ toYaml .Values.matomo.tracker.nginx.resources | indent 10 }}
+        {{- end }}
+        securityContext:
+          runAsUser: {{.Values.nginx.runAsUser}}
+        volumeMounts:
+          - name: nginx-matomo-tracker
+            mountPath: /etc/nginx
+            readOnly: true
+          - name: static-data
+            mountPath: /var/www/html
+            readOnly: true
+        ports:
+        - containerPort: 8080
+      - name: matomo
+        image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.tracker.resources }}
+        resources:
+{{ toYaml .Values.matomo.tracker.resources | indent 10 }}
+        {{- end }}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
+        imagePullPolicy: Always
+        env:
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.password.secretKeyRef.name }}
+              key: {{ .Values.db.password.secretKeyRef.key }}
+        command: [ 'sh' , '-c' , 'supervisord -n' ]
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-supervisor-tracker
+            mountPath: /etc/supervisor.d
+            readOnly: true
+          - name: matomo-phpfpm-tracker
+            mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
+            subPath: zz-global.conf    
+        {{- if .Values.matomo.livenessProbe }}
+        livenessProbe:
+          {{- if .Values.matomo.livenessProbe.exec }}
+          exec:
+            command:
+            - sh
+            - -c 
+            - {{ .Values.matomo.livenessProbe.exec.command }}
+          initialDelaySeconds:  {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 10 }}
+          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 20 }}
+          {{- end }}  
+        {{- end }}
+        {{- if .Values.matomo.readinessProbe }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.matomo.readinessProbe.httpGet.path }}
+            port: {{ .Values.matomo.readinessProbe.httpGet.port | default 80 }}
+          initialDelaySeconds: {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 5 }}
+        {{- end }}
+      imagePullSecrets:
+      - name: matomo-registry-secret
+      volumes:
+      - name: nginx-matomo-tracker
+        configMap:
+          name: nginx-matomo-tracker
+      - name: matomo-configuration
+        configMap:
+          name: matomo-configuration
+      - name: static-data
+        emptyDir: {}
+      - name: matomo-supervisor-tracker
+        configMap:
+          name: matomo-supervisor-tracker
+      - name: matomo-phpfpm-tracker
+        configMap:
+          name: matomo-phpfpm-tracker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo-tracker
+  labels:
+    app: matomo-tracker
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+  selector:
+    app: matomo-tracker
+{{- end -}}

@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    app: matomo-tracker
+  name: matomo-tracker
+  namespace: {{.Values.namespace}}
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+  - host: {{.Values.matomo.tracker.hostname}}
+    http:
+      port: 80
+      paths:
+      - path: /piwik.php
+        backend:
+          serviceName: matomo-tracker
+          servicePort: 8080
+      - path: /piwik.js  
+        backend:
+          serviceName: matomo-tracker
+          servicePort: 8080
+      - path: /matomo.php  
+        backend:
+          serviceName: matomo-tracker
+          servicePort: 8080
+      - path: /matomo.js    
+        backend:
+          serviceName: matomo-tracker
+          servicePort: 8080
+      - path: /js/.*
+        backend:
+          serviceName: matomo-tracker
+          servicePort: 8080
+      - path: /plugins/HeatmapSessionRecording/.* 
+        backend:
+          serviceName: matomo-tracker
+          servicePort: 8080
+
+  {{- if .Values.matomo.tracker.tls }}
+  tls:
+  - hosts:
+    - {{.Values.matomo.tracker.hostname}}
+    {{- if .Values.matomo.tracker.secretName }}
+    secretName: {{.Values.matomo.tracker.secretName}}
+    {{- end -}}
+  {{- end -}}

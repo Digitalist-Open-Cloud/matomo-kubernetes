@@ -1,0 +1,171 @@
+---
+{{- if .Values.matomo.dashboard.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo-dashboard
+  namespace: {{.Values.namespace}}
+  labels:
+    app: matomo-dashboard
+spec:
+  replicas: {{.Values.matomo.dashboard.replicas}}
+  selector:
+    matchLabels:
+      app: matomo-dashboard
+  template:
+    metadata:
+      labels:
+        app: matomo-dashboard
+      annotations:
+        kubernetes.io/change-cause: {{.Values.changeCause}}
+    spec:
+      initContainers:
+      - name: matomo-init
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
+        image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.resources }}
+        resources:
+{{ toYaml .Values.matomo.resources | indent 10 }}
+        {{- end }}
+        imagePullPolicy: Always
+        env:
+        - name: MATOMO_FIRST_USER_NAME
+          value: {{.Values.matomo.dashboard.firstuser.username}}
+        - name: MATOMO_FIRST_USER_EMAIL
+          value: {{.Values.matomo.dashboard.firstuser.email}}
+        - name: MATOMO_FIRST_USER_PASSWORD
+          value: {{.Values.matomo.dashboard.firstuser.password}}
+        - name: MATOMO_DB_HOST
+          value: {{.Values.db.hostname}}
+        - name: MATOMO_DB_NAME
+          value: {{.Values.db.name}}
+        {{ if .Values.db.prefix }}
+        - name: MATOMO_DB_PREFIX
+          value: {{.Values.db.prefix}}
+        {{ end }}
+        - name: MATOMO_DB_USERNAME
+          value: {{.Values.db.username}}
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.password.secretKeyRef.name }}
+              key: {{ .Values.db.password.secretKeyRef.key }}
+        - name: MATOMO_LICENSE
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.matomo.license.secretKeyRef.name }}
+              key: {{ .Values.matomo.license.secretKeyRef.key }}
+        command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-configuration
+            mountPath: /tmp/matomo/
+            readOnly: true
+          - name: matomo-phpfpm
+            mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
+            subPath: zz-global.conf 
+          - name: matomo-dashboard-php
+            mountPath: /usr/local/etc/php/conf.d/zz-global.ini
+            subPath: zz-global.ini
+      containers:
+      - name: nginx
+        image: {{.Values.nginx.image}}
+        {{- if .Values.nginx.resources }}
+        resources:
+{{ toYaml .Values.nginx.resources | indent 10 }}
+        {{- end }}
+        securityContext:
+          runAsUser: {{.Values.nginx.runAsUser}}
+        volumeMounts:
+          - name: nginx-matomo-dashboard
+            mountPath: /etc/nginx
+            readOnly: true
+          - name: static-data
+            mountPath: /var/www/html
+            readOnly: true 
+        ports:
+        - containerPort: 8080
+      - name: matomo
+        image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.resources }}
+        resources:
+{{ toYaml .Values.matomo.resources | indent 10 }}
+        {{- end }}
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
+        imagePullPolicy: Always
+        env:
+        - name: MATOMO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.password.secretKeyRef.name }}
+              key: {{ .Values.db.password.secretKeyRef.key }}
+        - name: MATOMO_LICENSE
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.matomo.license.secretKeyRef.name }}
+              key: {{ .Values.matomo.license.secretKeyRef.key }}
+        ports:
+        - containerPort: 9000
+        volumeMounts:
+          - name: static-data
+            mountPath: /var/www/html
+          - name: matomo-phpfpm  
+            mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
+            subPath: zz-global.conf
+          - name: matomo-dashboard-php
+            mountPath: /usr/local/etc/php/conf.d/zz-global.ini
+            subPath: zz-global.ini
+        {{- if .Values.matomo.livenessProbe }}
+        livenessProbe:
+          {{- if .Values.matomo.livenessProbe.exec }}
+          exec:
+            command:
+            - sh
+            - -c 
+            - {{ .Values.matomo.livenessProbe.exec.command }}
+          initialDelaySeconds:  {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 10 }}
+          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 20 }}
+          {{- end }}  
+        {{- end }}
+        {{- if .Values.matomo.readinessProbe }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.matomo.readinessProbe.httpGet.path }}
+            port: {{ .Values.matomo.readinessProbe.httpGet.port | default 80 }}
+          initialDelaySeconds: {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 5 }}
+        {{- end }}
+      imagePullSecrets:
+      - name: matomo-registry-secret
+      volumes:
+      - name: nginx-matomo-dashboard
+        configMap:
+          name: nginx-matomo-dashboard
+      - name: matomo-configuration
+        configMap:
+          name: matomo-configuration
+      - name: matomo-phpfpm
+        configMap:
+          name: matomo-phpfpm
+      - name: matomo-dashboard-php
+        configMap:
+          name: matomo-dashboard-php
+      - name: static-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo-dashboard
+  labels:
+    app: matomo-dashboard
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+  selector:
+    app: matomo-dashboard
+{{- end -}}

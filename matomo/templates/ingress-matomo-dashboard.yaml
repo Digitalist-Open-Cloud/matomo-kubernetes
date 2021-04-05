@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    app: matomo-dashboard
+  name: matomo-dashboard
+  namespace: {{.Values.namespace}}
+  {{- if .Values.matomo.dashboard.whitelist }}
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{.Values.matomo.dashboard.whitelist | toPrettyJson}}
+    {{ else }}
+  {{- end }}
+spec:
+  rules:
+  - host: {{.Values.matomo.dashboard.hostname}}
+    http:
+      port: 80
+      paths:
+      - backend:
+          serviceName: matomo-dashboard
+          servicePort: 8080
+        path: /
+  {{- if .Values.matomo.dashboard.tls }}
+  tls:
+  - hosts:
+    - {{.Values.matomo.dashboard.hostname}}
+    {{- if .Values.matomo.dashboard.secretName }}
+    secretName: {{.Values.matomo.dashboard.secretName}}
+    {{- end -}}
+  {{- end -}}
+
+

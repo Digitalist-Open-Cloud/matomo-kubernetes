@@ -1,0 +1,16 @@
+redis-ha:
+  image:
+    repository: redis
+    tag: 5.0.3-alpine
+    pullPolicy: IfNotPresent
+  replicas: 1 # Should be at least 3 on production/staging environment.
+  redis:
+    port: 6379
+    masterGroupName: redisMaster
+    config:
+      min-slaves-to-write: 0 # Should be at least 3 on production/staging environment.
+      min-slaves-max-lag: 5
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+    runAsNonRoot: true
