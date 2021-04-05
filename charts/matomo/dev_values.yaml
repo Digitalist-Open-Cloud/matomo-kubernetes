@@ -76,8 +76,8 @@ matomo:
         - ProfessionalServices
         - UserConsole
       Site:
-        name: Matomo
-        url: https://localhost
+        name: "Matomo"
+        url: "https://localhost"
       Config:
         log:
           log_level: INFO
