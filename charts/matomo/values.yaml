@@ -39,6 +39,7 @@ matomo:
       activeDeadlineSeconds: 43200
       command: ./console scheduled-tasks:run
   dashboard:
+    enabled: true
     replicas: 1
     hostname: localhost
     tls: false
