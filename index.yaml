@@ -1,0 +1,41 @@
+apiVersion: v1
+entries:
+  matomo:
+  - apiVersion: v1
+    appVersion: 3.14.1
+    created: "2021-04-05T18:59:13.824581719Z"
+    description: A Helm chart Matomo
+    digest: 0926a9151f1340c2eba3cd7648571a74567c0f849574443331eae7daa0cde7eb
+    name: matomo
+    urls:
+    - https://github.com/digitalist-se/matomo-kubernetes/releases/download/matomo-9.0.45/matomo-9.0.45.tgz
+    version: 9.0.45
+  matomo-db:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2021-04-05T18:59:13.93256355Z"
+    dependencies:
+    - name: mysql
+      repository: https://charts.bitnami.com/bitnami
+      version: 4.2.4
+    description: A Helm chart for matomo mysql.
+    digest: 1ff3a96008d6f8753dbb0313967419fa428093fe8f37eac2e1adabea1f78c0e3
+    name: matomo-db
+    urls:
+    - https://github.com/digitalist-se/matomo-kubernetes/releases/download/matomo-db-1.0.0/matomo-db-1.0.0.tgz
+    version: 1.0.0
+  redis:
+  - apiVersion: v1
+    appVersion: 3.1.6
+    created: "2021-04-05T18:59:14.03643452Z"
+    dependencies:
+    - name: redis-ha
+      repository: https://charts.helm.sh/stable
+      version: 3.1.6
+    description: A Helm chart redis-ha on matomo.
+    digest: 3c76aed1029d80d7a37603a4c8f66f30c0963ddb05385686fe9bf189c159eb87
+    name: redis
+    urls:
+    - https://github.com/digitalist-se/matomo-kubernetes/releases/download/redis-1.0.0/redis-1.0.0.tgz
+    version: 1.0.0
+generated: "2021-04-05T18:59:14.036451521Z"
