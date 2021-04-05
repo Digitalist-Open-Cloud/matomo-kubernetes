@@ -1,3 +1,4 @@
+{{- if .Values.matomo.ingress.enabled }}
 apiVersion: ingresses.networking.k8s.io
 kind: Ingress
 metadata:
@@ -29,5 +30,4 @@ spec:
     secretName: {{.Values.matomo.dashboard.secretName}}
     {{- end -}}
   {{- end -}}
-
-
+{{- end -}}

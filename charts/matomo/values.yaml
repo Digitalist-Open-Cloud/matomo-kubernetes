@@ -11,6 +11,8 @@ matomo:
     secretKeyRef:
       name: matomo-license
       key: matomo-license
+  ingress:
+    enabled: true    
   cli:
     enabled: true
   cronJobs:
