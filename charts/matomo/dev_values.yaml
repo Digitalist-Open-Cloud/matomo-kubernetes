@@ -7,6 +7,140 @@ matomo:
   image: registry.wklive.net:5000/matomo/base:3-14-1-php7-4-15-fpm-alpine3-12-4cc32ec6
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
+  config:
+      PluginsUnInstalled:
+        - Provider
+        - Feedback
+      PluginsInstalled:
+        - Diagnostics
+        - DBStats
+        - Login
+        - CoreAdminHome
+        - UsersManager
+        - SitesManager
+        - Installation
+        - Monolog
+        - Intl
+        - CorePluginsAdmin
+        - CoreHome
+        - WebsiteMeasurable
+        - CoreVisualizations
+        - Proxy
+        - API
+        - Transitions
+        - Actions
+        - Referrers
+        - UserLanguage
+        - DevicesDetection
+        - Goals
+        - SEO
+        - Events
+        - UserCountry
+        - GeoIp2
+        - VisitsSummary
+        - VisitFrequency
+        - VisitTime
+        - VisitorInterest
+        - CoreUpdater
+        - CoreConsole
+        - UserCountryMap
+        - Live
+        - ImageGraph
+        - Annotations
+        - Insights
+        - Morpheus
+        - Contents
+        - DevicePlugins
+        - UserId
+        - CustomPiwikJs
+        - ExtraTools
+        - LanguagesManager
+        - SegmentEditor
+        - Dashboard
+        - ScheduledReports
+        - PrivacyManager
+        - CustomVariables
+        - IntranetMeasurable
+        - Widgetize
+        - MultiSites
+        - Ecommerce
+        - RssWidget
+        - Feedback
+        - TwoFactorAuth
+        - MobileMessaging
+        - Overlay
+        - BulkTracking
+        - Resolution
+        - Heartbeat
+        - Marketplace
+        - ProfessionalServices
+        - UserConsole
+      Site:
+        name: Matomo
+        url: https://localhost
+      Config:
+        log:
+          log_level: INFO
+          log_writers[]: "database"
+          logger_file_path: /var/log/matomo.log
+        General:
+          always_archive_data_range: 0
+          enable_create_realtime_segments: 0
+          show_update_notification_to_superusers_only: 1
+          noreply_email_address: matomo@localhost
+          enable_framed_pages: 1
+          enable_framed_settings: 1
+          enable_trusted_host_check: 0
+          enable_plugin_update_communication: 0
+          enable_auto_update: 0
+          enable_installer: 0
+          enable_internet_features: 0
+          enable_plugins_admin: 0
+          enable_plugin_upload: 0
+          enable_geolocation_admin: 1
+          proxy_client_headers[]: HTTP_X_FORWARDED_FOR
+          browser_archiving_disabled_enforce: 1
+          enable_browser_archiving_triggering: 0
+          archiving_range_force_on_browser_request: 1
+          enable_sql_optimize_queries: 0
+          enabled_periods_UI: day,week,month,year,range
+          enabled_periods_API: day,week,month,year,range
+          session_save_handler: dbtable
+          enable_marketplace: 0
+          enable_general_settings_admin: 0
+          assume_secure_protocol: 1
+          cors_domains[]: "*"
+          datatable_archiving_maximum_rows_referrers: 2000
+          datatable_archiving_maximum_rows_subtable_referrers: 2000
+          datatable_archiving_maximum_rows_actions: 2000
+          datatable_archiving_maximum_rows_subtable_actions: 2000
+          datatable_archiving_maximum_rows_events: 2000
+          datatable_archiving_maximum_rows_subtable_events: 2000
+          datatable_archiving_maximum_rows_custom_variables: 2000
+          datatable_archiving_maximum_rows_subtable_custom_variables: 2000
+          time_before_today_archive_considered_outdated: 600
+          time_before_week_archive_considered_outdated: 10800
+          time_before_month_archive_considered_outdated: 32400
+          time_before_year_archive_considered_outdated: 64800
+          time_before_range_archive_considered_outdated: 10800
+          adding_segment_requires_access: "admin"
+          live_widget_refresh_after_seconds: 30
+          live_widget_visitor_count_last_minutes: 1
+          live_visitor_profile_max_visits_to_aggregate: 10
+          multisites_refresh_after_seconds: 0
+          anonymous_user_enable_use_segments_API: 0
+          process_new_segments_from: "beginning_of_time"
+          purge_date_range_archives_after_X_days: 180
+        Deletelogs:
+          delete_logs_older_than: 270
+          delete_logs_enable: 0
+        Debug:
+          enable_sql_profiler: 1
+          log_sql_queries: 1
+          archiving_profile: 1
+
+        Cache:
+          backend: file
   ingress:
     enabled: false    
   cli:
@@ -15,7 +149,7 @@ matomo:
     coreArchive:
       labels:
         name: matomo-jobs-corearchive
-        instance: matomo-af
+        instance: matomo-cj
         version: "1"
         component: cronjob
         partOf: matomo
@@ -26,7 +160,7 @@ matomo:
     scheduledTasks:
       labels:
         name: matomo-jobs-scheduled-tasks
-        instance: matomo-af
+        instance: matomo-cj
         version: "1"
         component: cronjob
         partOf: matomo
