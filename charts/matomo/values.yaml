@@ -4,7 +4,7 @@ nginxWorkerProcesses: 5
 queuedTrackingProcess:
   numProcs: 8
 matomo:
-  image: registry.wklive.net:5000/dg/base-matomo:3.11.0-php7.2.22-fpm-alpine3.10-3cd6becece549ca06c618dc4d97da10ff1a5f6e1
+  image: registry.wklive.net:5000/matomo/base:3-14-1-php7-4-15-fpm-alpine3-12-4cc32ec6
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   license:

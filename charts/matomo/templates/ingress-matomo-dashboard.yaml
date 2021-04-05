@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: ingresses.networking.k8s.io
 kind: Ingress
 metadata:
   labels:
