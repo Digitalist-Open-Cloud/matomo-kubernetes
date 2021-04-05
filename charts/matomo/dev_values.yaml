@@ -198,10 +198,10 @@ nginx:
   image: registry.wklive.net:5000/dg/nginx:1.16.1-alpine-a7b7a7e2a51c070096852223b4405671cffcb868
   runAsUser: 100
 db:
-  hostname: matomo-mysql
+  hostname: matomo-db-mysql
   password:
     secretKeyRef:
-      name: matomo-mysql
+      name: matomo-db-mysql
       key: mysql-root-password
   name: matomo
   username: root
