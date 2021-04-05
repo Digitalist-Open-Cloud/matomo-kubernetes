@@ -1,0 +1,73 @@
+changeCause: "Trying override php mem limit"
+namespace: matomo
+nginxWorkerProcesses: 5
+queuedTrackingProcess:
+  numProcs: 8
+matomo:
+  image: registry.wklive.net:5000/matomo/base:3-14-1-php7-4-15-fpm-alpine3-12-4cc32ec6
+  runAsUser: 82
+  installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
+  ingress:
+    enabled: false    
+  cli:
+    enabled: true
+  cronJobs:
+    coreArchive:
+      labels:
+        name: matomo-jobs-corearchive
+        instance: matomo-af
+        version: "1"
+        component: cronjob
+        partOf: matomo
+        managedBy: helm
+      schedule: "1 1 1 1 1"
+      activeDeadlineSeconds: 43200
+      command: ./console core:archive --disable-scheduled-tasks
+    scheduledTasks:
+      labels:
+        name: matomo-jobs-scheduled-tasks
+        instance: matomo-af
+        version: "1"
+        component: cronjob
+        partOf: matomo
+        managedBy: helm
+      schedule: "1 1 1 1 1"
+      activeDeadlineSeconds: 43200
+      command: ./console scheduled-tasks:run
+  dashboard:
+    enabled: true
+    replicas: 1
+    hostname: localhost
+    tls: false
+    firstuser:
+      username: admin
+      password: admin123
+      email: foo@example.com
+  phpfpm:
+    tracker: true
+  queuedTrackingMonitor:
+    enabled: true
+  queuedTrackingProcess:
+    replicas: 1
+  tracker:
+    replicas: 1
+    hostname: localhost
+    tls: false
+tracker:
+  phpfpm:
+    type: ondemand
+    max_children: 75
+    process_idle_timeout: 600s
+    max_requests: 500
+nginx:
+  image: registry.wklive.net:5000/dg/nginx:1.16.1-alpine-a7b7a7e2a51c070096852223b4405671cffcb868
+  runAsUser: 100
+db:
+  hostname: matomo-db-mysql
+  password:
+    secretKeyRef:
+      name: matomo-mysql
+      key: mysql-root-password
+  name: matomo
+  username: root
+  prefix: matomo_
