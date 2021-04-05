@@ -21,7 +21,8 @@ jobs:
 
       - name: Add bitnami repo
         run: |
-           helm repo add bitnami https://charts.bitnami.com/bitnami 
+           helm repo add bitnami https://charts.bitnami.com/bitnami
+           helm repo add stable https://charts.helm.sh/stable
 
       - name: Install Helm
         uses: azure/setup-helm@v1
