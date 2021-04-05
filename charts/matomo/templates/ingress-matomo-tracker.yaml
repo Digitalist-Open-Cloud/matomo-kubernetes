@@ -1,4 +1,5 @@
 apiVersion: ingresses.networking.k8s.io
+kind: Ingress
 metadata:
   labels:
     app: matomo-tracker
