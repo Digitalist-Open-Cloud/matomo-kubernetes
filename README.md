@@ -20,7 +20,10 @@ The setup consists of 3 helm charts, they have been split up since the Matomo de
 
 To use the Matomo helm chart as a base in a new project you need to create your own helm chart that uses this as a dependency, so you will need to have a copy of this repo locally, lets go through the steps on how to do that.
 
-1. Clone this repo and put it somewhere on your computer.
+1. Add this repo: 
+```
+helm repo add matomo-kubernetes https://digitalist-se.github.io/matomo-kubernetes
+```
 
 2. Create a new directory somewhere on your computer (NOT in the `matomo-kubernetes` directory) and create your helm chart there.
 
@@ -47,8 +50,8 @@ To use the Matomo helm chart as a base in a new project you need to create your 
     ```
     dependencies:
       - name: matomo
-        version: 5.0.0
-        repository: "file://../../../matomo-kubernetes/matomo"
+        version: 9.0.45
+        repository: "https://digitalist-se.github.io/matomo-kubernetes"
     ```
 
 6. Download all dependencies for this chart by running this command in the chart directory, this will put a tar ball of the dependency inside the charts directory.
