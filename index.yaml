@@ -3,6 +3,15 @@ entries:
   matomo:
   - apiVersion: v1
     appVersion: 3.14.1
+    created: "2021-04-05T21:43:20.949270513Z"
+    description: A Helm chart Matomo
+    digest: f31ddb0763503da4c7f02217d3eea7bcdc718ea0f28d9c586705982b851e3df6
+    name: matomo
+    urls:
+    - https://github.com/digitalist-se/matomo-kubernetes/releases/download/matomo-9.0.49/matomo-9.0.49.tgz
+    version: 9.0.49
+  - apiVersion: v1
+    appVersion: 3.14.1
     created: "2021-04-05T21:27:25.3998118Z"
     description: A Helm chart Matomo
     digest: 7ed0b46749272b190aea1d6703f5437dfa0460e4a272bbbc75670ac583defb00
@@ -130,4 +139,4 @@ entries:
     urls:
     - https://github.com/digitalist-se/matomo-kubernetes/releases/download/redis-1.0.0/redis-1.0.0.tgz
     version: 1.0.0
-generated: "2021-04-05T21:27:25.39988Z"
+generated: "2021-04-05T21:43:20.949298014Z"
