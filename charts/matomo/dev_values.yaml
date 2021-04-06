@@ -171,6 +171,7 @@ matomo:
       command: ./console scheduled-tasks:run
   dashboard:
     enabled: true
+    loadbalancer: true
     replicas: 1
     hostname: localhost
     tls: false

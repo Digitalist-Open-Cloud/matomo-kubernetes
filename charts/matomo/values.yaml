@@ -41,6 +41,7 @@ matomo:
   dashboard:
     enabled: true
     replicas: 1
+    loadbalancer: false
     hostname: localhost
     tls: false
     firstuser:
