@@ -98,8 +98,8 @@ spec:
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf
           - name: disable-apm
-            mountPath: /usr/local/etc/php/conf.d/99-elastic-apm-custom.ini
-            subPath: 99-elastic-apm-custom.ini
+            mountPath: /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+            subPath: elastic-apm-custom.ini
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
