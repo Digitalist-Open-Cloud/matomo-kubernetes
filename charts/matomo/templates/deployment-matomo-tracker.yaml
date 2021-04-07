@@ -96,7 +96,10 @@ spec:
             readOnly: true
           - name: matomo-phpfpm-tracker
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
-            subPath: zz-global.conf    
+            subPath: zz-global.conf
+          - name: disable-apm
+            mountPath: /usr/local/etc/php/conf.d/99-elastic-apm-custom.ini
+            subPath: 99-elastic-apm-custom.ini
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
@@ -134,6 +137,8 @@ spec:
       - name: matomo-phpfpm-tracker
         configMap:
           name: matomo-phpfpm-tracker
+      - name: disable-apm
+        emptyDir: {}    
 ---
 apiVersion: v1
 kind: Service
