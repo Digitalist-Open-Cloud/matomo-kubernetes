@@ -69,6 +69,8 @@ spec:
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
+          - name: disable-apm
+            mountPath: /opt/elastic/apm-agent-php  
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
@@ -118,6 +120,8 @@ spec:
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
+          - name: disable-apm
+            mountPath: /opt/elastic/apm-agent-php    
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
@@ -155,6 +159,8 @@ spec:
           name: matomo-dashboard-php
       - name: static-data
         emptyDir: {}
+      - name: disable-apm
+        emptyDir: {}      
 ---
 apiVersion: v1
 kind: Service
