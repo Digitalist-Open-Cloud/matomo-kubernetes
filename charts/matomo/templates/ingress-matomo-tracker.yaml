@@ -12,7 +12,6 @@ spec:
   rules:
   - host: {{.Values.matomo.tracker.hostname}}
     http:
-      port: 80
       paths:
       - path: /piwik.php
         backend:

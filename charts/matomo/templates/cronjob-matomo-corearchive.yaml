@@ -59,9 +59,6 @@ spec:
                 readOnly: true
           containers:
           - name: matomo-jobs-corearchive
-            {{- /* To add indentation to the inline template,
-            we need to use "include" instead of "template" */ -}}
-            {{- include "matomo.labels" .Values.matomo.cronJobs.coreArchive.labels | nindent 10 }}
             image: {{.Values.matomo.image}}
             resources:
               requests:
