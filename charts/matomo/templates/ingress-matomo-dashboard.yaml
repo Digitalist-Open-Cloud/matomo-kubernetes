@@ -16,7 +16,6 @@ spec:
   rules:
   - host: {{.Values.matomo.dashboard.hostname}}
     http:
-      port: 80
       paths:
       - backend:
           serviceName: matomo-dashboard
