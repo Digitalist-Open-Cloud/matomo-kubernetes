@@ -11,7 +11,7 @@ data:
     [program:queuedtracking-process]
     startretries=100
     process_name=%(program_name)s_%(process_num)02d
-    command=sh -c 'while ( php /var/www/html/console queuedtracking:process );do sleep 10; done'
+    command=sh -c 'while ( php /var/www/html/console queuedtracking:process --force-num-requests-process-at-once=1000 );do sleep 10; done'
     autostart=true
     autorestart=true
     user=www-data
