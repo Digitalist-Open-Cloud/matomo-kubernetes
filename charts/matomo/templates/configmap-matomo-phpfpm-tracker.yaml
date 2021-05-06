@@ -14,7 +14,7 @@ data:
     pm.start_servers =  {{ .Values.tracker.phpfpm.start_servers | default 5 }}
     pm.min_spare_servers =  {{ .Values.tracker.phpfpm.min_spare_servers | default 5 }}
     pm.max_spare_servers =  {{ .Values.tracker.phpfpm.max_spare_servers | default 75 }}
-    php_admin_value[memory_limit] =  {{ .Values.tracker.phpfpm.memory_limit | default 2048M }}        
+    php_admin_value[memory_limit] =  {{ .Values.tracker.phpfpm.memory_limit | default "2048M" }}        
 {{ else }}
 data:
   zz-global.conf: |
@@ -26,6 +26,6 @@ data:
     pm.start_servers = 5
     pm.min_spare_servers = 5
     pm.max_spare_servers = 75
-    php_admin_value[memory_limit] = 2048M
+    php_admin_value[memory_limit] = "2048M"
 
 {{- end }}
