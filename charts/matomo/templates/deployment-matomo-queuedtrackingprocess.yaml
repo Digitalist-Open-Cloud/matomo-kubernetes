@@ -21,11 +21,10 @@ spec:
     spec:
       initContainers:
       - name: wait-for-dashboard
-        image: image-docker-containing-sh
-        args:
-        - /bin/sh
-        - -c
-        - /usr/app/wait-for-it.sh matomo-dashboard:8080 -t 0
+        image: stefanevinance/wait-for-200
+        env:
+        - name: URL
+          value: http://matomo-dashboard:8080
       - name: matomo-init
         image: {{.Values.matomo.image}}
         securityContext:
