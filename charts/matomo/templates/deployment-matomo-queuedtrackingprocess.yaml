@@ -21,7 +21,7 @@ spec:
     spec:
       initContainers:
       - name: wait-for-dashboard
-        image: stefanevinance/wait-for-200
+        image: registry.wklive.net:5000/wait-for-200
         env:
         - name: URL
           value: http://matomo-dashboard:8080
