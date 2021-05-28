@@ -15,8 +15,10 @@ matomo:
     enabled: true    
   cli:
     enabled: true
+    apm: false
   cronJobs:
     coreArchive:
+      apm: false
       labels:
         name: matomo-jobs-corearchive
         instance: matomo-af
@@ -28,6 +30,7 @@ matomo:
       activeDeadlineSeconds: 43200
       command: ./console core:archive --disable-scheduled-tasks
     scheduledTasks:
+      apm: false
       labels:
         name: matomo-jobs-scheduled-tasks
         instance: matomo-af
@@ -39,6 +42,7 @@ matomo:
       activeDeadlineSeconds: 43200
       command: ./console scheduled-tasks:run
   dashboard:
+    apm: false
     enabled: true
     replicas: 1
     loadbalancer: false
@@ -51,14 +55,18 @@ matomo:
   phpfpm:
     tracker: true
   queuedTrackingMonitor:
+    apm: false
     enabled: true
   queuedTrackingProcess:
+    apm: false
     replicas: 1
   tracker:
+    apm: false
     replicas: 1
     hostname: localhost
     tls: false
 tracker:
+  apm: false
   phpfpm:
     type: ondemand
     max_children: 75

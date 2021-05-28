@@ -68,9 +68,12 @@ spec:
             subPath: zz-global.conf 
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
-            subPath: zz-global.ini
+            subPath: zz-global.ini   
+        {{ if .Values.matomo.dashboard.apm }}
+        {{ else }}
           - name: disable-apm
-            mountPath: /opt/elastic/apm-agent-php  
+            mountPath: /opt/elastic/apm-agent-php
+        {{- end }}
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
@@ -120,8 +123,11 @@ spec:
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
+        {{ if .Values.matomo.dashboard.apm }}
+        {{ else }}
           - name: disable-apm
-            mountPath: /opt/elastic/apm-agent-php    
+            mountPath: /opt/elastic/apm-agent-php
+        {{- end }}
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}

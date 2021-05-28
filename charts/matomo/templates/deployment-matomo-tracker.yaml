@@ -58,7 +58,11 @@ spec:
             mountPath: /var/www/html
           - name: matomo-configuration
             mountPath: /tmp/matomo/
-            readOnly: true    
+            readOnly: true
+        {{ if .Values.matomo.tracker.apm }}{{ else }}
+          - name: disable-apm
+            mountPath: /opt/elastic/apm-agent-php
+        {{- end }}              
       containers:
       - name: nginx
         image: {{.Values.nginx.image}}
@@ -102,8 +106,10 @@ spec:
           - name: matomo-phpfpm-tracker
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf
+        {{ if .Values.matomo.tracker.apm }}{{ else }}
           - name: disable-apm
             mountPath: /opt/elastic/apm-agent-php
+        {{- end }}
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
