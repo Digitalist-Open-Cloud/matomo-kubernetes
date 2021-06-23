@@ -63,7 +63,7 @@ spec:
         {{ else }}
           - name: disable-apm
             mountPath: /opt/elastic/apm-agent-php
-        {{- end }} 
+        {{- end }}
       containers:
       - name: matomo
         image: {{.Values.matomo.image}}
@@ -72,8 +72,8 @@ spec:
             memory: "128Mi"
             cpu: "250m"
           limits:
-            memory: "180Mi"
-            cpu: "500m"
+            memory: "220Mi"
+            cpu: "1"
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
         imagePullPolicy: Always
@@ -106,5 +106,5 @@ spec:
         configMap:
           name: matomo-supervisor-queuedtrackingprocess
       - name: disable-apm
-        emptyDir: {}        
+        emptyDir: {}
 {{- end -}}
