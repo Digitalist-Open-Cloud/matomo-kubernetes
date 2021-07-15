@@ -76,6 +76,8 @@ spec:
         {{- end }}
       containers:
       - name: fpm-metrics
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         image: hipages/php-fpm_exporter:2.0.2
         imagePullPolicy: IfNotPresent
         readinessProbe:
