@@ -68,6 +68,20 @@ data:
           fastcgi_index matomo.php;
           include fastcgi_params;
         }
+        location ~ ^/(status)$ {
+          access_log off;
+
+          # allow 127.0.0.1;
+          # allow 1.2.3.4;
+          # deny all;
+
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          fastcgi_index index.php;
+          include fastcgi_params;
+          ## Now the port or socket of the php-fpm pool we want the status of
+          fastcgi_pass localhost:9000;
+          # fastcgi_pass unix:/run/php-fpm/your_socket.sock;
+        }
       }
     }
   fastcgi_params: |

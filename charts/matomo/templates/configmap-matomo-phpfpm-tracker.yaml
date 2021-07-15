@@ -14,7 +14,8 @@ data:
     pm.start_servers =  {{ .Values.tracker.phpfpm.start_servers | default 5 }}
     pm.min_spare_servers =  {{ .Values.tracker.phpfpm.min_spare_servers | default 5 }}
     pm.max_spare_servers =  {{ .Values.tracker.phpfpm.max_spare_servers | default 75 }}
-    php_admin_value[memory_limit] =  {{ .Values.tracker.phpfpm.memory_limit | default "2048M" }}        
+    php_admin_value[memory_limit] =  {{ .Values.tracker.phpfpm.memory_limit | default "2048M" }}
+    pm.status_path =  {{ .Values.matomo.phpfpm.status_path | default "/status" }}     
 {{ else }}
 data:
   zz-global.conf: |
@@ -27,5 +28,5 @@ data:
     pm.min_spare_servers = 5
     pm.max_spare_servers = 75
     php_admin_value[memory_limit] = "2048M"
-
+    pm.status_path = "/status"
 {{- end }}
