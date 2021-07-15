@@ -75,6 +75,49 @@ spec:
             mountPath: /opt/elastic/apm-agent-php
         {{- end }}
       containers:
+      - name: fpm-metrics
+        image: "hipages/php-fpm_exporter:1"
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: fpm-metrics
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: fpm-metrics
+          periodSeconds: 5
+        startupProbe:
+          failureThreshold: 120
+          periodSeconds: 1
+          httpGet:
+            path: /metrics
+            port: fpm-metrics
+        env:
+          # FastCGI address where FPM listens on, we're connecting over TCP
+          - name: PHP_FPM_SCRAPE_URI
+            value: tcp://127.0.0.1:9000/status
+          # Address on which to expose metrics and web interface.
+          - name: PHP_FPM_WEB_LISTEN_ADDRESS
+            value: 6999
+          # Path under which to expose metrics.
+          - name: PHP_FPM_WEB_TELEMETRY_PATH
+            value: /metrics
+          # Enabled to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.
+          - name: PHP_FPM_FIX_PROCESS_COUNT
+            value: "true"
+          # Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal] (default "error")
+          - name: PHP_FPM_LOG_LEVEL
+            value: info
+        resources:
+          limits:
+            cpu: 40m
+            memory: 32Mi
+          requests:
+            cpu: 40m
+            memory: 32Mi
+
       - name: nginx
         image: {{.Values.nginx.image}}
         {{- if .Values.nginx.resources }}
