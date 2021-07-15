@@ -80,22 +80,6 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
         image: hipages/php-fpm_exporter:2.0.2
         imagePullPolicy: IfNotPresent
-        readinessProbe:
-          httpGet:
-            path: /metrics
-            port: fpm-metrics
-          periodSeconds: 5
-        livenessProbe:
-          httpGet:
-            path: /metrics
-            port: fpm-metrics
-          periodSeconds: 5
-        startupProbe:
-          failureThreshold: 120
-          periodSeconds: 1
-          httpGet:
-            path: /metrics
-            port: fpm-metrics
         resources:
           limits:
             cpu: 40m
