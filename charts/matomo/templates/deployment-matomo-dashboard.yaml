@@ -76,6 +76,8 @@ spec:
         {{- end }}
       containers:
       - name: mysql-metrics
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         image: adrianbalcan/sidecar-mysql-monitoring:latest
         ports:
         - containerPort: 9100
