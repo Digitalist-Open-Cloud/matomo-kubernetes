@@ -75,24 +75,7 @@ spec:
             memory: 32Mi
           requests:
             cpu: 40m
-            memory: 32Mi
-      - name: nginx
-        image: {{.Values.nginx.image}}
-        {{- if .Values.nginx.resources }}
-        resources:
-{{ toYaml .Values.nginx.resources | indent 10 }}
-        {{- end }}
-        securityContext:
-          runAsUser: {{.Values.nginx.runAsUser}}
-        volumeMounts:
-          - name: nginx-matomo-dashboard
-            mountPath: /etc/nginx
-            readOnly: true
-          - name: static-data
-            mountPath: /var/www/html
-            readOnly: true 
-        ports:
-        - containerPort: 8080      
+            memory: 32Mi  
       - name: nginx
         image: {{.Values.nginx.image}}
         {{- if .Values.matomo.tracker.nginx.resources }}
