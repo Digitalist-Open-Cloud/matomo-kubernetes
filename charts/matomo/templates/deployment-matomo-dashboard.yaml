@@ -77,6 +77,8 @@ spec:
       containers:
       - name: mysql-metrics
         image: ozziio/mysqlsidecar:0.1
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         ports:
         - containerPort: 9100
           name: mysql-metrics
