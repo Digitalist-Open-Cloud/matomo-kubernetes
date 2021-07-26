@@ -75,6 +75,19 @@ spec:
             mountPath: /opt/elastic/apm-agent-php
         {{- end }}
       containers:
+      - name: mysql-metrics
+        image: adrianbalcan/sidecar-mysql-monitoring:latest
+        ports:
+        - containerPort: 9100
+          name: mysql-metrics
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 50m
+            memory: 50Mi
+          requests:
+            cpu: 10m
+            memory: 10Mi
       - name: fpm-metrics
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
