@@ -155,6 +155,11 @@ spec:
           - name: disable-apm
             mountPath: /opt/elastic/apm-agent-php
         {{- end }}
+        {{ if .Values.matomo.dashboard.blackfire }}
+          - name: matomo-blackfire-php
+            mountPath: /usr/local/etc/php/conf.d/blackfire.ini
+            subPath: blackfire.ini
+        {{- end }}
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
