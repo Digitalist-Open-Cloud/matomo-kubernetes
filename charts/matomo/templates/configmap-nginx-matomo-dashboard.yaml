@@ -91,6 +91,9 @@ data:
           max_input_time=3600
           max_file_uploads=300";
           include fastcgi_params;
+
+          fastcgi_cache_bypass  $http_x_blackfire_query;
+          fastcgi_no_cache      $http_x_blackfire_query;
         }
 
         ## Allow access to heatmapsessionsrecording plugin is needed to make it work.
