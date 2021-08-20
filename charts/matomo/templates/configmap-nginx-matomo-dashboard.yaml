@@ -35,7 +35,7 @@ data:
         server_name _;
         root /var/www/html;
         index index.php;
-
+        
         fastcgi_cache_bypass  $http_x_blackfire_query;
         fastcgi_no_cache      $http_x_blackfire_query;
 
@@ -70,6 +70,11 @@ data:
           fastcgi_split_path_info ^(.+?\.php)(/.*)$;
           if (!-f $document_root$fastcgi_script_name) {
             return 404;
+          }
+
+          if ($http_x_blackfire_query) {
+            fastcgi_cache_bypass  $http_x_blackfire_query;
+            fastcgi_no_cache      $http_x_blackfire_query;
           }
 
           proxy_read_timeout 600s;
