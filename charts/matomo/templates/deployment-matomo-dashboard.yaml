@@ -198,7 +198,10 @@ spec:
       - name: static-data
         emptyDir: {}
       - name: disable-apm
-        emptyDir: {}      
+        emptyDir: {}
+      - name: matomo-blackfire-php
+        configMap:
+          name: matomo-blackfire-php
 ---
 apiVersion: v1
 kind: Service
