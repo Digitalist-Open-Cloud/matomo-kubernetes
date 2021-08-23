@@ -102,6 +102,41 @@ spec:
           requests:
             cpu: 40m
             memory: 32Mi
+      - name: blackfire
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
+        image: blackfire/blackfire:2
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: BLACKFIRE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: blackfire-secrets
+              key: blackfire-client-id
+        - name: BLACKFIRE_CLIENT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: blackfire-secrets
+              key: blackfire-client-token
+        - name: BLACKFIRE_SERVER_ID
+          valueFrom:
+            secretKeyRef:
+              name: blackfire-secrets
+              key: blackfire-server-id
+        - name: BLACKFIRE_SERVER_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: blackfire-secrets
+              key: blackfire-server-token
+        resources:
+          limits:
+            cpu: 50m
+            memory: 50Mi
+          requests:
+            cpu: 10m
+            memory: 10Mi
+        ports:
+        - containerPort: 8707
       - name: nginx
         image: {{.Values.nginx.image}}
         {{- if .Values.nginx.resources }}
