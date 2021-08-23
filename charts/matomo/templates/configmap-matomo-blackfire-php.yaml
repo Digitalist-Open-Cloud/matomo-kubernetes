@@ -16,4 +16,3 @@ data:
     blackfire.agent_socket=tcp://blackfire:8707
     blackfire.apm_connect_at_startup=0
 {{- end }}
-blackfire.agent_socket=unix:///var/run/blackfire/agent.sock
