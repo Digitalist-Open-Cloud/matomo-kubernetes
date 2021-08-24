@@ -128,6 +128,10 @@ spec:
             secretKeyRef:
               name: blackfire-secrets
               key: blackfire-server-token
+        - name: BLACKFIRE_LOG_LEVEL
+          value: {{ .Values.matomo.dashboard.blackfire.blackfire_apm_loglevel | default "0" }}
+        - name: BLACKFIRE_LOG_FILE
+          value: {{ .Values.matomo.dashboard.blackfire.blackfire_log_file | default "/tmp/blackfire-agent.log" }}
         resources:
           limits:
             cpu: 50m
@@ -137,6 +141,11 @@ spec:
             memory: 10Mi
         ports:
         - containerPort: 8707
+          name: blackfire-metrics-legacy
+          protocol: TCP
+        - containerPort: 8307
+          name: blackfire-metrics
+          protocol: TCP
       - name: nginx
         image: {{.Values.nginx.image}}
         {{- if .Values.nginx.resources }}
