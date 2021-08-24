@@ -129,9 +129,9 @@ spec:
               name: blackfire-secrets
               key: blackfire-server-token
         - name: BLACKFIRE_LOG_LEVEL
-          value: 4
+          value: {{ quote .Values.matomo.dashboard.blackfire.blackfire_apm_loglevel | default "0" }}
         - name: BLACKFIRE_LOG_FILE
-          value: "/tmp/blackfire-agent.log"
+          value: {{ quote .Values.matomo.dashboard.blackfire.blackfire_log_file | default "/tmp/blackfire-agent.log" }}
         resources:
           limits:
             cpu: 50m
