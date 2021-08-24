@@ -141,10 +141,10 @@ spec:
             memory: 10Mi
         ports:
         - containerPort: 8707
-          name: blackfire-metrics-legacy
+          name: bf-legacy
           protocol: TCP
         - containerPort: 8307
-          name: blackfire-metrics
+          name: bf-metrics
           protocol: TCP
       - name: nginx
         image: {{.Values.nginx.image}}
