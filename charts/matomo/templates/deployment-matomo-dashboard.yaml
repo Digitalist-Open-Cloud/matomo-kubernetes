@@ -70,21 +70,21 @@ spec:
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
       containers:
-      - name: mysql-metrics
-        image: ozziio/mysqlsidecar:0.1
-        securityContext:
-          runAsUser: {{.Values.matomo.runAsUser}}
-        ports:
-        - containerPort: 9100
-          name: mysql-metrics
-          protocol: TCP
-        resources:
-          limits:
-            cpu: 50m
-            memory: 50Mi
-          requests:
-            cpu: 10m
-            memory: 10Mi
+      # - name: mysql-metrics
+      #   image: ozziio/mysqlsidecar:0.1
+      #   securityContext:
+      #     runAsUser: {{.Values.matomo.runAsUser}}
+      #   ports:
+      #   - containerPort: 9100
+      #     name: mysql-metrics
+      #     protocol: TCP
+      #   resources:
+      #     limits:
+      #       cpu: 50m
+      #       memory: 50Mi
+      #     requests:
+      #       cpu: 10m
+      #       memory: 10Mi
       - name: fpm-metrics
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
@@ -99,6 +99,8 @@ spec:
             memory: 32Mi
 {{- if .Values.matomo.blackfire.enabled }} 
       - name: blackfire
+        securityContext:
+          runAsUser: {{.Values.matomo.runAsUser}}
         image: blackfire/blackfire:2
         imagePullPolicy: IfNotPresent
         env:
