@@ -15,8 +15,6 @@ matomo:
     enabled: true
   blackfire:
     enabled: false
-    loglevel: 0
-    log_file: /tmp/blackfire-agent.log
     clientid: Zm9v
     clienttoken: Zm9v
     serverid: Zm9v
