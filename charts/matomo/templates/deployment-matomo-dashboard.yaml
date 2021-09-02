@@ -100,7 +100,7 @@ spec:
 {{- if .Values.matomo.blackfire.enabled }} 
       - name: blackfire
         securityContext:
-          runAsUser: {{.Values.matomo.runAsUser}}
+          runAsUser: blackfire
         image: blackfire/blackfire:2
         imagePullPolicy: IfNotPresent
         env:
