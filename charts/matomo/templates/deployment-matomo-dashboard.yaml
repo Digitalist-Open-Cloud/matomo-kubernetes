@@ -237,7 +237,6 @@ spec:
       protocol: TCP
   selector:
     app: matomo-dashboard
-{{- end -}}
 {{- if .Values.matomo.blackfire.enabled }} 
 ---
 apiVersion: v1
@@ -250,4 +249,18 @@ data:
   blackfire-client-token: {{ .Values.matomo.blackfire.clienttoken }}
   blackfire-server-id: {{ .Values.matomo.blackfire.serverid }}
   blackfire-server-token: {{ .Values.matomo.blackfire.servertoken }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blackfire
+  labels:
+    app: matomo-dashboard
+spec:
+  ports:
+    - port: 8307
+      protocol: TCP
+  selector:
+    app: matomo-dashboard
 {{- end }}
+{{- end -}}

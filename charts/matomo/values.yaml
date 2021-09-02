@@ -14,6 +14,7 @@ matomo:
   ingress:
     enabled: true
   blackfire:
+    runAsUser: 999
     enabled: false
     clientid: Zm9v
     clienttoken: Zm9v
