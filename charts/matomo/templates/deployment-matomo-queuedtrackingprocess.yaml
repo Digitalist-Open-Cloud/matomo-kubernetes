@@ -59,11 +59,6 @@ spec:
           - name: matomo-configuration
             mountPath: /tmp/matomo/
             readOnly: true
-        {{ if .Values.matomo.queuedtrackingprocess.apm }}
-        {{ else }}
-          - name: disable-apm
-            mountPath: /opt/elastic/apm-agent-php
-        {{- end }}
       containers:
       - name: matomo
         image: {{.Values.matomo.image}}
@@ -90,10 +85,6 @@ spec:
           - name: matomo-supervisor-queuedtrackingprocess
             mountPath: /etc/supervisor.d
             readOnly: true
-        {{ if .Values.matomo.queuedtrackingprocess.apm }}{{ else }}
-          - name: disable-apm
-            mountPath: /opt/elastic/apm-agent-php
-        {{- end }}
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
@@ -105,6 +96,4 @@ spec:
       - name: matomo-supervisor-queuedtrackingprocess
         configMap:
           name: matomo-supervisor-queuedtrackingprocess
-      - name: disable-apm
-        emptyDir: {}
 {{- end -}}

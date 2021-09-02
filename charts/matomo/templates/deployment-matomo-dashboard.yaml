@@ -68,12 +68,7 @@ spec:
             subPath: zz-global.conf 
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
-            subPath: zz-global.ini   
-        {{ if .Values.matomo.dashboard.apm }}
-        {{ else }}
-          - name: disable-apm
-            mountPath: /opt/elastic/apm-agent-php
-        {{- end }}
+            subPath: zz-global.ini
       containers:
       - name: mysql-metrics
         image: ozziio/mysqlsidecar:0.1
@@ -102,9 +97,8 @@ spec:
           requests:
             cpu: 40m
             memory: 32Mi
+{{- if .Values.matomo.blackfire.enabled }} 
       - name: blackfire
-        securityContext:
-          runAsUser: {{.Values.matomo.runAsUser}}
         image: blackfire/blackfire:2
         imagePullPolicy: IfNotPresent
         env:
@@ -129,13 +123,13 @@ spec:
               name: blackfire-secrets
               key: blackfire-server-token
         - name: BLACKFIRE_LOG_LEVEL
-          value: {{ quote .Values.matomo.dashboard.blackfire.blackfire_apm_loglevel | default "0" }}
+          value: {{ quote .Values.matomo.blackfire.loglevel | default "0" }}
         - name: BLACKFIRE_LOG_FILE
-          value: {{ quote .Values.matomo.dashboard.blackfire.blackfire_log_file | default "/tmp/blackfire-agent.log" }}
+          value: {{ quote .Values.matomo.blackfire.log_file | default "/tmp/blackfire-agent.log" }}
         resources:
           limits:
-            cpu: 50m
-            memory: 50Mi
+            cpu: 500m
+            memory: 1024Mi
           requests:
             cpu: 10m
             memory: 10Mi
@@ -146,6 +140,7 @@ spec:
         - containerPort: 8307
           name: bf-metrics
           protocol: TCP
+{{- end }}   
       - name: nginx
         image: {{.Values.nginx.image}}
         {{- if .Values.nginx.resources }}
@@ -194,16 +189,6 @@ spec:
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
-        {{ if .Values.matomo.dashboard.apm }}
-        {{ else }}
-          - name: disable-apm
-            mountPath: /opt/elastic/apm-agent-php
-        {{- end }}
-        {{ if .Values.matomo.dashboard.blackfire }}
-          - name: matomo-blackfire-php
-            mountPath: /usr/local/etc/php/conf.d/blackfire.ini
-            subPath: blackfire.ini
-        {{- end }}
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
@@ -241,11 +226,6 @@ spec:
           name: matomo-dashboard-php
       - name: static-data
         emptyDir: {}
-      - name: disable-apm
-        emptyDir: {}
-      - name: matomo-blackfire-php
-        configMap:
-          name: matomo-blackfire-php
 ---
 apiVersion: v1
 kind: Service
@@ -260,3 +240,16 @@ spec:
   selector:
     app: matomo-dashboard
 {{- end -}}
+{{- if .Values.matomo.blackfire.enabled }} 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: blackfire-secrets
+type: Opaque
+data:
+  blackfire-client-id: {{ .Values.matomo.blackfire.clientid }}
+  blackfire-client-token: {{ .Values.matomo.blackfire.clienttoken }}
+  blackfire-server-id: {{ .Values.matomo.blackfire.serverid }}
+  blackfire-server-token: {{ .Values.matomo.blackfire.servertoken }}
+{{- end }}

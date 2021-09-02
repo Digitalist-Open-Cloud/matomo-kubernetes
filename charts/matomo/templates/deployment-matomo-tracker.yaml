@@ -58,11 +58,7 @@ spec:
             mountPath: /var/www/html
           - name: matomo-configuration
             mountPath: /tmp/matomo/
-            readOnly: true
-        {{ if .Values.matomo.tracker.apm }}{{ else }}
-          - name: disable-apm
-            mountPath: /opt/elastic/apm-agent-php
-        {{- end }}              
+            readOnly: true          
       containers:
       - name: fpm-metrics
         securityContext:
@@ -118,10 +114,6 @@ spec:
           - name: matomo-phpfpm-tracker
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf
-        {{ if .Values.matomo.tracker.apm }}{{ else }}
-          - name: disable-apm
-            mountPath: /opt/elastic/apm-agent-php
-        {{- end }}
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
@@ -159,8 +151,6 @@ spec:
       - name: matomo-phpfpm-tracker
         configMap:
           name: matomo-phpfpm-tracker
-      - name: disable-apm
-        emptyDir: {}    
 ---
 apiVersion: v1
 kind: Service
