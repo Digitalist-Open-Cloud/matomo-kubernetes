@@ -20,11 +20,6 @@ spec:
         kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
       initContainers:
-      - name: wait-for-dashboard
-        image: registry.wklive.net:5000/wait-for-200
-        env:
-        - name: URL
-          value: http://matomo-dashboard:8080
       - name: matomo-init
         image: {{.Values.matomo.image}}
         securityContext:
