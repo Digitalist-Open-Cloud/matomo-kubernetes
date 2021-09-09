@@ -21,6 +21,7 @@ matomo:
     serverid: Zm9v
     servertoken: Zm9v 
   cli:
+    replicas: 1
     enabled: true
   cronJobs:
     coreArchive:
