@@ -193,7 +193,6 @@ spec:
             subPath: docker-php-ext-xdebug.ini
           {{- end }}
 
-
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
