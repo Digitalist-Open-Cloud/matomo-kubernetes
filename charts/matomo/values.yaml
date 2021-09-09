@@ -84,3 +84,5 @@ db:
   name: matomo
   username: root
   prefix: matomo_
+xdebug:
+  disabled: 0
