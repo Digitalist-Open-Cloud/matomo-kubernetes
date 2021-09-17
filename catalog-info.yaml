@@ -1,0 +1,16 @@
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: matomo-kubernetes
+  description: Matomo Kuberenetes Helm charts.
+  annotations:
+    github.com/project-slug:  digitalist-se/matomo-kubernetes
+    backstage.io/techdocs-ref: url:https://github.com/digitalist-se/matomo-kubernetes
+  tags:
+    - matomo
+    - kubernetes
+spec:
+  type: deployment
+  owner: group:matomo
+  lifecycle: active
