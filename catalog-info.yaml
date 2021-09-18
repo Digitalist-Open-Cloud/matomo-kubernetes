@@ -10,6 +10,7 @@ metadata:
   tags:
     - matomo
     - kubernetes
+    - helm
 spec:
   type: deployment
   owner: group:matomo
