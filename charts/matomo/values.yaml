@@ -19,7 +19,7 @@ matomo:
     clientid: Zm9v
     clienttoken: Zm9v
     serverid: Zm9v
-    servertoken: Zm9v 
+    servertoken: Zm9v
   cli:
     replicas: 1
     enabled: true
@@ -73,7 +73,7 @@ tracker:
     process_idle_timeout: 600s
     max_requests: 500
 nginx:
-  image: registry.wklive.net:5000/dg/nginx:1.16.1-alpine-a7b7a7e2a51c070096852223b4405671cffcb868
+  image: registry.wklive.net:5000/se-ops/docker/digitalist-nginx-nonpriv:1.21
   runAsUser: 100
 db:
   hostname: matomo-db-mysql
