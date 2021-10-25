@@ -18,12 +18,14 @@ spec:
   - host: {{.Values.matomo.dashboard.hostname}}
     http:
       paths:
-      - backend:
+      - path: /
+        pathType: Prefix
+        backend:
           service:
             name: matomo-dashboard
             port:
               number: 8080
-        path: /
+
   {{- if .Values.matomo.dashboard.tls }}
   tls:
   - hosts:

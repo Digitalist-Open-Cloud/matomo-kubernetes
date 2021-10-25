@@ -15,36 +15,42 @@ spec:
     http:
       paths:
       - path: /piwik.php
+        pathType: Prefix
         backend:
           service:
             name: matomo-tracker
             port:
               number: 8080
       - path: /piwik.js
+        pathType: Prefix
         backend:
           service:
             name: matomo-tracker
             port:
               number: 8080
       - path: /matomo.php
+        pathType: Prefix
         backend:
           service:
             name: matomo-tracker
             port:
               number: 8080
       - path: /matomo.js
+        pathType: Prefix
         backend:
           service:
             name: matomo-tracker
             port:
               number: 8080
       - path: /js/.*
+        pathType: Prefix
         backend:
           service:
             name: matomo-tracker
             port:
               number: 8080
       - path: /plugins/HeatmapSessionRecording/.*
+        pathType: Prefix
         backend:
           service:
             name: matomo-tracker
