@@ -1,13 +1,16 @@
 {{- if .Values.matomo.ingress.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
     app: matomo-dashboard
   name: matomo-dashboard
   namespace: {{.Values.namespace}}
-  {{- if .Values.matomo.dashboard.whitelist }}
   annotations:
+  {{- if .Values.matomo.ingress.annotations }}
+    {{ indent 4 .Values.matomo.ingress.annotations }}
+  {{- end }}
+    {{- if .Values.matomo.dashboard.whitelist }}
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/whitelist-source-range: {{.Values.matomo.dashboard.whitelist | toPrettyJson}}
     {{ else }}

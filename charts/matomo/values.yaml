@@ -13,6 +13,8 @@ matomo:
       key: matomo-license
   ingress:
     enabled: true
+    annotations: |
+      digitalist-net-services.org: "matomo"
   blackfire:
     runAsUser: 999
     enabled: false
