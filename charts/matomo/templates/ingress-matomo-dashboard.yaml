@@ -7,9 +7,11 @@ metadata:
   name: matomo-dashboard
   namespace: {{.Values.namespace}}
   annotations:
-  {{ indent 4 .Values.matomo.ingress.annotations }}
-    {{- if .Values.matomo.dashboard.whitelist }}
     nginx.ingress.kubernetes.io/use-regex: "true"
+  {{- if .Values.matomo.ingress.annotations }}
+  {{ .Values.matomo.ingress.annotations | trim | indent 2  }}
+  {{- end }}
+    {{- if .Values.matomo.dashboard.whitelist }}
     nginx.ingress.kubernetes.io/whitelist-source-range: {{.Values.matomo.dashboard.whitelist | toPrettyJson}}
     {{ else }}
   {{- end }}
@@ -22,9 +24,15 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
+            {{- if .Values.matomo.dashboard.loadbalancer }}
+            name: matomo-dashboard-lb
+            port:
+              number: 80
+              {{ else }}
             name: matomo-dashboard
             port:
               number: 8080
+            {{- end }}
 
   {{- if .Values.matomo.dashboard.tls }}
   tls:

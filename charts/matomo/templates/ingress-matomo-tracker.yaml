@@ -8,7 +8,9 @@ metadata:
   namespace: {{.Values.namespace}}
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-{{ indent 4 .Values.matomo.ingress.annotations  }}
+{{- if .Values.matomo.ingress.annotations }}
+  {{  .Values.matomo.ingress.annotations | trim | indent 2}}
+{{- end }}
 spec:
   rules:
   - host: {{.Values.matomo.tracker.hostname}}
@@ -18,44 +20,80 @@ spec:
         pathType: Prefix
         backend:
           service:
+            {{- if .Values.matomo.tracker.loadbalancer }}
+            name: matomo-tracker-lb
+            port:
+              number: 80
+              {{ else }}
             name: matomo-tracker
             port:
               number: 8080
+            {{- end }}
       - path: /piwik.js
         pathType: Prefix
         backend:
           service:
+            {{- if .Values.matomo.tracker.loadbalancer }}
+            name: matomo-tracker-lb
+            port:
+              number: 80
+              {{ else }}
             name: matomo-tracker
             port:
               number: 8080
+            {{- end }}
       - path: /matomo.php
         pathType: Prefix
         backend:
           service:
+            {{- if .Values.matomo.tracker.loadbalancer }}
+            name: matomo-tracker-lb
+            port:
+              number: 80
+              {{ else }}
             name: matomo-tracker
             port:
               number: 8080
+            {{- end }}
       - path: /matomo.js
         pathType: Prefix
         backend:
           service:
+            {{- if .Values.matomo.tracker.loadbalancer }}
+            name: matomo-tracker-lb
+            port:
+              number: 80
+              {{ else }}
             name: matomo-tracker
             port:
               number: 8080
+            {{- end }}
       - path: /js/.*
         pathType: Prefix
         backend:
           service:
+            {{- if .Values.matomo.tracker.loadbalancer }}
+            name: matomo-tracker-lb
+            port:
+              number: 80
+              {{ else }}
             name: matomo-tracker
             port:
               number: 8080
+            {{- end }}
       - path: /plugins/HeatmapSessionRecording/.*
         pathType: Prefix
         backend:
           service:
+            {{- if .Values.matomo.tracker.loadbalancer }}
+            name: matomo-tracker-lb
+            port:
+              number: 80
+              {{ else }}
             name: matomo-tracker
             port:
               number: 8080
+            {{- end }}
 
   {{- if .Values.matomo.tracker.tls }}
   tls:

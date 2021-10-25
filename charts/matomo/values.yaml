@@ -68,6 +68,7 @@ matomo:
     replicas: 1
     hostname: localhost
     tls: false
+    loadbalancer: false
 tracker:
   phpfpm:
     type: ondemand
