@@ -1,5 +1,5 @@
 {{- if .Values.matomo.ingress.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
@@ -16,28 +16,40 @@ spec:
       paths:
       - path: /piwik.php
         backend:
-          serviceName: matomo-tracker
-          servicePort: 8080
+          service:
+            name: matomo-tracker
+            port:
+              number: 8080
       - path: /piwik.js
         backend:
-          serviceName: matomo-tracker
-          servicePort: 8080
+          service:
+            name: matomo-tracker
+            port:
+              number: 8080
       - path: /matomo.php
         backend:
-          serviceName: matomo-tracker
-          servicePort: 8080
+          service:
+            name: matomo-tracker
+            port:
+              number: 8080
       - path: /matomo.js
         backend:
-          serviceName: matomo-tracker
-          servicePort: 8080
+          service:
+            name: matomo-tracker
+            port:
+              number: 8080
       - path: /js/.*
         backend:
-          serviceName: matomo-tracker
-          servicePort: 8080
+          service:
+            name: matomo-tracker
+            port:
+              number: 8080
       - path: /plugins/HeatmapSessionRecording/.*
         backend:
-          serviceName: matomo-tracker
-          servicePort: 8080
+          service:
+            name: matomo-tracker
+            port:
+              number: 8080
 
   {{- if .Values.matomo.tracker.tls }}
   tls:

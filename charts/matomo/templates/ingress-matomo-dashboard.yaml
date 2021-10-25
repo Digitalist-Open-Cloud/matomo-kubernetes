@@ -19,8 +19,10 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: matomo-dashboard
-          servicePort: 8080
+          service:
+            name: matomo-dashboard
+            port:
+              number: 8080
         path: /
   {{- if .Values.matomo.dashboard.tls }}
   tls:
