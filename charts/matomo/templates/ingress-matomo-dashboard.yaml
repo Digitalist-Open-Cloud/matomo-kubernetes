@@ -7,9 +7,7 @@ metadata:
   name: matomo-dashboard
   namespace: {{.Values.namespace}}
   annotations:
-  {{- if .Values.matomo.ingress.annotations }}
-    {{ indent 4 .Values.matomo.ingress.annotations }}
-  {{- end }}
+  {{ indent 4 .Values.matomo.ingress.annotations }}
     {{- if .Values.matomo.dashboard.whitelist }}
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/whitelist-source-range: {{.Values.matomo.dashboard.whitelist | toPrettyJson}}
