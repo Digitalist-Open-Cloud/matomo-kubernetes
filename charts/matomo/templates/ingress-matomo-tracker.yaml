@@ -8,9 +8,11 @@ metadata:
   namespace: {{.Values.namespace}}
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-{{- if .Values.matomo.ingress.annotations }}
-  {{  .Values.matomo.ingress.annotations | trim | indent 2}}
-{{- end }}
+    {{- if .Values.matomo.ingress.annotations }}
+      {{- with .Values.matomo.ingress.annotations }}
+        {{- toYaml . | nindent 4 }}
+      {{- end }}
+    {{- end }}
 spec:
   rules:
   - host: {{.Values.matomo.tracker.hostname}}

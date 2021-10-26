@@ -65,7 +65,7 @@ spec:
             readOnly: true
           - name: matomo-phpfpm
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
-            subPath: zz-global.conf 
+            subPath: zz-global.conf
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
@@ -97,7 +97,7 @@ spec:
           requests:
             cpu: 40m
             memory: 32Mi
-{{- if .Values.matomo.blackfire.enabled }} 
+{{- if .Values.matomo.blackfire.enabled }}
       - name: blackfire
         securityContext:
           runAsUser: 999
@@ -138,7 +138,7 @@ spec:
         - containerPort: 8307
           name: bf-metrics
           protocol: TCP
-{{- end }}   
+{{- end }}
       - name: nginx
         image: {{.Values.nginx.image}}
         {{- if .Values.nginx.resources }}
@@ -153,7 +153,7 @@ spec:
             readOnly: true
           - name: static-data
             mountPath: /var/www/html
-            readOnly: true 
+            readOnly: true
         ports:
         - containerPort: 8080
       - name: matomo
@@ -181,7 +181,7 @@ spec:
         volumeMounts:
           - name: static-data
             mountPath: /var/www/html
-          - name: matomo-phpfpm  
+          - name: matomo-phpfpm
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf
           - name: matomo-dashboard-php
@@ -199,19 +199,19 @@ spec:
           exec:
             command:
             - sh
-            - -c 
+            - -c
             - {{ .Values.matomo.livenessProbe.exec.command }}
           initialDelaySeconds:  {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 10 }}
           periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 20 }}
-          {{- end }}  
+          {{- end }}
         {{- end }}
         {{- if .Values.matomo.readinessProbe }}
         readinessProbe:
           httpGet:
             path: {{ .Values.matomo.readinessProbe.httpGet.path }}
             port: {{ .Values.matomo.readinessProbe.httpGet.port | default 80 }}
-          initialDelaySeconds: {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 5 }}
-          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 5 }}
+          initialDelaySeconds: {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 30 }}
+          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 30 }}
         {{- end }}
       imagePullSecrets:
       - name: matomo-registry-secret
@@ -228,11 +228,11 @@ spec:
       - name: matomo-dashboard-php
         configMap:
           name: matomo-dashboard-php
-      {{- if .Values.xdebug.disabled  }}    
+      {{- if .Values.xdebug.disabled  }}
       - name: matomo-disable-xdebug
         configMap:
           name: matomo-disable-xdebug
-      {{- end }}    
+      {{- end }}
       - name: static-data
         emptyDir: {}
 ---
@@ -248,7 +248,7 @@ spec:
       protocol: TCP
   selector:
     app: matomo-dashboard
-{{- if .Values.matomo.blackfire.enabled }} 
+{{- if .Values.matomo.blackfire.enabled }}
 ---
 apiVersion: v1
 kind: Secret

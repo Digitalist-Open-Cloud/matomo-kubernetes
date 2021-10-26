@@ -53,7 +53,7 @@ spec:
             mountPath: /var/www/html
           - name: matomo-configuration
             mountPath: /tmp/matomo/
-            readOnly: true    
+            readOnly: true
       containers:
       - name: matomo
         image: {{.Values.matomo.image}}

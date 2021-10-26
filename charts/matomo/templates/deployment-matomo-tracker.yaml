@@ -53,7 +53,7 @@ spec:
             mountPath: /var/www/html
           - name: matomo-configuration
             mountPath: /tmp/matomo/
-            readOnly: true          
+            readOnly: true
       containers:
       - name: fpm-metrics
         securityContext:
@@ -66,7 +66,7 @@ spec:
             memory: 32Mi
           requests:
             cpu: 40m
-            memory: 32Mi  
+            memory: 32Mi
       - name: nginx
         image: {{.Values.nginx.image}}
         {{- if .Values.matomo.tracker.nginx.resources }}
@@ -115,11 +115,11 @@ spec:
           exec:
             command:
             - sh
-            - -c 
+            - -c
             - {{ .Values.matomo.livenessProbe.exec.command }}
           initialDelaySeconds:  {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 10 }}
           periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 20 }}
-          {{- end }}  
+          {{- end }}
         {{- end }}
         {{- if .Values.matomo.readinessProbe }}
         readinessProbe:
