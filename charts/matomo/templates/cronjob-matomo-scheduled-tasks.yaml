@@ -45,11 +45,11 @@ spec:
                   key: {{ .Values.db.password.secretKeyRef.key }}
             resources:
               requests:
-                memory: "512Mi"
-                cpu: "1"
+                memory: {{ .Values.matomo.cronJobs.scheduledTasks.requests.memory | default "20Mi" }}
+                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.requests.cpu | default "100m" }}
               limits:
-                memory: "1Gi"
-                cpu: "2"
+                memory: {{ .Values.matomo.cronJobs.scheduledTasks.limits.memory | default "512Mi" }}
+                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.limits.cpu | default "500m" }}
             command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
             volumeMounts:
               - name: static-data

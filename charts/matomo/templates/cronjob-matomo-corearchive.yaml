@@ -45,11 +45,11 @@ spec:
                   key: {{ .Values.db.password.secretKeyRef.key }}
             resources:
               requests:
-                memory: "128Mi"
-                cpu: "500m"
+                memory: {{ .Values.matomo.cronJobs.coreArchive.requests.memory | default "128Mi" }}
+                cpu: {{ .Values.matomo.cronJobs.coreArchive.requests.cpu | default "100m" }}
               limits:
-                memory: "2048Mi"
-                cpu: "700m"
+                memory: {{ .Values.matomo.cronJobs.coreArchive.limits.memory | default "2048Mi" }}
+                cpu: {{ .Values.matomo.cronJobs.coreArchive.limits.cpu | default "700m" }}
             command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
             volumeMounts:
               - name: static-data
@@ -81,10 +81,10 @@ spec:
                 mountPath: /var/www/html
               - name: matomo-phpfpm
                 mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
-                subPath: zz-global.conf 
+                subPath: zz-global.conf
               - name: matomo-cronjob-php
                 mountPath: /usr/local/etc/php/conf.d/zz-global.ini
-                subPath: zz-global.ini  
+                subPath: zz-global.ini
           restartPolicy: OnFailure
           imagePullSecrets:
           - name: matomo-registry-secret
