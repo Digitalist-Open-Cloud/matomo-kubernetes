@@ -201,8 +201,9 @@ spec:
             - sh
             - -c
             - {{ .Values.matomo.livenessProbe.exec.command }}
-          initialDelaySeconds:  {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 10 }}
-          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 20 }}
+          initialDelaySeconds: {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 10 }}
+          periodSeconds: {{ .Values.matomo.livenessProbe.periodSeconds | default 20 }}
+          timeoutSeconds: {{ .Values.matomo.livenessProbe.timeoutSeconds | default 10 }}
           {{- end }}
         {{- end }}
         {{- if .Values.matomo.readinessProbe }}
