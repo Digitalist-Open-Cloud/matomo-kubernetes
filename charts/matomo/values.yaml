@@ -38,6 +38,13 @@ matomo:
       schedule: "1 1 1 1 1"
       activeDeadlineSeconds: 43200
       command: ./console core:archive --disable-scheduled-tasks
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 512Mi
+          cpu: 700m
     scheduledTasks:
       labels:
         name: matomo-jobs-scheduled-tasks
@@ -49,6 +56,13 @@ matomo:
       schedule: "1 1 1 1 1"
       activeDeadlineSeconds: 43200
       command: ./console scheduled-tasks:run
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 512Mi
+          cpu: 700m
   dashboard:
     enabled: true
     replicas: 1

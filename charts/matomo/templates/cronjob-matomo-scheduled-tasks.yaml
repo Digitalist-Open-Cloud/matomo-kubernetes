@@ -45,11 +45,11 @@ spec:
                   key: {{ .Values.db.password.secretKeyRef.key }}
             resources:
               requests:
-                memory: {{ .Values.matomo.cronJobs.scheduledTasks.requests.memory | default "20Mi" }}
-                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.requests.cpu | default "100m" }}
+                memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.memory }}
+                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.cpu  }}
               limits:
-                memory: {{ .Values.matomo.cronJobs.scheduledTasks.limits.memory | default "512Mi" }}
-                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.limits.cpu | default "500m" }}
+                memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.limits.memory }}
+                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.resources.limits.cpu }}
             command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
             volumeMounts:
               - name: static-data
@@ -69,6 +69,13 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.db.password.secretKeyRef.name }}
                   key: {{ .Values.db.password.secretKeyRef.key }}
+            resources:
+              requests:
+                memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.memory }}
+                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.cpu  }}
+              limits:
+                memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.limits.memory }}
+                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.resources.limits.cpu }}
             volumeMounts:
               - name: static-data
                 mountPath: /var/www/html

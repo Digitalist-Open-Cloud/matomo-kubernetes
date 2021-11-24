@@ -45,11 +45,11 @@ spec:
                   key: {{ .Values.db.password.secretKeyRef.key }}
             resources:
               requests:
-                memory: {{ .Values.matomo.cronJobs.coreArchive.requests.memory | default "128Mi" }}
-                cpu: {{ .Values.matomo.cronJobs.coreArchive.requests.cpu | default "100m" }}
+                memory: {{ .Values.matomo.cronJobs.coreArchive.resources.requests.memory }}
+                cpu: {{ .Values.matomo.cronJobs.coreArchive.resources.requests.cpu }}
               limits:
-                memory: {{ .Values.matomo.cronJobs.coreArchive.limits.memory | default "2048Mi" }}
-                cpu: {{ .Values.matomo.cronJobs.coreArchive.limits.cpu | default "700m" }}
+                memory: {{ .Values.matomo.cronJobs.coreArchive.resources.limits.memory }}
+                cpu: {{ .Values.matomo.cronJobs.coreArchive.resources.limits.cpu }}
             command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
             volumeMounts:
               - name: static-data
@@ -62,11 +62,11 @@ spec:
             image: {{.Values.matomo.image}}
             resources:
               requests:
-                memory: "128Mi"
-                cpu: "500m"
+                memory: {{ .Values.matomo.cronJobs.coreArchive.resources.requests.memory }}
+                cpu: {{ .Values.matomo.cronJobs.coreArchive.resources.requests.cpu }}
               limits:
-                memory: "512Mi"
-                cpu: "700m"
+                memory: {{ .Values.matomo.cronJobs.coreArchive.resources.limits.memory }}
+                cpu: {{ .Values.matomo.cronJobs.coreArchive.resources.limits.cpu }}
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
             command: [ 'sh' , '-c' , '{{.Values.matomo.cronJobs.coreArchive.command}}' ]
