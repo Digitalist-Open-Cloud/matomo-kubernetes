@@ -21,7 +21,7 @@ data:
     [program:regenerate-matomo-js]
     priority=2
     process_name=%(program_name)s_%(process_num)02d
-    command=sh -c 'while ( php /var/www/html/console custom-matomo-js:update && php /var/www/html/console custom-piwik-js:update &&  php /var/www/html/console tagmanager:regenerate-released-containers );do sleep 120; done'
+    command=sh -c 'while ( php /var/www/html/console custom-matomo-js:update && php /var/www/html/console tagmanager:regenerate-released-containers );do sleep 120; done'
     autostart=true
     autorestart=true
     user=www-data
