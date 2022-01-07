@@ -6,7 +6,7 @@ metadata:
 {{- if .Values.matomo.config }}
 data:
   install.json: |-
-      {{ .Values.matomo.config | toJson | b64enc | quote }}
+      {{ .Values.matomo.config | toJson }}
 {{ else }}
 data:
   install.json: |
