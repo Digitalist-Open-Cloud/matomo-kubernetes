@@ -96,7 +96,19 @@ spec:
             port:
               number: 8080
             {{- end }}
-
+      - path: /plugins/Overlay/client/.*
+        pathType: Prefix
+        backend:
+          service:
+            {{- if .Values.matomo.tracker.loadbalancer }}
+            name: matomo-tracker-lb
+            port:
+              number: 80
+              {{ else }}
+            name: matomo-tracker
+            port:
+              number: 8080
+            {{- end }}
   {{- if .Values.matomo.tracker.tls }}
   tls:
   - hosts:
