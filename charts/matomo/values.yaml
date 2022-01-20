@@ -1,5 +1,8 @@
 changeCause: "should only be used as example"
+namespace: matomo
 nginxWorkerProcesses: 5
+queuedTrackingProcess:
+  numProcs: 8
 matomo:
   image: registry.wklive.net:5000/matomo/base:3-14-1-php7-4-15-fpm-alpine3-12-4cc32ec6
   runAsUser: 82
@@ -81,7 +84,6 @@ matomo:
     enabled: true
   queuedTrackingProcess:
     replicas: 1
-    numProcs: 8
   tracker:
     replicas: 1
     hostname: localhost
