@@ -70,11 +70,17 @@ spec:
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
       containers:
+        {{- if .Values.matomo.dashboard.sidecars }}
+{{ toYaml .Values.matomo.dashboard.sidecars | indent 6 }}
+        {{- end }}
       - name: fpm-metrics
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
         image: hipages/php-fpm_exporter:2.0.4
         imagePullPolicy: IfNotPresent
+        env:
+        - name: PHP_FPM_FIX_PROCESS_COUNT
+          value: "true"
         resources:
           limits:
             cpu: 500m
@@ -82,48 +88,6 @@ spec:
           requests:
             cpu: 40m
             memory: 32Mi
-{{- if .Values.matomo.blackfire.enabled }}
-      - name: blackfire
-        securityContext:
-          runAsUser: 999
-        image: blackfire/blackfire:2
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: BLACKFIRE_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: blackfire-secrets
-              key: blackfire-client-id
-        - name: BLACKFIRE_CLIENT_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: blackfire-secrets
-              key: blackfire-client-token
-        - name: BLACKFIRE_SERVER_ID
-          valueFrom:
-            secretKeyRef:
-              name: blackfire-secrets
-              key: blackfire-server-id
-        - name: BLACKFIRE_SERVER_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: blackfire-secrets
-              key: blackfire-server-token
-        resources:
-          limits:
-            cpu: 500m
-            memory: 1024Mi
-          requests:
-            cpu: 10m
-            memory: 10Mi
-        ports:
-        - containerPort: 8707
-          name: bf-legacy
-          protocol: TCP
-        - containerPort: 8307
-          name: bf-metrics
-          protocol: TCP
-{{- end }}
       - name: nginx
         image: {{.Values.nginx.image}}
         {{- if .Values.nginx.resources }}
@@ -177,7 +141,9 @@ spec:
             mountPath: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
             subPath: docker-php-ext-xdebug.ini
           {{- end }}
-
+{{- if .Values.extraVolumeMounts }}
+{{ toYaml .Values.extraVolumeMounts | indent 10 }}
+{{- end }}
         {{- if .Values.matomo.livenessProbe }}
         livenessProbe:
           {{- if .Values.matomo.livenessProbe.exec }}
@@ -221,6 +187,9 @@ spec:
       {{- end }}
       - name: static-data
         emptyDir: {}
+{{- if .Values.extraVolumes }}
+{{ toYaml .Values.extraVolumes | indent 6 }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -234,30 +203,4 @@ spec:
       protocol: TCP
   selector:
     app: matomo-dashboard
-{{- if .Values.matomo.blackfire.enabled }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: blackfire-secrets
-type: Opaque
-data:
-  blackfire-client-id: {{ .Values.matomo.blackfire.clientid }}
-  blackfire-client-token: {{ .Values.matomo.blackfire.clienttoken }}
-  blackfire-server-id: {{ .Values.matomo.blackfire.serverid }}
-  blackfire-server-token: {{ .Values.matomo.blackfire.servertoken }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: blackfire
-  labels:
-    app: matomo-dashboard
-spec:
-  ports:
-    - port: 8307
-      protocol: TCP
-  selector:
-    app: matomo-dashboard
-{{- end }}
 {{- end -}}

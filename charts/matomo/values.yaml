@@ -16,13 +16,6 @@ matomo:
     annotations:
       digitalist-net-services.org: "matomo"
       kubernetes.io/ingress.class: "nginx"
-  blackfire:
-    runAsUser: 999
-    enabled: false
-    clientid: Zm9v
-    clienttoken: Zm9v
-    serverid: Zm9v
-    servertoken: Zm9v
   cli:
     replicas: 1
     enabled: true
@@ -64,6 +57,18 @@ matomo:
           memory: 512Mi
           cpu: 700m
   dashboard:
+    sidecars: []
+    # sidecars:
+    # - name: fpm-metrics
+    #   image: hipages/php-fpm_exporter:2.0.4
+    #   imagePullPolicy: IfNotPresent
+    #   resources:
+    #     limits:
+    #       cpu: 500m
+    #       memory: 256Mi
+    #     requests:
+    #       cpu: 40m
+    #       memory: 32Mi
     enabled: true
     replicas: 1
     loadbalancer: false
@@ -104,3 +109,53 @@ db:
   prefix: matomo_
 xdebug:
   disabled: 1
+extraSecrets:
+  create: false
+  data: {}
+# * secrets need to base64 encoded.
+#  data:
+#    name: Zm9vCg==
+#    bar: YmFyCg==
+extraServices: {}
+#  - name: foo
+    ## Service port type
+#    type: ClusterIP
+    ## Service protocol
+#    protocol: TCP
+    ## The container target port
+#    containerPort: 12001
+    ## The service port
+#    port: 12001
+#    selector:
+#      app: matomo-dashboard
+    ## The node port (only relevant for type LoadBalancer or NodePort)
+#    nodePort:
+    ## The cluster ip address (only relevant for type LoadBalancer or NodePort)
+#    clusterIP:
+    ## The loadbalancer ip address (only relevant for type LoadBalancer)
+#    loadBalancerIP:
+extraConfigMaps:
+  create: true
+  data: {}
+# data:
+#   my.ini: |
+#     extension=foo.so
+#     foo.socket=tcp://bar:9309
+extraVolumes: []
+# extraVolumes:
+# - name: mySecretVolume
+#   secret:
+#     secretName: matomo-extra-secrets
+# - name: my.ini
+#   configMap:
+#     name: matomo-additional-config-maps
+#     items:
+#     - key: "my.ini"
+#       path: "my.ini"
+extraVolumeMounts: []
+# extraVolumeMounts:
+# - name: mySecretVolume
+#   mountPath: /foo/secrets/mySecretVolume/
+# - name: my.ini
+#   mountPath: /usr/local/etc/php/conf.d/my.ini
+#   subPath: my.ini

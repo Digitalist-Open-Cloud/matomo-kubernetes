@@ -8,7 +8,7 @@ metadata:
   labels:
     app: matomo-queuedtracking-monitor
 spec:
-  replicas: {{.Values.matomo.queuedTrackingMonitor.replicas}}
+  replicas: {{.Values.matomo.queuedTrackingMonitor.replicas | default 1}}
   selector:
     matchLabels:
       app: matomo-queuedtracking-monitor
