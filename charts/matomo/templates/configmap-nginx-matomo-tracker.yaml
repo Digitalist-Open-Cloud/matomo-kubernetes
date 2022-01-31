@@ -31,46 +31,38 @@ data:
         server_name _;
         root /var/www/html;
         index matomo.php;
+        add_header Referrer-Policy origin always; # make sure outgoing links don't show the URL to the Matomo instance
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
 
         location / {
           try_files $uri $uri/ /index.php$is_args$args;
+        }
+        location ~ ^/(node_modules/jquery/dist/jquery)\.js$ {
+            proxy_ignore_headers Cache-Control;
+            allow all;
         }
         location ~* \.(js|css)$ {
             proxy_ignore_headers Cache-Control;
             allow all;
         }
-        location = /node_modules/jquery/dist/jquery.min.js {
-            proxy_ignore_headers Cache-Control;
-            allow all;
-        }
+
         location = /favicon.ico {
             log_not_found off;
             access_log off;
         }
-        ## Allow access to heatmapsessionsrecording plugin is needed to make it work.
-        location = /plugins/HeatmapSessionRecording/configs.php {
-          fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-          if (!-f $document_root$fastcgi_script_name) {
-            return 404;
-          }
-          fastcgi_read_timeout 240s;
-          fastcgi_send_timeout 120s;
-          fastcgi_param HTTP_PROXY "";
-          fastcgi_pass localhost:9000;
-          fastcgi_index index.php;
+        ## only allow accessing the following php files
+        location ~ ^/(matomo|piwik|js/index|plugins/HeatmapSessionRecording/configs)\.php$ {
           include fastcgi_params;
-        }
-        ## Sends all requests to php-files over to php.
-        location ~ ^/(matomo|piwik).php {
           fastcgi_split_path_info ^(.+?\.php)(/.*)$;
           if (!-f $document_root$fastcgi_script_name) {
             return 404;
           }
+          try_files $fastcgi_script_name =404; # protects against CVE-2019-11043.
+          fastcgi_pass localhost:9000;
           fastcgi_read_timeout 240s;
           fastcgi_param HTTP_PROXY "";
-          fastcgi_pass localhost:9000;
           fastcgi_index matomo.php;
-          include fastcgi_params;
         }
         location ~ ^/(status)$ {
           access_log off;
@@ -85,6 +77,52 @@ data:
           ## Now the port or socket of the php-fpm pool we want the status of
           fastcgi_pass localhost:9000;
           # fastcgi_pass unix:/run/php-fpm/your_socket.sock;
+        }
+        ## deny access to all other .php files
+        location ~* ^.+\.php$ {
+            deny all;
+            return 403;
+        }
+        ## serve all other files normally
+        location / {
+            try_files $uri $uri/ =404;
+        }
+        ## disable all access to the following directories
+        location ~ ^/(config|tmp|core|lang) {
+            deny all;
+            return 403; # replace with 404 to not show these directories exist
+        }
+        location ~ /\.ht {
+            deny  all;
+            return 403;
+        }
+        location ~ js/container_.*_preview\.js$ {
+            expires off;
+            add_header Cache-Control 'private, no-cache, no-store';
+        }
+        location ~ \.(gif|ico|jpg|png|svg|css|htm|html|mp3|mp4|wav|ogg|avi|ttf|eot|woff|woff2|json)$ {
+            allow all;
+            ## Cache images,CSS and webfonts for an hour
+            ## Increasing the duration may improve the load-time, but may cause old files to show after an Matomo upgrade
+            expires 1h;
+            add_header Pragma public;
+            add_header Cache-Control "public";
+        }
+        location ~ \.(js)$ {
+            allow all;
+            ## Cache JS for 5 minutes
+            ## Increasing the duration may improve the load-time, but may cause old files to show after an Matomo upgrade
+            expires 5m;
+            add_header Pragma public;
+            add_header Cache-Control "public";
+        }
+        location ~ ^/(libs|vendor|plugins|misc|node_modules) {
+            deny all;
+            return 403;
+        }
+        ## properly display textfiles in root directory
+        location ~/(.*\.md|LEGALNOTICE|LICENSE) {
+            default_type text/plain;
         }
       }
     }
