@@ -108,6 +108,7 @@ spec:
             name: matomo-tracker
             port:
               number: 8080
+            {{- end }}
       - path: /node_modules/jquery/dist/.*
         pathType: Prefix
         backend:
