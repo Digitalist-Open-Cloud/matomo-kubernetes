@@ -35,7 +35,7 @@ data:
         location / {
           try_files $uri $uri/ /index.php$is_args$args;
         }
-        location ~* \.(js|css|/node_modules/jquery/dist)$ {
+        location ~* \.(js|css|dist)$ {
             proxy_ignore_headers Cache-Control;
             allow all;
         }
