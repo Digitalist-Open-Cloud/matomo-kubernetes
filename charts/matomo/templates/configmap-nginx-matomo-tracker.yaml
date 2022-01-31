@@ -35,7 +35,11 @@ data:
         location / {
           try_files $uri $uri/ /index.php$is_args$args;
         }
-        location ~* \.(js|css|dist)$ {
+        location ~* \.(js|css)$ {
+            proxy_ignore_headers Cache-Control;
+            allow all;
+        }
+        location = /node_modules/jquery/dist/jquery.min.js {
             proxy_ignore_headers Cache-Control;
             allow all;
         }
