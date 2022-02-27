@@ -98,8 +98,7 @@ spec:
           runAsUser: {{.Values.nginx.runAsUser}}
         volumeMounts:
           - name: nginx-matomo-dashboard
-            mountPath: /etc/nginx/nginx.conf
-            subPath: nginx.conf
+            mountPath: /etc/nginx
             readOnly: true
           - name: static-data
             mountPath: /var/www/html
