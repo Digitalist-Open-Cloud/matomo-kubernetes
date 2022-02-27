@@ -76,8 +76,17 @@ spec:
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
         volumeMounts:
-          - name: nginx-matomo-tracker
-            mountPath: /etc/nginx
+          - name: nginx-conf
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+            readOnly: true
+          - name: fastcgi-params
+            mountPath: /etc/nginx/fastcgi_params
+            subPath: fastcgi_params
+            readOnly: true
+          - name: mime-types
+            mountPath: /etc/nginx/mime.types
+            subPath: mime.types
             readOnly: true
           - name: static-data
             mountPath: /var/www/html
@@ -133,9 +142,24 @@ spec:
       imagePullSecrets:
       - name: matomo-registry-secret
       volumes:
-      - name: nginx-matomo-tracker
+      - name: nginx-conf
         configMap:
           name: nginx-matomo-tracker
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+      - name: fastcgi-params
+        configMap:
+          name: nginx-matomo-tracker
+          items:
+          - key: fastcgi_params
+            path: fastcgi_params
+      - name: mime-types
+        configMap:
+          name: nginx-matomo-tracker
+          items:
+          - key: mime.types
+            path: mime.types
       - name: matomo-configuration
         configMap:
           name: matomo-configuration
