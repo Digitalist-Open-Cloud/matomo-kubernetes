@@ -88,6 +88,14 @@ spec:
             mountPath: /etc/nginx/mime.types
             subPath: mime.types
             readOnly: true
+          - name: naxsi-rules
+            mountPath: /etc/nginx/naxsi.rules
+            subPath: naxsi.rules
+            readOnly: true
+          - name: naxsi-core-rules
+            mountPath: /etc/nginx/naxsi_core.rules
+            subPath: naxsi_core.rules
+            readOnly: true
           - name: static-data
             mountPath: /var/www/html
             readOnly: true
@@ -160,6 +168,18 @@ spec:
           items:
           - key: mime.types
             path: mime.types
+      - name: naxsi-rules
+        configMap:
+          name: nginx-matomo-tracker
+          items:
+          - key: naxsi.rules
+            path: naxsi.rules
+      - name: naxsi-core-rules
+        configMap:
+          name: nginx-matomo-tracker
+          items:
+          - key: naxsi_core.rules
+            path: naxsi_core.rules
       - name: matomo-configuration
         configMap:
           name: matomo-configuration
