@@ -209,7 +209,7 @@ spec:
           items:
           - key: naxsi.rules
             path: naxsi.rules
-      - name: naxsi_core-rules
+      - name: naxsi-core-rules
         configMap:
           name: nginx-matomo-dashboard
           items:
