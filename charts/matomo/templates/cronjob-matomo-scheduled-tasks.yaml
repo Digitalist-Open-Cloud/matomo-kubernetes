@@ -21,6 +21,8 @@ spec:
             image: {{.Values.matomo.image}}
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
+              privileged: false
+              allowPrivilegeEscalation: false
             env:
             - name: MATOMO_FIRST_USER_NAME
               value: {{.Values.matomo.dashboard.firstuser.username}}
@@ -62,6 +64,8 @@ spec:
             image: {{.Values.matomo.image}}
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
+              privileged: false
+              allowPrivilegeEscalation: false
             command: [ 'sh' , '-c' , {{quote .Values.matomo.cronJobs.scheduledTasks.command}} ]
             env:
             - name: MARIADB_MATOMO_PASSWORD

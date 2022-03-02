@@ -23,6 +23,8 @@ spec:
       - name: matomo-init
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
+          privileged: false
+          allowPrivilegeEscalation: false
         image: {{.Values.matomo.image}}
         {{- if .Values.matomo.resources }}
         resources:
@@ -76,6 +78,8 @@ spec:
       - name: fpm-metrics
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
+          privileged: false
+          allowPrivilegeEscalation: false
         image: hipages/php-fpm_exporter:2.0.4
         imagePullPolicy: IfNotPresent
         env:
@@ -130,6 +134,8 @@ spec:
         {{- end }}
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
+          privileged: false
+          allowPrivilegeEscalation: false
         imagePullPolicy: Always
         env:
         - name: MATOMO_DB_PASSWORD
