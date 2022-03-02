@@ -25,6 +25,7 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         image: {{.Values.matomo.image}}
         {{- if .Values.matomo.resources }}
         resources:
@@ -80,6 +81,7 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         image: hipages/php-fpm_exporter:2.0.4
         imagePullPolicy: IfNotPresent
         env:
@@ -100,6 +102,9 @@ spec:
         {{- end }}
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         volumeMounts:
           - name: nginx-conf
             mountPath: /etc/nginx/nginx.conf
@@ -136,6 +141,7 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         imagePullPolicy: Always
         env:
         - name: MATOMO_DB_PASSWORD

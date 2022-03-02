@@ -23,6 +23,7 @@ spec:
               runAsUser: {{.Values.matomo.runAsUser}}
               privileged: false
               allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
             env:
             - name: MATOMO_FIRST_USER_NAME
               value: {{.Values.matomo.dashboard.firstuser.username}}
