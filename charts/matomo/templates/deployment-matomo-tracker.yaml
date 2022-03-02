@@ -80,7 +80,7 @@ spec:
         readinessProbe:
           httpGet:
             scheme: HTTP
-            path: /index.php
+            path: /matomo.js
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
