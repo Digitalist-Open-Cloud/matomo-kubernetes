@@ -98,6 +98,11 @@ spec:
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
         {{- end }}
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /index.php
+            port: 8080
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
           privileged: false

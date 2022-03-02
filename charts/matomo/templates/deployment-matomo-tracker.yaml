@@ -77,6 +77,13 @@ spec:
         resources:
 {{ toYaml .Values.matomo.tracker.nginx.resources | indent 10 }}
         {{- end }}
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /index.php
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
           privileged: false
