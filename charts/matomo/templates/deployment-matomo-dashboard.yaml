@@ -103,6 +103,14 @@ spec:
             scheme: HTTP
             path: /index.php
             port: 8080
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
+          initialDelaySeconds: 10
+          periodSeconds: 5
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
           privileged: false

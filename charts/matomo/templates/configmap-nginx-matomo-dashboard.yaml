@@ -182,11 +182,13 @@ data:
         }
         ## Deny access to compose.json and package.json
         location ~ ^/[^.]*\.json$ {
-            return 404;
+            deny  all;
+            return 403;
         }
         ## Deny access to compose.lock and other lock files in root
         location ~ ^/[^.]*\.lock$ {
-            return 404;
+            deny  all;
+            return 403;
         }
       }
     }
