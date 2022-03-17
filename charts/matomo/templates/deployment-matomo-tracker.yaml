@@ -82,8 +82,8 @@ spec:
         #     scheme: HTTP
         #     path: /matomo.js
         #     port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        #  initialDelaySeconds: 10
+        #  periodSeconds: 5
         livenessProbe:
           exec:
             command:
