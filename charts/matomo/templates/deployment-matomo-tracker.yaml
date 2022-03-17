@@ -77,11 +77,11 @@ spec:
         resources:
 {{ toYaml .Values.matomo.tracker.nginx.resources | indent 10 }}
         {{- end }}
-        readinessProbe:
-          httpGet:
-            scheme: HTTP
-            path: /matomo.js
-            port: 8080
+        # readinessProbe:
+        #   httpGet:
+        #     scheme: HTTP
+        #     path: /matomo.js
+        #     port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
         livenessProbe:
