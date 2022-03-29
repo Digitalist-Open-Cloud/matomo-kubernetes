@@ -15,7 +15,7 @@ data:
       geoip2 /usr/share/geoip/GeoLite2-Country.mmdb {
         $geoip2_data_country_code default=SE source=$http_x_forwarded_for country iso_code;
       }
-      client_max_body_size 64M;
+      client_max_body_size 200M;
       server_tokens off;
       client_body_temp_path /tmp/client_temp;
       proxy_temp_path       /tmp/proxy_temp_path;
