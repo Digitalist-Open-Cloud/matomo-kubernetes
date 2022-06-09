@@ -34,6 +34,12 @@ data:
       access_log  /var/log/nginx/access.log  main_geo;
       sendfile        on;
       keepalive_timeout 0;
+
+      map $args $method {
+        default 0;
+        "~UserFeedback.saveFeedback" 1;
+        "~UserFeedback.getForm" 1;
+      }
       server {
         listen [::]:8080 default_server;
         listen 8080 default_server;
@@ -77,8 +83,46 @@ data:
           include fastcgi_params;
           fastcgi_pass localhost:9000;
         }
-        ## deny access to all other .php files
+        ## deny access to all other .php files if not ok in in method check.
         location ~* ^.+\.php$ {
+            if ( $method ) {
+              # include /etc/nginx/naxsi.rules;
+              # # whitelisting and config of naxsi rules.
+              # # whitelist whole rule 11. Need to b debugged why needed.
+              # BasicRule wl:11;
+              try_files $uri =404;
+              fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+              if (!-f $document_root$fastcgi_script_name) {
+                return 404;
+              }
+
+              fastcgi_cache_bypass  $http_x_blackfire_query;
+              fastcgi_no_cache      $http_x_blackfire_query;
+
+              proxy_read_timeout 600s;
+              proxy_send_timeout 600s;
+              proxy_connect_timeout 75s;
+              fastcgi_read_timeout 600s;
+              fastcgi_send_timeout 600s;
+              proxy_set_header Connection "";
+              proxy_http_version 1.1;
+              proxy_set_header   Host      $http_host;
+              proxy_set_header   X-Real-IP         $remote_addr;
+              proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+              proxy_set_header   X-Forwarded-Proto $scheme;
+              proxy_set_header   X-Forwarded-Host  $host;
+              proxy_set_header   X-Forwarded-Port  $server_port;
+
+              fastcgi_param HTTP_PROXY "";
+              fastcgi_pass localhost:9000;
+              fastcgi_index index.php;
+              fastcgi_param PHP_VALUE "max_execution_time=3600
+              post_max_size=1500M
+              upload_max_filesize=32M
+              max_input_time=3600
+              max_file_uploads=300";
+              include fastcgi_params;
+            }
             deny all;
             return 403;
         }
