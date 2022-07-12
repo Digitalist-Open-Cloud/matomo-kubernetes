@@ -2,7 +2,7 @@ changeCause: "should only be used as example"
 namespace: matomo
 nginxWorkerProcesses: 5
 matomo:
-  image: registry.wklive.net:5000/matomo/base:4-6-2-php7-4-27-fpm-alpine3-15-cc7da716
+  image: digitalist/matomo:4.10.1
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   license:
@@ -58,7 +58,7 @@ matomo:
     sidecars: []
     # sidecars:
     # - name: fpm-metrics
-    #   image: hipages/php-fpm_exporter:2.0.4
+    #   image: hipages/php-fpm_exporter:2.2.0
     #   imagePullPolicy: IfNotPresent
     #   resources:
     #     limits:
@@ -94,7 +94,7 @@ tracker:
     process_idle_timeout: 600s
     max_requests: 500
 nginx:
-  image: registry.wklive.net:5000/services/nginx-geoip2-naxsi:1.21.6
+  image: digitalist/nginx:1.21.6
   runAsUser: 100
 db:
   hostname: matomo-db-mysql

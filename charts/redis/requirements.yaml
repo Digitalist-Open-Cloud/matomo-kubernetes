@@ -1,4 +1,0 @@
-dependencies:
-  - name: redis-ha
-    version: 3.1.6
-    repository: https://charts.helm.sh/stable

@@ -1,74 +1,31 @@
 # Readme
-!WARNING! Readme needs update
-
-The setup consists of 3 helm charts, they have been split up since the Matomo depends on the other 2 to be online (Redis, MySQL), if we write more logic into our init containers for matomo we can combine them to one big helm chart.
-
 * Matomo - Helm chart
 
-    Digitalist own helm chart for running the matomo containers (php) and nginx containers + cronjobs and configmaps needed.
+Helm chart for running the matomo containers (php) and nginx containers + cronjobs and configmaps needed.
 
-* Redis - Helm Chart - https://github.com/helm/charts/tree/master/stable/redis-ha
+## Dependencies
 
-    Official `redis-ha` helm chart which is a clustered redis setup with as many replicas you want (with a possibility to use anti-affinity).
+You need Mysql or Mariadb running, in the cluster our outside, also we recommend to use redis for Queuedtracking and caching.
 
-* Mysql - Helm chart - https://github.com/bitnami/charts/tree/master/bitnami/mysql
- 
-    A helm chart built by Bitnami, we use this and not the official one since we can run the containers as non root with this chart.
+We publish [Matomo images on docker hub](https://hub.docker.com/repository/docker/digitalist/matomo) - that could be used in this chart - you can also use your own docker images.
 
+## Install
 
-## Create a new project
-
-To use the Matomo helm chart as a base in a new project you need to create your own helm chart that uses this as a dependency, so you will need to have a copy of this repo locally, lets go through the steps on how to do that.
-
-1. Add this repo: 
 ```
 helm repo add matomo-kubernetes https://digitalist-se.github.io/matomo-kubernetes
 ```
 
-2. Create a new directory somewhere on your computer (NOT in the `matomo-kubernetes` directory) and create your helm chart there.
+Download values so you can override it with your own changes.
 
-    `helm create <CHARTNAME>`
+```
+helm show values matomo-kubernetes/matomo > overrides.yaml
+```
 
-3. You will now have a directory called <CHARTNAME> there with this structure.
+Add your overrides add deploy Matomo:
 
-    ```
-    ├── charts
-    ├── Chart.yaml
-    ├── templates
-    │   ├── deployment.yaml
-    │   ├── _helpers.tpl
-    │   ├── ingress.yaml
-    │   ├── NOTES.txt
-    │   └── service.yaml
-    └── values.yaml
-    ```
-
-4. Remove all files in the templates directory.
-
-5. Create a new file called `requirements.yaml` in root of the <CHARTNAME> directory and copy and paste this text, the repository needs to be a path to the original matomo-kubernetes helm chart you cloned.
-
-    ```
-    dependencies:
-      - name: matomo
-        version: 9.0.45
-        repository: "https://digitalist-se.github.io/matomo-kubernetes"
-    ```
-
-6. Download all dependencies for this chart by running this command in the chart directory, this will put a tar ball of the dependency inside the charts directory.
-
-    `helm dependencies update`
-
-7. Remove all contents in the `values.yaml` file and copy the content from `matomo/values.yaml` file in this repo to your file.
-
-8. Look through the settings and adjust accordingly to your needs. Namespace, hostnames and cronjobs should be the obvious ones.
-
-9. Copy both the `redis` directory and `mysql` directory from this repo to your <CHARTNAME> directory.
-
-10. Now look below for deploy instructions.
-
-## Deploy instructions
-
-See the `README_LOCAL.md` for local deploy or `README_PROD.md` for a production deploy instructions.
+```
+helm upgrade --namespace=mynamespace -f overrides.yaml -i my-matomo matomo-kubernetes/matomo
+```
 
 
 ## Matomo - File structure (`matomo` directory)

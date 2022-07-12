@@ -4,7 +4,7 @@ nginxWorkerProcesses: 5
 queuedTrackingProcess:
   numProcs: 8
 matomo:
-  image: registry.wklive.net:5000/matomo/base:3-14-1-php7-4-15-fpm-alpine3-12-4cc32ec6
+  image: digitalist/matomo:4.10.1
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   config:
@@ -196,7 +196,7 @@ tracker:
     process_idle_timeout: 600s
     max_requests: 500
 nginx:
-  image: registry.wklive.net:5000/se-ops/docker/digitalist-nginx-nonpriv:1.21
+  image: digitalist/nginx:1.21.6
   runAsUser: 100
 db:
   hostname: matomo-db-mysql

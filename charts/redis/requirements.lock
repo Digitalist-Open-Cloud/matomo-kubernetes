@@ -1,6 +1,0 @@
-dependencies:
-- name: redis-ha
-  repository: https://charts.helm.sh/stable
-  version: 3.1.6
-digest: sha256:c74a2efc1f05e4ac8aeeb7fdd85aaece4cee60fccdc3fb3d460e30f6e53dc67c
-generated: "2021-04-05T20:57:48.1678155+02:00"
