@@ -1,6 +1,6 @@
 ---
 {{- if .Values.matomo.cronJobs.scheduledTasks.enabled }}
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: matomo-jobs-scheduled-tasks
@@ -19,10 +19,12 @@ spec:
           initContainers:
           - name: matomo-init
             image: {{.Values.matomo.image}}
+            imagePullPolicy: Always
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
               privileged: false
               allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
             env:
             - name: MATOMO_FIRST_USER_NAME
               value: {{.Values.matomo.dashboard.firstuser.username}}
@@ -62,10 +64,12 @@ spec:
           containers:
           - name: matomo-jobs-scheduledtasks
             image: {{.Values.matomo.image}}
+            imagePullPolicy: Always
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
               privileged: false
               allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
             command: [ 'sh' , '-c' , {{quote .Values.matomo.cronJobs.scheduledTasks.command}} ]
             env:
             - name: MARIADB_MATOMO_PASSWORD

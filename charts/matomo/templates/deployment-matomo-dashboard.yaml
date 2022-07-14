@@ -81,7 +81,7 @@ spec:
           privileged: false
           allowPrivilegeEscalation: false
         image: hipages/php-fpm_exporter:2.2.0
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: PHP_FPM_FIX_PROCESS_COUNT
           value: "true"

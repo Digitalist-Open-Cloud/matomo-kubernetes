@@ -63,7 +63,7 @@ spec:
           privileged: false
           allowPrivilegeEscalation: false
         image: hipages/php-fpm_exporter:2.2.0
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         resources:
           limits:
             cpu: 40m
