@@ -17,6 +17,13 @@ matomo:
   cli:
     replicas: 1
     enabled: true
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 40m
+        memory: 32Mi
   cronJobs:
     coreArchive:
       labels:
