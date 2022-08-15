@@ -8,7 +8,7 @@ metadata:
   {{- template "matomo.labels" .Values.matomo.cronJobs.coreArchive.labels }}
 spec:
   schedule: {{quote .Values.matomo.cronJobs.coreArchive.schedule}}
-  concurrencyPolicy: Forbid
+  concurrencyPolicy: {{.Values.matomo.cronJobs.coreArchive.concurrencyPolicy}}
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 10
   jobTemplate:
