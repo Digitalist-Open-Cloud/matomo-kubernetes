@@ -15,4 +15,16 @@ jobs:
           quiet: false # optional: display only failed checks
           soft_fail: true # optional: do not return an error code if there are failed checks
           framework: helm # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
-          output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+          output_format: sarif # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+
+#          output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+      # - name: Publish report
+      #   id: import-scan
+      #   uses: ivanamat/defectdojo-import-scan@v1
+      #   with:
+      #     token: ${{ secrets.DEFECTOJO_TOKEN }}
+      #     defectdojo_url: ${{ secrets.DEFECTOJO_URL }}
+      #     file: reports/trivy-scan-report.json
+      #     scan_type: Trivy Scan
+      #     engagement: 81
+      #     close_old_findings: true
