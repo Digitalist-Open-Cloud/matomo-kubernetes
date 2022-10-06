@@ -14,5 +14,5 @@ jobs:
           directory: charts/matomo
           quiet: false # optional: display only failed checks
           soft_fail: true # optional: do not return an error code if there are failed checks
-          framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+          framework: helm # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
           output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
