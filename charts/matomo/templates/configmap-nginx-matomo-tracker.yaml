@@ -72,7 +72,7 @@ data:
             return 404;
           }
           try_files $fastcgi_script_name =404; # protects against CVE-2019-11043.
-          fastcgi_pass localhost:9000;
+          fastcgi_pass 127.0.0.1:9000;
           fastcgi_read_timeout 240s;
           fastcgi_param HTTP_PROXY "";
           fastcgi_index matomo.php;
@@ -82,7 +82,7 @@ data:
           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
           fastcgi_index index.php;
           include fastcgi_params;
-          fastcgi_pass localhost:9000;
+          fastcgi_pass 127.0.0.1:9000;
         }
 
         ## serve all other files normally
@@ -147,7 +147,7 @@ data:
               proxy_set_header   X-Forwarded-Host  $host;
               proxy_set_header   X-Forwarded-Port  $server_port;
               fastcgi_param HTTP_PROXY "";
-              fastcgi_pass localhost:9000;
+              fastcgi_pass 127.0.0.1:9000;
               fastcgi_index index.php;
               include fastcgi_params;
               if ( $method = 0 ) {
