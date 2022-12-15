@@ -25,6 +25,6 @@ jobs:
       #     token: ${{ secrets.DEFECTOJO_TOKEN }}
       #     defectdojo_url: ${{ secrets.DEFECTOJO_URL }}
       #     file: reports/trivy-scan-report.json
-      #     scan_type: Trivy Scan
+      #     scan_type: Checkov Scan
       #     engagement: 81
       #     close_old_findings: true

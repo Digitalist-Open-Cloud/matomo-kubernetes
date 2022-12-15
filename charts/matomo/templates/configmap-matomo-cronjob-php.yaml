@@ -8,6 +8,8 @@ data:
   zz-global.ini: |
     expose_php={{ .Values.matomo.php.expose_php | default "Off" }}
     opcache.memory_consumption={{ .Values.matomo.php.opcache_memory_consumption | default "512" }}
+    opcache.jit_buffer_size={{ .Values.matomo.php.opcache_jit_buffer_size | default "256M" }}
+    opcache.jit={{ .Values.matomo.php.opcache_jit | default "1235" }}
     max_execution_time={{ .Values.matomo.php.max_execution_time | default "0" }}
     post_max_size={{ .Values.matomo.php.post_max_size | default "1500M" }}
     upload_max_filesize={{ .Values.matomo.php.upload_max_filesize | default "32M" }}
@@ -25,6 +27,8 @@ data:
   zz-global.ini: |
     expose_php=Off
     opcache.memory_consumption=512
+    opcache.jit_buffer_size=256M
+    opcache.jit=1235
     max_execution_time=0
     post_max_size=1500M
     upload_max_filesize=32M

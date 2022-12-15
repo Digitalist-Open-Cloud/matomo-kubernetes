@@ -2,7 +2,7 @@ changeCause: "should only be used as example"
 namespace: matomo
 nginxWorkerProcesses: 5
 matomo:
-  image: digitalist/matomo:4.10.1
+  image: digitalist/matomo:4.12.3
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   license:
