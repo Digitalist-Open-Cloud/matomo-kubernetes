@@ -3,8 +3,7 @@
 
 Helm chart for running the matomo containers (php) and nginx containers + cronjobs and configmaps needed.
 
-## Breaking changes and improvements.
-From version X:
+## Version 11, breaking changes and improvements.
 * images are not using registry sercet by default, you need to set it if you want to use it. This is an improvement, as before you were forced to have a
 secret, even if you just public matomo images.
 * You don't need to create a secret for matomo license anymore (even not an empty one). If you do have plugins under premium license, you need to add it though.
