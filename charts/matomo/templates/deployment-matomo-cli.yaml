@@ -19,43 +19,7 @@ spec:
       annotations:
         kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
-      initContainers:
-      - name: matomo-init
-        image: {{.Values.matomo.image}}
-        securityContext:
-          runAsUser: {{.Values.matomo.runAsUser}}
-          privileged: false
-          allowPrivilegeEscalation: false
-        imagePullPolicy: Always
-        env:
-        - name: MATOMO_FIRST_USER_NAME
-          value: {{.Values.matomo.dashboard.firstuser.username}}
-        - name: MATOMO_FIRST_USER_EMAIL
-          value: {{.Values.matomo.dashboard.firstuser.email}}
-        - name: MATOMO_FIRST_USER_PASSWORD
-          value: {{.Values.matomo.dashboard.firstuser.password}}
-        - name: MATOMO_DB_HOST
-          value: {{.Values.db.hostname}}
-        - name: MATOMO_DB_NAME
-          value: {{.Values.db.name}}
-        {{ if .Values.db.prefix }}
-        - name: MATOMO_DB_PREFIX
-          value: {{.Values.db.prefix}}
-        {{ end }}
-        - name: MATOMO_DB_USERNAME
-          value: {{.Values.db.username}}
-        - name: MATOMO_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Values.db.password.secretKeyRef.name }}
-              key: {{ .Values.db.password.secretKeyRef.key }}
-        command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
-        volumeMounts:
-          - name: static-data
-            mountPath: /var/www/html
-          - name: matomo-configuration
-            mountPath: /tmp/matomo/
-            readOnly: true
+{{ include "matomo.init" . | nindent 6 }}
       containers:
       - name: matomo
         image: {{.Values.matomo.image}}
@@ -74,6 +38,7 @@ spec:
             secretKeyRef:
               name: {{ .Values.db.password.secretKeyRef.name }}
               key: {{ .Values.db.password.secretKeyRef.key }}
+{{ include "matomo.license" . | nindent 8 }}
         command: [ 'sh' , '-c' , 'supervisord -n' ]
         volumeMounts:
           - name: static-data
@@ -81,8 +46,7 @@ spec:
           - name: matomo-supervisor-tracker
             mountPath: /etc/supervisor.d
             readOnly: true
-      imagePullSecrets:
-      - name: matomo-registry-secret
+{{ include "matomo.images.pullSecrets" ( dict "images" (list .Values.matomo) "global" .Values.global) | nindent 6 }}
       volumes:
       - name: matomo-configuration
         configMap:

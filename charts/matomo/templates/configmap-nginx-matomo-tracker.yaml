@@ -5,7 +5,7 @@ metadata:
   namespace: {{.Values.namespace}}
 data:
   nginx.conf: |
-    worker_processes {{.Values.nginxWorkerProcesses}};
+    worker_processes {{ .Values.matomo.tracker.nginx.nginxWorkerProcesses | default 5 }};
     load_module modules/ngx_http_geoip2_module.so;
     events {
       worker_connections 768;
@@ -54,6 +54,11 @@ data:
             proxy_ignore_headers Cache-Control;
             allow all;
         }
+        location ~ ^/(node_modules/jquery/dist/jquery)\.js$ {
+            proxy_ignore_headers Cache-Control;
+            allow all;
+        }
+
         location ~* \.(js|css)$ {
             proxy_ignore_headers Cache-Control;
             add_header Access-Control-Allow-Origin *;

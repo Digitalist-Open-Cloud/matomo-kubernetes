@@ -3,6 +3,18 @@
 
 Helm chart for running the matomo containers (php) and nginx containers + cronjobs and configmaps needed.
 
+## Breaking changes and improvements.
+From version X:
+* images are not using registry sercet by default, you need to set it if you want to use it. This is an improvement, as before you were forced to have a
+secret, even if you just public matomo images.
+* You don't need to create a secret for matomo license anymore (even not an empty one). If you do have plugins under premium license, you need to add it though.
+* tracker.phpfpm values has moved to the proper place: matomo.tracker.phpfpm
+* `.Values.nginxWorkerProcesses` has moved to dashboard and tracker deployments values:
+`.Values.matomo.dashboard.nginx.nginxWorkerProcesses` and `.Values.matomo.tracker.nginx.nginxWorkerProcesses`. Default is set to '5'.
+* Matomo init container is now a template.
+* Post install job added. Activated with adding task to `postInstallCommand`, like: `postInstallCommand: php ./console site:add --name="Example" --urls="https://example.org"`
+* NOTES.txt added to give some information after install and upgrade.
+
 ## Dependencies
 
 You need Mysql or Mariadb running, in the cluster our outside, also we recommend to use redis for Queuedtracking and caching.

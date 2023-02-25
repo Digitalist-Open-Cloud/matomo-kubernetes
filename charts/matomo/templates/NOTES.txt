@@ -1,0 +1,26 @@
+Thank you for installing {{ .Chart.Name }} from Digitalist.
+
+{{- if empty (.Values.matomo.dashboard.hostname) -}}
+###############################################################################
+### ERROR: You didn't provide a host for matomo dashboard ###
+###############################################################################
+{{- end -}}
+
+{{- if empty (.Values.matomo.tracker.hostname) -}}
+###############################################################################
+### ERROR: You didn't provide a host for matomo tracker ###
+###############################################################################
+{{- end -}}
+
+Your release is named {{ .Release.Name }}.
+
+At post install job is runned on the install that creates the first
+site, this couuld fail a copule of times, but should succeed in the end.
+
+After installation is complete, you can access your website by this url:
+{{ .Values.matomo.dashboard.hostname }}
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}

@@ -3,19 +3,19 @@ kind: ConfigMap
 metadata:
   name: matomo-phpfpm-tracker
   namespace: {{.Values.namespace}}
-{{- if .Values.matomo.phpfpm.tracker }}
+{{- if .Values.matomo.tracker.phpfpm }}
 data:
   zz-global.conf: |
     [www]
-    pm = {{ .Values.tracker.phpfpm.type | default "ondemand" }}
-    pm.max_children = {{ .Values.tracker.phpfpm.max_children | default 75 }}
-    pm.process_idle_timeout = {{ .Values.tracker.phpfpm.process_idle_timeout | default "600s" }}
-    pm.max_requests =  {{ .Values.tracker.phpfpm.max_requests | default 500 }}
-    pm.start_servers =  {{ .Values.tracker.phpfpm.start_servers | default 5 }}
-    pm.min_spare_servers =  {{ .Values.tracker.phpfpm.min_spare_servers | default 5 }}
-    pm.max_spare_servers =  {{ .Values.tracker.phpfpm.max_spare_servers | default 75 }}
-    php_admin_value[memory_limit] =  {{ .Values.tracker.phpfpm.memory_limit | default "2048M" }}
-    pm.status_path =  {{ .Values.matomo.phpfpm.status_path | default "/status" }}     
+    pm = {{ .Values.matomo.tracker.phpfpm.type | default "ondemand" }}
+    pm.max_children = {{ .Values.matomo.tracker.phpfpm.max_children | default 75 }}
+    pm.process_idle_timeout = {{ .Values.matomo.tracker.phpfpm.process_idle_timeout | default "600s" }}
+    pm.max_requests =  {{ .Values.matomo.tracker.phpfpm.max_requests | default 500 }}
+    pm.start_servers =  {{ .Values.matomo.tracker.phpfpm.start_servers | default 5 }}
+    pm.min_spare_servers =  {{ .Values.matomo.tracker.phpfpm.min_spare_servers | default 5 }}
+    pm.max_spare_servers =  {{ .Values.matomo.tracker.phpfpm.max_spare_servers | default 75 }}
+    php_admin_value[memory_limit] =  {{ .Values.matomo.tracker.phpfpm.memory_limit | default "2048M" }}
+    pm.status_path =  {{ .Values.matomo.tracker.phpfpm.status_path | default "/status" }}
 {{ else }}
 data:
   zz-global.conf: |

@@ -16,50 +16,7 @@ spec:
       activeDeadlineSeconds: {{.Values.matomo.cronJobs.scheduledTasks.activeDeadlineSeconds}}
       template:
         spec:
-          initContainers:
-          - name: matomo-init
-            image: {{.Values.matomo.image}}
-            imagePullPolicy: Always
-            securityContext:
-              runAsUser: {{.Values.matomo.runAsUser}}
-              privileged: false
-              allowPrivilegeEscalation: false
-            env:
-            - name: MATOMO_FIRST_USER_NAME
-              value: {{.Values.matomo.dashboard.firstuser.username}}
-            - name: MATOMO_FIRST_USER_EMAIL
-              value: {{.Values.matomo.dashboard.firstuser.email}}
-            - name: MATOMO_FIRST_USER_PASSWORD
-              value: {{.Values.matomo.dashboard.firstuser.password}}
-            - name: MATOMO_DB_HOST
-              value: {{.Values.db.hostname}}
-            - name: MATOMO_DB_NAME
-              value: {{.Values.db.name}}
-            {{ if .Values.db.prefix }}
-            - name: MATOMO_DB_PREFIX
-              value: {{.Values.db.prefix}}
-            {{ end }}
-            - name: MATOMO_DB_USERNAME
-              value: {{.Values.db.username}}
-            - name: MATOMO_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.db.password.secretKeyRef.name }}
-                  key: {{ .Values.db.password.secretKeyRef.key }}
-            resources:
-              requests:
-                memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.memory }}
-                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.cpu  }}
-              limits:
-                memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.limits.memory }}
-                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.resources.limits.cpu }}
-            command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
-            volumeMounts:
-              - name: static-data
-                mountPath: /var/www/html
-              - name: matomo-configuration
-                mountPath: /tmp/matomo/
-                readOnly: true
+{{ include "matomo.init" . | nindent 10 }}
           containers:
           - name: matomo-jobs-scheduledtasks
             image: {{.Values.matomo.image}}
@@ -75,6 +32,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.db.password.secretKeyRef.name }}
                   key: {{ .Values.db.password.secretKeyRef.key }}
+{{ include "matomo.license" . | nindent 12 }}
             resources:
               requests:
                 memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.memory }}
@@ -86,8 +44,7 @@ spec:
               - name: static-data
                 mountPath: /var/www/html
           restartPolicy: OnFailure
-          imagePullSecrets:
-          - name: matomo-registry-secret
+{{ include "matomo.images.pullSecrets" ( dict "images" (list .Values.matomo) "global" .Values.global) | nindent 10 }}
           volumes:
           - name: matomo-configuration
             configMap:

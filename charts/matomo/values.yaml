@@ -1,14 +1,41 @@
-changeCause: "should only be used as example"
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+##
+global:
+  ## As:
+  ## imageRegistry: "docker.io"
+  imageRegistry: ""
+  ## As:
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+changeCause: "need to be changed on new deploy"
 namespace: matomo
-nginxWorkerProcesses: 5
 matomo:
+  imageRegistry: ""
+  ## As:
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  imagePullSecrets: []
   image: digitalist/matomo:4.12.3
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
+  # Post install for helm chart. Starts a post-install-job.
+  postInstallCommand: ""
+  ## If you have a premium license for plugins, set it here.
+  ## you need to create the secret before refering it.
+  ## As:
+  ## license:
+  ##   secretKeyRef:
+  ##     name: matomo-license
+  ##     key: matomo-license
   license:
-    secretKeyRef:
-      name: matomo-license
-      key: matomo-license
   ingress:
     enabled: true
     annotations:
@@ -26,15 +53,15 @@ matomo:
         memory: 32Mi
   cronJobs:
     coreArchive:
+      enabled: true
       labels:
         name: matomo-jobs-corearchive
-        instance: matomo-af
-        version: "1"
+        instance: matomo
         component: cronjob
         partOf: matomo
         managedBy: helm
-      schedule: "1 1 1 1 1"
-      concurrencyPolicy: Forbid
+      schedule: "*/60 * * * *"
+      concurrencyPolicy: Allow
       activeDeadlineSeconds: 43200
       command: ./console core:archive --disable-scheduled-tasks
       resources:
@@ -45,14 +72,14 @@ matomo:
           memory: 512Mi
           cpu: 700m
     scheduledTasks:
+      enabled: true
       labels:
         name: matomo-jobs-scheduled-tasks
-        instance: matomo-af
-        version: "1"
+        instance: matomo
         component: cronjob
         partOf: matomo
         managedBy: helm
-      schedule: "1 1 1 1 1"
+      schedule: "*/5 * * * *"
       activeDeadlineSeconds: 43200
       command: ./console scheduled-tasks:run
       resources:
@@ -78,31 +105,36 @@ matomo:
     enabled: true
     replicas: 1
     loadbalancer: false
-    hostname: localhost
+    hostname: my.host
     tls: false
     firstuser:
       username: admin
       password: admin123
       email: foo@example.com
-  phpfpm:
-    tracker: true
+    nginx:
+      nginxWorkerProcesses: 5
   queuedTrackingMonitor:
     enabled: true
   queuedTrackingProcess:
     replicas: 1
   tracker:
+    enabled: true
     replicas: 1
-    hostname: localhost
+    hostname: my.host
     tls: false
     loadbalancer: false
-tracker:
-  phpfpm:
-    type: ondemand
-    max_children: 75
-    process_idle_timeout: 600s
-    max_requests: 500
+    nginx:
+      resources:
+      nginxWorkerProcesses: 5
+    phpfpm:
+      type: ondemand
+      max_children: 75
+      process_idle_timeout: 600s
+      max_requests: 500
+
 nginx:
   image: digitalist/nginx:1.21.6
+  imagePullSecrets: []
   runAsUser: 100
 db:
   hostname: matomo-db-mysql
