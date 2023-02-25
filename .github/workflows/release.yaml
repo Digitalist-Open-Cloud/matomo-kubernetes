@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -25,10 +25,7 @@ jobs:
            helm repo add stable https://charts.helm.sh/stable
 
       - name: Install Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v2.14.3
-
+        uses: azure/setup-helm@v3
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
