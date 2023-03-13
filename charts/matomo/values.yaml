@@ -15,7 +15,6 @@ global:
   ##   - myRegistryKeySecretName
   ##
   imagePullSecrets: []
-changeCause: "need to be changed on new deploy"
 namespace: matomo
 matomo:
   imageRegistry: ""

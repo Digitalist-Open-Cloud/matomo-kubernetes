@@ -16,8 +16,6 @@ spec:
     metadata:
       labels:
         app: matomo-tracker
-      annotations:
-        kubernetes.io/change-cause: {{.Values.changeCause}}
     spec:
 {{ include "matomo.init" . | nindent 6 }}
       containers:

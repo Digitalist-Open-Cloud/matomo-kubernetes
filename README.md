@@ -13,6 +13,7 @@ secret, even if you just public matomo images.
 * Matomo init container is now a template.
 * Post install job added. Activated with adding task to `postInstallCommand`, like: `postInstallCommand: php ./console site:add --name="Example" --urls="https://example.org"`
 * NOTES.txt added to give some information after install and upgrade.
+* Change cause removed as part of the chart.
 
 ## Dependencies
 
