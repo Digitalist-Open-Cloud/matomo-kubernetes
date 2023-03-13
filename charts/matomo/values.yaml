@@ -67,7 +67,7 @@ matomo:
       resources:
         requests:
           memory: 128Mi
-          cpu: 100m
+          cpu: 10m
         limits:
           memory: 512Mi
           cpu: 700m
@@ -79,18 +79,19 @@ matomo:
         component: cronjob
         partOf: matomo
         managedBy: helm
-      schedule: "*/5 * * * *"
+      schedule: "*/60 * * * *"
       activeDeadlineSeconds: 43200
       command: ./console scheduled-tasks:run
       resources:
         requests:
           memory: 128Mi
-          cpu: 100m
+          cpu: 10m
         limits:
           memory: 512Mi
           cpu: 700m
   dashboard:
     sidecars: []
+    ## added like this:
     # sidecars:
     # - name: fpm-metrics
     #   image: hipages/php-fpm_exporter:2.2.0
