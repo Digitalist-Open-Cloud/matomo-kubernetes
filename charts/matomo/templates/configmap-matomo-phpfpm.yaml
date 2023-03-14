@@ -13,7 +13,7 @@ data:
     pm.min_spare_servers =  {{ .Values.matomo.phpfpm.min_spare_servers | default 5 }}
     pm.max_spare_servers =  {{ .Values.matomo.phpfpm.max_spare_servers | default 75 }}
     pm.max_requests =  {{ .Values.matomo.phpfpm.max_requests | default 500 }}
-    pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "30s" }}
+    pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "480s" }}
     php_admin_value[memory_limit] = {{ .Values.matomo.phpfpm.memory_limit | default "2048M" }}
     pm.status_path =  {{ .Values.matomo.phpfpm.status_path | default "/status" }}
 {{ else }}
@@ -27,6 +27,6 @@ data:
     pm.min_spare_servers = 5
     pm.max_spare_servers = 75
     pm.max_requests =  500
-    pm.process_idle_timeout = "30s"
+    pm.process_idle_timeout = "480s"
     pm.status_path = "/status"
 {{- end }}

@@ -34,10 +34,9 @@ spec:
           value: "true"
         resources:
           limits:
-            cpu: 500m
-            memory: 256Mi
+            memory: 128Mi
           requests:
-            cpu: 40m
+            cpu: 15m
             memory: 32Mi
       - name: nginx
         image: {{.Values.nginx.image}}
