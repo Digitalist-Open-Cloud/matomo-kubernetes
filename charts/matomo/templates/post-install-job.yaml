@@ -33,7 +33,7 @@ spec:
             exec:
               command: [ 'sh' , '-c' , '{{.Values.matomo.installCommand}}' ]
         # To do anything with Matomo, we first need to bootstrap it (curl).
-        command:  [ 'bash' , '-c' , 'sleep 120; curl -Il https://{{.Values.matomo.dashboard.hostname}}; {{.Values.matomo.postInstallCommand}}' ]
+        command:  [ 'bash' , '-c' , 'sleep {{.Values.matomo.postInstallSleepTime}}; curl -Il https://{{.Values.matomo.dashboard.hostname}}; {{.Values.matomo.postInstallCommand}}' ]
         env:
         - name: MATOMO_FIRST_USER_NAME
           value: {{.Values.matomo.dashboard.firstuser.username}}
