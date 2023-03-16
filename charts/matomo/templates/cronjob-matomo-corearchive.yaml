@@ -20,13 +20,10 @@ spec:
           - name: matomo-jobs-corearchive
             image: {{.Values.matomo.image}}
             imagePullPolicy: Always
+            {{- if .Values.matomo.cronJobs.coreArchive.resources }}
             resources:
-              requests:
-                memory: {{ .Values.matomo.cronJobs.coreArchive.resources.requests.memory }}
-                cpu: {{ .Values.matomo.cronJobs.coreArchive.resources.requests.cpu }}
-              limits:
-                memory: {{ .Values.matomo.cronJobs.coreArchive.resources.limits.memory }}
-                cpu: {{ .Values.matomo.cronJobs.coreArchive.resources.limits.cpu }}
+{{ toYaml .Values.matomo.cronJobs.coreArchive.resources | indent 14 }}
+            {{- end }}
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
               privileged: false

@@ -33,13 +33,10 @@ spec:
                   name: {{ .Values.db.password.secretKeyRef.name }}
                   key: {{ .Values.db.password.secretKeyRef.key }}
 {{ include "matomo.license" . | nindent 12 }}
+            {{- if .Values.matomo.cronJobs.scheduledTasks.resources }}
             resources:
-              requests:
-                memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.memory }}
-                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.resources.requests.cpu  }}
-              limits:
-                memory: {{ .Values.matomo.cronJobs.scheduledTasks.resources.limits.memory }}
-                cpu: {{ .Values.matomo.cronJobs.scheduledTasks.resources.limits.cpu }}
+{{ toYaml .Values.matomo.cronJobs.scheduledTasks.resources | indent 14 }}
+            {{- end }}
             volumeMounts:
               - name: static-data
                 mountPath: /var/www/html

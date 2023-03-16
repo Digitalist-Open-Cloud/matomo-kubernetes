@@ -43,13 +43,6 @@ matomo:
   cli:
     replicas: 1
     enabled: true
-    resources:
-      limits:
-        cpu: NULL
-        memory: NULL
-      requests:
-        cpu: NULL
-        memory: NULL
   cronJobs:
     coreArchive:
       enabled: true
@@ -63,13 +56,6 @@ matomo:
       concurrencyPolicy: Allow
       activeDeadlineSeconds: 43200
       command: ./console core:archive --disable-scheduled-tasks
-      resources:
-        requests:
-          memory: NULL
-          cpu: NULL
-        limits:
-          memory: NULL
-          cpu: NULL
     scheduledTasks:
       enabled: true
       labels:
@@ -81,13 +67,6 @@ matomo:
       schedule: "*/60 * * * *"
       activeDeadlineSeconds: 43200
       command: ./console scheduled-tasks:run
-      resources:
-        requests:
-          memory: NULL
-          cpu: NULL
-        limits:
-          memory: NULL
-          cpu: NULL
   dashboard:
     sidecars: []
     ## added like this:
@@ -131,7 +110,6 @@ matomo:
       max_children: 75
       process_idle_timeout: 600s
       max_requests: 500
-
 nginx:
   image: digitalist/nginx:1.21.6
   imagePullSecrets: []
