@@ -45,11 +45,11 @@ matomo:
     enabled: true
     resources:
       limits:
-        cpu:
-        memory:
+        cpu: NULL
+        memory: NULL
       requests:
-        cpu:
-        memory:
+        cpu: NULL
+        memory: NULL
   cronJobs:
     coreArchive:
       enabled: true
@@ -65,11 +65,11 @@ matomo:
       command: ./console core:archive --disable-scheduled-tasks
       resources:
         requests:
-          memory:
-          cpu:
+          memory: NULL
+          cpu: NULL
         limits:
-          memory:
-          cpu:
+          memory: NULL
+          cpu: NULL
     scheduledTasks:
       enabled: true
       labels:
@@ -83,11 +83,11 @@ matomo:
       command: ./console scheduled-tasks:run
       resources:
         requests:
-          memory:
-          cpu:
+          memory: NULL
+          cpu: NULL
         limits:
-          memory:
-          cpu:
+          memory: NULL
+          cpu: NULL
   dashboard:
     sidecars: []
     ## added like this:
