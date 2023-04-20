@@ -15,18 +15,19 @@ metadata:
     {{- end }}
 spec:
   rules:
-  - host: {{.Values.matomo.tracker.hostname}}
+  {{- range .Values.matomo.tracker.hostnames }}
+  - host: {{ .host }}
     http:
       paths:
       - path: /index.php
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -35,11 +36,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -48,11 +49,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -61,11 +62,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -74,11 +75,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -87,11 +88,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -100,11 +101,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -113,11 +114,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -126,11 +127,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
@@ -139,21 +140,22 @@ spec:
         pathType: Prefix
         backend:
           service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
+            {{- if $.Values.matomo.tracker.loadbalancer }}
             name: matomo-tracker-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-tracker
             port:
               number: 8080
             {{- end }}
-  {{- if .Values.matomo.tracker.tls }}
+    {{- end }}
   tls:
+  {{- range .Values.matomo.tracker.hostnames }}
+  {{- if .tls }}
   - hosts:
-    - {{.Values.matomo.tracker.hostname}}
-    {{- if .Values.matomo.tracker.secretName }}
-    secretName: {{.Values.matomo.tracker.secretName}}
-    {{- end -}}
-  {{- end -}}
+    - {{ .host }}
+    secretName: {{ .secret }}
+  {{- end }}
+  {{- end }}
 {{- end -}}

@@ -85,12 +85,12 @@ matomo:
     replicas: 1
     loadbalancer: false
     hostnames:
-    - host: my.primary.host
+    - host: dashboard.primary.host
       tls: true
-      secret: primary-host-tls
-    - host: my.secondary.host
+      secret: dashboard-primary-host-tls
+    - host: dashboard.secondary.host
       tls: true
-      secret: secondary-host-tls
+      secret: dashboard-secondary-host-tls
     firstuser:
       username: admin
       password: admin123
@@ -104,9 +104,14 @@ matomo:
   tracker:
     enabled: true
     replicas: 1
-    hostname: my.host
-    tls: false
     loadbalancer: false
+    hostnames:
+    - host: tracker.primary.host
+      tls: true
+      secret: tracker-primary-host-tls
+    - host: tracker.secondary.host
+      tls: true
+      secret: tracker-secondary-host-tls
     nginx:
       resources:
       nginxWorkerProcesses: 5
