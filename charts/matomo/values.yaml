@@ -84,13 +84,13 @@ matomo:
     enabled: true
     replicas: 1
     loadbalancer: false
-    hostname: my.host
     hostnames:
     - host: my.primary.host
       tls: true
       secret: primary-host-tls
     - host: my.secondary.host
-    tls: false
+      tls: true
+      secret: secondary-host-tls
     firstuser:
       username: admin
       password: admin123

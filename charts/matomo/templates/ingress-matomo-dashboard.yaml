@@ -27,22 +27,22 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            {{- if .loadbalancer }}
+            {{- if $.Values.matomo.dashboard.loadbalancer }}
             name: matomo-dashboard-lb
             port:
               number: 80
-              {{ else }}
+            {{- else }}
             name: matomo-dashboard
             port:
               number: 8080
             {{- end }}
   {{- end }}
-  {{- if .Values.matomo.dashboard.tls }}
   tls:
+  {{- range .Values.matomo.dashboard.hostnames }}
+  {{- if .tls }}
   - hosts:
-    - {{.Values.matomo.dashboard.hostname}}
-    {{- if .Values.matomo.dashboard.secretName }}
-    secretName: {{.Values.matomo.dashboard.secretName}}
-    {{- end -}}
-  {{- end -}}
+    - {{ .host }}
+    secretName: {{ .secret }}
+  {{- end }}
+  {{- end }}
 {{- end -}}
