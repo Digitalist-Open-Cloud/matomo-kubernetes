@@ -19,14 +19,15 @@ metadata:
   {{- end }}
 spec:
   rules:
-  - host: {{.Values.matomo.dashboard.hostname}}
+  {{- range .Values.matomo.dashboard.hostnames }}
+  - host: {{ .host }}
     http:
       paths:
       - path: /
         pathType: ImplementationSpecific
         backend:
           service:
-            {{- if .Values.matomo.dashboard.loadbalancer }}
+            {{- if .loadbalancer }}
             name: matomo-dashboard-lb
             port:
               number: 80
@@ -35,7 +36,7 @@ spec:
             port:
               number: 8080
             {{- end }}
-
+  {{- end }}
   {{- if .Values.matomo.dashboard.tls }}
   tls:
   - hosts:

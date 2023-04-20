@@ -85,6 +85,11 @@ matomo:
     replicas: 1
     loadbalancer: false
     hostname: my.host
+    hostnames:
+    - host: my.primary.host
+      tls: true
+      secret: primary-host-tls
+    - host: my.secondary.host
     tls: false
     firstuser:
       username: admin
