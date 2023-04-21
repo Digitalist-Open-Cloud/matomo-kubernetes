@@ -7,8 +7,6 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: matomo-tracker
-  annotations:
-    checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
 spec:
   replicas: {{.Values.matomo.tracker.replicas}}
   selector:
@@ -18,6 +16,8 @@ spec:
     metadata:
       labels:
         app: matomo-tracker
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
     spec:
 {{ include "matomo.init" . | nindent 6 }}
       containers:
