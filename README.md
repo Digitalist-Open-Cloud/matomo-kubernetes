@@ -4,7 +4,7 @@
 Helm chart for running the matomo containers (php) and nginx containers + cronjobs and configmaps needed.
 
 ## Version 11, breaking changes and improvements.
-* images are not using registry sercet by default, you need to set it if you want to use it. This is an improvement, as before you were forced to have a
+* images are not using registry secret by default, you need to set it if you want to use it. This is an improvement, as before you were forced to have a
 secret, even if you just public matomo images.
 * You don't need to create a secret for matomo license anymore (even not an empty one). If you do have plugins under premium license, you need to add it though.
 * tracker.phpfpm values has moved to the proper place: matomo.tracker.phpfpm
@@ -17,7 +17,7 @@ secret, even if you just public matomo images.
 
 ## Dependencies
 
-You need Mysql or Mariadb running, in the cluster our outside, also we recommend to use redis for Queuedtracking and caching.
+You need MySQL or MariaDB running, in the cluster our outside, also we recommend to use Redis for Queuedtracking and caching.
 
 We publish [Matomo images on docker hub](https://hub.docker.com/repository/docker/digitalist/matomo) - that could be used in this chart - you can also use your own docker images.
 
