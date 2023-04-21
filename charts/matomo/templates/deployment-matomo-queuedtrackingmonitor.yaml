@@ -7,8 +7,6 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: matomo-queuedtracking-monitor
-  annotations:
-    checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
 spec:
   replicas: {{.Values.matomo.queuedTrackingMonitor.replicas | default 1}}
   selector:
