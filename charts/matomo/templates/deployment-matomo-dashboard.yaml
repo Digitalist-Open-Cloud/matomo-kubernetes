@@ -7,6 +7,8 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: matomo-dashboard
+  annotations:
+    checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
 spec:
   replicas: {{.Values.matomo.dashboard.replicas}}
   selector:
