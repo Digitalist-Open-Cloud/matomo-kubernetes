@@ -18,8 +18,8 @@ data:
       }
       client_max_body_size  200M;
       server_tokens         off;
-      client_body_timeout   60;
-      client_header_timeout 60;
+      client_body_timeout   600s;
+      client_header_timeout 600s;
       client_body_temp_path /tmp/client_temp;
       proxy_temp_path       /tmp/proxy_temp_path;
       fastcgi_temp_path     /tmp/fastcgi_temp;
