@@ -8,10 +8,10 @@ metadata:
   namespace: {{.Values.namespace}}
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/client-body-timeout: "700s"
+    nginx.ingress.kubernetes.io/client-body-timeout: "700"
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: 200m
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "700s"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "700"
     {{- if .Values.matomo.ingress.annotations }}
       {{- with .Values.matomo.ingress.annotations }}
         {{- toYaml . | nindent 4 }}
