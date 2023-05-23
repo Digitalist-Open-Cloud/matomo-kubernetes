@@ -8,8 +8,8 @@ metadata:
 spec:
   schedule: {{quote .Values.matomo.cronJobs.coreArchive.schedule}}
   concurrencyPolicy: {{.Values.matomo.cronJobs.coreArchive.concurrencyPolicy}}
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 10
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
       activeDeadlineSeconds: {{.Values.matomo.cronJobs.coreArchive.activeDeadlineSeconds}}
