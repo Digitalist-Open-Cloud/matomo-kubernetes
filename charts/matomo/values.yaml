@@ -57,6 +57,7 @@ matomo:
       activeDeadlineSeconds: 43200
       command: ./console core:archive --disable-scheduled-tasks
     scheduledTasks:
+      php:
       enabled: true
       labels:
         name: matomo-jobs-scheduled-tasks
