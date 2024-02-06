@@ -15,7 +15,7 @@ data:
     upload_max_filesize={{ .Values.matomo.cronJobs.scheduledTasks.php.upload_max_filesize | default "32M" }}
     max_input_time={{ .Values.matomo.cronJobs.scheduledTasks.php.max_input_time | default "3600" }}
     max_file_uploads={{ .Values.matomo.cronJobs.scheduledTasks.php.opcache_max_file_upload| default "300" }}
-    memory_limit={{ .Values.matomo.cronJobs.scheduledTasks.php.memory_limit | default "2G" }}
+    memory_limit={{ .Values.matomo.cronJobs.scheduledTasks.php.memory_limit | default "4G" }}
     display_errors={{ .Values.matomo.cronJobs.scheduledTasks.php.display_errors | default "Off" }}
     error_reporting={{ .Values.matomo.cronJobs.scheduledTasks.php.error_reporting | default "22527" }}
     mysqli.reconnect={{ .Values.matomo.cronJobs.scheduledTasks.php.mysqli_reconnect | default "On" }}
@@ -34,7 +34,7 @@ data:
     upload_max_filesize=32M
     max_input_time=1800
     max_file_uploads="300"
-    memory_limit=2G
+    memory_limit=4G
     display_errors=Off
     error_reporting="22527"
     mysqli.reconnect=On
