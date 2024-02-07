@@ -1,0 +1,363 @@
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+##
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  storageClass: ""
+namespace: testhelmchart
+matomo:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/proxy-body-size: 200m
+      #kubernetes.io/ingress.class: "nginx"
+  image: digitalist/matomo:4.12.3
+  postInstallCommand: php ./console site:add --name="Setup" --urls="https://example.org"
+  postInstallSleepTime: 20
+  resources:
+    limits:
+      cpu: 1
+      memory: 2024Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  php:
+  phpfpm:
+    max_children: 200
+    start_servers: 5
+    min_spare_servers: 5
+    max_spare_servers: 150
+    max_requests: 500
+    process_idle_timeout: "240s"
+  livenessProbe:
+    exec:
+      command: ./console tagmanager:regenerate-released-containers
+    initialDelaySeconds: 120
+    periodSeconds: 240
+    timeoutSeconds: 120
+  config:
+    PluginsUnInstalled:
+      - Provider
+      - Feedback
+      - LoginLdap
+      - UserFeedback
+      - SingleDigitalGateway
+      - TrackingSpamPrevention
+      - AnonymousPiwikUsageMeasurement
+    PluginsInstalled:
+      - CoreAdminHome
+      - CoreConsole
+      - Monolog
+      - Installation
+      - Login
+      - CoreHome
+      - API
+      - CorePluginsAdmin
+      - Marketplace
+      - Actions
+      - AdminNotification
+      - Annotations
+      - Bandwidth
+      - Contents
+      - CoreUpdater
+      - CoreVisualizations
+      - CustomAlerts
+      - CustomDimensions
+      - CustomJsTracker
+      - Events
+      - ExtraTools
+      - Feedback
+      - GeoIp2
+      - Goals
+      - Heartbeat
+      - ImageGraph
+      - Insights
+      - Installation
+      - Intl
+      - IntranetMeasurable
+      - InvalidateReports
+      - LanguagesManager
+      - Live
+      - Login
+      - LogViewer
+      - MobileAppMeasurable
+      - MobileMessaging
+      - Monolog
+      - Morpheus
+      - MultiSites
+      - Overlay
+      - PagePerformance
+      - PrivacyManager
+      - ProfessionalServices
+      - Proxy
+      - QueuedTracking
+      - Referrers
+      - Resolution
+      - ScheduledReports
+      - SitesManager
+      - Tour
+      - Transitions
+      - TreemapVisualization
+      - TwoFactorAuth
+      - UserConsole
+      - UserCountry
+      - UserCountryMap
+      - UserId
+      - UsersManager
+      - VisitFrequency
+      - VisitorInterest
+      - Widgetize
+      - DBStats
+      - SecurityInfo
+      - TrackerDomain
+      - DevicePlugins
+      - DevicesDetection
+      - Diagnostics
+      - BotTracker
+      - CoreVue
+      - WebsiteMeasurable
+      - Dashboard
+      - UserLanguage
+      - Ecommerce
+      - SEO
+      - VisitsSummary
+      - VisitTime
+      - RssWidget
+      - SegmentEditor
+      - TestRunner
+      - BulkTracking
+    Config:
+      RedisCache:
+        host: redis-headless
+        port: '6379'
+        timeout: 0.0
+        password: foobar
+        database: 1
+      log:
+        log_level: ERROR
+        log_writers[]: "database"
+      SingleDigitalGateway:
+        env: prod
+      General:
+        show_update_notification_to_superusers_only: 1
+        noreply_email_address: se.support@digitalist.se
+        enable_framed_pages: 1
+        enable_framed_settings: 1
+        enable_trusted_host_check: 0
+        enable_plugin_update_communication: 0
+        enable_auto_update: 0
+        enable_installer: 0
+        enable_internet_features: 0
+        enable_plugins_admin: 0
+        enable_plugin_upload: 0
+        enable_geolocation_admin: 1
+        proxy_client_headers[]: HTTP_X_FORWARDED_FOR
+        browser_archiving_disabled_enforce: 0
+        enable_browser_archiving_triggering: 0
+        archiving_range_force_on_browser_request: 1
+        always_archive_data_range: 0
+        enable_create_realtime_segments: 0
+        enable_sql_optimize_queries: 0
+        enabled_periods_UI: day,week,month,year,range
+        enabled_periods_API: day,week,month,year,range
+        session_save_handler: dbtable
+        enable_marketplace: 0
+        enable_general_settings_admin: 0
+        assume_secure_protocol: 1
+        cors_domains[]: "*"
+        datatable_archiving_maximum_rows_referrers: 5000
+        datatable_archiving_maximum_rows_subtable_referrers: 5000
+        datatable_archiving_maximum_rows_actions: 5000
+        datatable_archiving_maximum_rows_subtable_actions: 5000
+        datatable_archiving_maximum_rows_events: 1000
+        datatable_archiving_maximum_rows_subtable_events: 100
+        datatable_archiving_maximum_rows_custom_variables: 5000
+        datatable_archiving_maximum_rows_subtable_custom_variables: 5000
+        datatable_archiving_maximum_rows_site_search: 5000
+        time_before_today_archive_considered_outdated: 2700
+        time_before_week_archive_considered_outdated: 10800
+        time_before_month_archive_considered_outdated: 32400
+        time_before_year_archive_considered_outdated: 64800
+        time_before_range_archive_considered_outdated: 10800
+        live_widget_refresh_after_seconds: 30
+        adding_segment_requires_access: "admin"
+        live_widget_visitor_count_last_minutes: 1
+        live_visitor_profile_max_visits_to_aggregate: 10
+        multisites_refresh_after_seconds: 0
+        anonymous_user_enable_use_segments_API: 0
+        process_new_segments_from: 'segment_last_edit_time'
+        show_multisites_sparklines: 0
+        rearchive_reports_in_past_last_n_months: 0
+        emails_enabled: 1
+        enable_update_communication: 0
+        piwik_professional_support_ads_enabled: 0
+        archiving_ranking_query_row_limit: 0
+      Deletelogs:
+        delete_logs_older_than: 400
+        delete_logs_enable: 1
+      FormAnalytics:
+        autoCreateForm: disabled
+      QueuedTracking:
+        backend: redis
+        redisHost: redis-headless
+        redisPort: '6379'
+        redisDatabase: '0'
+        redisPassword: foobar
+        queueEnabled: 1
+        numQueueWorkers: 16
+        numRequestsToProcess: 5
+        processDuringTrackingRequest: 0
+      mail:
+        transport: "smtp"
+        port: 587
+        host: "smtp.elastx.email"
+        type: "Login"
+        username: "se.support@digitalistgroup.com"
+        password: "r2FsraApbANM4cGH"
+      TrackerDomain:
+        url: "matomotest.dev2.kube.dgstage.se"
+  runAsUser: 82
+  installCommand: ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db && ./console plugin:activate TagManager
+  license:
+    secretKeyRef:
+      name: matomo-license
+      key: matomo-license
+  cronJobs:
+    coreArchive:
+      enabled: true
+      schedule: "0 * * * *"
+      activeDeadlineSeconds: 3000
+      command: ./console core:archive --php-cli-options="-d memory_limit=3G" --concurrent-requests-per-website=3 --concurrent-archivers=3
+      resources:
+        limits:
+          cpu: 1
+          memory: 4800Mi
+        requests:
+          cpu: 70m
+          memory: 60Mi
+    scheduledTasks:
+      enabled: true
+      schedule: "*/60 * * * *"
+      activeDeadlineSeconds: 43200
+      command: ./console scheduled-tasks:run
+      resources:
+        limits:
+          cpu: 400m
+          memory: 200Mi
+        requests:
+          cpu: 10m
+          memory: 20Mi
+  dashboard:
+    loadbalancer: false
+    enabled: true
+    resources:
+      limits:
+        cpu: 2
+        memory: 1200Mi
+      requests:
+        cpu: 300m
+        memory: 512Mi
+    replicas: 1
+    hostname: matomotest.dev2.kube.dgstage.se
+    tls: false
+    secretName: matomotest.dev2.kube.dgstage.se-tls
+    firstuser:
+      username: admin
+      password: "7hYEsq7q5FMQB5v7"
+      email: se.ops@digitalistgroup.com
+  queuedTrackingProcess:
+    enabled: true
+    replicas: 1
+    numProcs: 2
+  queuedTrackingMonitor:
+    enabled: 0
+    replicas: 1
+  tracker:
+    loadbalancer: false
+    enabled: true
+    resources:
+      limits:
+        cpu: 800m
+        memory: 800Mi
+      requests:
+        cpu: 100m
+        memory: 20Mi
+    nginx:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 800Mi
+        requests:
+          cpu: 20m
+          memory: 20Mi
+    replicas: 0
+    hostname: matomotest.dev2.kube.dgstage.se
+    tls: true
+    secretName: matomotest.dev2.kube.dgstage.se-tls
+  cli:
+    enabled: 0
+    replicas: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 600Mi
+      requests:
+        cpu: 10m
+        memory: 80Mi
+nginx:
+  runAsUser: 100
+  resources:
+    limits:
+      cpu: 128m
+      memory: 128Mi
+    requests:
+      cpu: 64m
+      memory: 64Mi
+db:
+  hostname: mysql-headless
+  password:
+    secretKeyRef:
+      name: mysql
+      key: mysql-password
+  name: matomo
+  username: matomo
+  prefix: matomo_
+extraConfigMaps:
+  create: true
+  data:
+    common.config.ini.php: |
+      [General]
+      always_load_commands_from_plugin=ExtraTools
+      [Cache]
+      backend = chained
+      [ChainedCache]
+      backends[] = array
+      backends[] = redis
+extraVolumes:
+- name: common-config
+  configMap:
+    name: matomo-additional-config-maps
+    items:
+    - key: "common.config.ini.php"
+      path: "common.config.ini.php"
+extraVolumeMounts:
+- name: common-config
+  mountPath: /var/www/html/config/common.config.ini.php
+  subPath: common.config.ini.php
+  # nginx.ingress.kubernetes.io/server-snippet: |
+  #   rewrite /matomo.js https://matomo-digi.stage.digikube.dglive.net$uri permanent;
+  #   rewrite /matomo.php https://matomo-digi.stage.digikube.dglive.net$uri permanent;
+  #   rewrite /piwik.js https://matomo-digi.stage.digikube.dglive.net$uri permanent;
+  #   rewrite /piwik.php https://matomo-digi.stage.digikube.dglive.net$uri permanent;
