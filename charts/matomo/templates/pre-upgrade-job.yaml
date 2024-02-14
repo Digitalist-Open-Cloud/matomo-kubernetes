@@ -57,8 +57,9 @@ spec:
               name: {{ .Values.db.password.secretKeyRef.name }}
               key: {{ .Values.db.password.secretKeyRef.key }}
 {{ include "matomo.license" . | nindent 8 }}
-{{- end -}}
       volumes:
         - name: matomo-startup-config
           configMap:
             name: matomo-startup-config
+
+{{- end -}}
