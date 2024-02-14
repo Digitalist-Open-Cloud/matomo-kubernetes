@@ -26,7 +26,10 @@ matomo:
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   # Post install for helm chart. Starts a post-install-job.
+  postInstallSleepTime: 5
   postInstallCommand: ""
+  preUpgradeSleepTime: 5
+  preUpgradeCommand: ""
   ## If you have a premium license for plugins, set it here.
   ## you need to create the secret before refering it.
   ## As:
