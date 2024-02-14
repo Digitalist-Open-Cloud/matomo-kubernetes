@@ -28,6 +28,10 @@ spec:
       containers:
       - name: pre-upgrade-matomo
         image: {{.Values.matomo.image}}
+        volumeMounts:
+        - name: matomo-startup-config
+          mountPath: /var/www/html/config/config.ini.php
+          subPath: config.ini.php
         # To do anything with Matomo, we first need to bootstrap it (curl).
         command:  [ 'bash' , '-c' , 'sleep {{.Values.matomo.preUpgradeSleepTime}}; curl -Il https://{{.Values.matomo.dashboard.hostname}}; {{.Values.matomo.preUpgradeCommand}}' ]
         env:
@@ -52,10 +56,6 @@ spec:
             secretKeyRef:
               name: {{ .Values.db.password.secretKeyRef.name }}
               key: {{ .Values.db.password.secretKeyRef.key }}
-        volumeMounts:
-          - name: matomo-startup-config
-            mountPath: /var/www/html/config/config.ini.php
-            subPath: config.ini.php
       volumes:
         - name: matomo-startup-config
           configMap:
