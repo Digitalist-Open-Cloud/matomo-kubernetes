@@ -9,7 +9,7 @@ data:
     expose_php={{ .Values.matomo.php.expose_php | default "Off" }}
     opcache.memory_consumption={{ .Values.matomo.php.opcache_memory_consumption | default "512" }}
     opcache.interned_strings_buffer={{ .Values.matomo.php.opcache_interned_strings_buffer | default "16" }}
-    opcache.save_comments={{ .Values.matomo.php.opcache_save_comments | default "0" }}
+    opcache.save_comments={{ .Values.matomo.php.opcache_save_comments | default "1" }}
     opcache.jit_buffer_size={{ .Values.matomo.php.opcache_jit_buffer_size | default "256M" }}
     opcache.jit={{ .Values.matomo.php.opcache_jit | default "1235" }}
     max_execution_time={{ .Values.matomo.php.max_execution_time | default "300" }}
@@ -29,7 +29,7 @@ data:
     expose_php=Off
     opcache.memory_consumption=512
     opcache.interned_strings_buffer=16
-    opcache.save_comments=0
+    opcache.save_comments=1
     opcache.jit_buffer_size=256M
     opcache.jit=1235
     max_execution_time=300
