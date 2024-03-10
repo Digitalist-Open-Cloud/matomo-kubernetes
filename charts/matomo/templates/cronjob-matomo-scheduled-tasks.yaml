@@ -9,7 +9,7 @@ metadata:
 spec:
   schedule: {{quote .Values.matomo.cronJobs.scheduledTasks.schedule}}
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 0
+  successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
