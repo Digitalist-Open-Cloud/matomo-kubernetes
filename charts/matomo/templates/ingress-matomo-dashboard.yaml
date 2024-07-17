@@ -4,6 +4,9 @@ kind: Ingress
 metadata:
   labels:
     app: matomo-dashboard
+{{- if .Values.matomo.ingress.extralabels }}
+{{ toYaml .Values.matomo.ingress.extralabels | indent 4 }}
+{{- end }}
   name: matomo-dashboard
   namespace: {{.Values.namespace}}
   annotations:

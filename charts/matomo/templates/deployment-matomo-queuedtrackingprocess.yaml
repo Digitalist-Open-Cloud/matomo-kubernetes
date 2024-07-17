@@ -7,6 +7,9 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: matomo-queuedtracking-process
+{{- if .Values.matomo.extralabels }}
+{{ toYaml .Values.matomo.extralabels | indent 4 }}
+{{- end }}
 spec:
   replicas: {{.Values.matomo.queuedTrackingProcess.replicas}}
   selector:
@@ -16,6 +19,9 @@ spec:
     metadata:
       labels:
         app: matomo-queuedtracking-process
+{{- if .Values.matomo.extralabels }}
+{{ toYaml .Values.matomo.extralabels | indent 8 }}
+{{- end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
     spec:
