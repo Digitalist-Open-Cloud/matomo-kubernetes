@@ -30,7 +30,7 @@ matomo:
   postInstallCommand: ""
   preUpgradeSleepTime: 5
   preUpgradeCommand: ""
-  extraLabels: ""
+  extralabels: {}
   ## If you have a premium license for plugins, set it here.
   ## you need to create the secret before refering it.
   ## As:
@@ -41,7 +41,7 @@ matomo:
   license:
   ingress:
     enabled: true
-    extraLabels: ""
+    extralabels: {}
     annotations:
       digitalist-net-services.org: "matomo"
       kubernetes.io/ingress.class: "nginx"
