@@ -23,10 +23,8 @@ jobs:
           REG_PASS: "${{ secrets.REG_PASS }}"
 
         run: |
+           echo "Tag: ${{ github.event.release.tag_name }}"
            cd charts
            helm package matomo
-           helm registry login $REGISTRY -u $REG_USER -p $REG_PASS
-           helm push matomo-${{ github.event.release.tag_name }}.tgz $REGISTRY
-
-
-
+           helm registry login oci://registry-1.docker.io/digitalist -u $REG_USER -p $REG_PASS
+           helm push matomo-${{ github.event.release.tag_name }}.tgz oci://registry-1.docker.io/digitalist
