@@ -26,5 +26,5 @@ jobs:
            echo "Version to push: $VERSION"
            cd charts
            helm package matomo
-           helm registry login oci://registry-1.docker.io -u $REG_USER -p $REG_PASS
+           helm registry login registry-1.docker.io -u $REG_USER -p $REG_PASS
            helm push matomo-$VERSION.tgz oci://registry-1.docker.io/digitalist
