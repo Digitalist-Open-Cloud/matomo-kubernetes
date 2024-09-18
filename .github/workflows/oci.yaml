@@ -17,9 +17,16 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: build oci
+        env:
+          REGISTRY: "${{ secrets.REGISTRY }}"
+          REG_USER: "${{ secrets.REG_USER }}"
+          REG_PASS: "${{ secrets.REG_PASS }}"
+
         run: |
            cd charts
            helm package matomo
            helm registry login $REGISTRY -u $REG_USER -p $REG_PASS
            helm push matomo-${{ github.event.release.tag_name }}.tgz $REGISTRY
+
+
 
