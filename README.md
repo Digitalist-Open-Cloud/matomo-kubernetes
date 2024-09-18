@@ -23,8 +23,32 @@ We publish [Matomo images on docker hub](https://hub.docker.com/repository/docke
 
 ## Install
 
+We recommend to use the OCI registry, [hosted at docker hub](https://hub.docker.com/repository/docker/digitalist/matomo).
+
+### OCI
+
+```sh
+oci://registry-1.docker.io/digitalist/matomo
 ```
-helm repo add matomo-kubernetes https://digitalist-se.github.io/matomo-kubernetes
+
+Download values so you can override it with your own changes.
+
+```sh
+helm show values oci://registry-1.docker.io/digitalist/matomo > overrides.yaml
+
+```
+
+Add your overrides add deploy Matomo:
+
+```sh
+helm upgrade -i --namespace=mynamespace -f overrides.yaml -i matomo oci://registry-1.docker.io/digitalist/matomo
+```
+
+
+### Classic
+
+```
+helm repo add matomo-kubernetes https://digitalist-open-cloud.github.io/matomo-kubernetes/
 ```
 
 Download values so you can override it with your own changes.
