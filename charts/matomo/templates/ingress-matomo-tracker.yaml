@@ -29,6 +29,9 @@ metadata:
       {{- end }}
     {{- end }}
 spec:
+  {{- if .Values.matomo.tracker.ingressClassName }}
+  ingressClassName: {{.Values.matomo.tracker.ingressClassName}}
+  {{- end }}
   rules:
   - host: {{.Values.matomo.tracker.hostname}}
     http:
