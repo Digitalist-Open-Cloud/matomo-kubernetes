@@ -25,6 +25,9 @@ metadata:
     {{ else }}
   {{- end }}
 spec:
+  {{- if .Values.matomo.dashboard.ingressClassName }}
+  ingressClassName: {{.Values.matomo.dashboard.ingressClassName}}
+  {{- end }}
   rules:
   - host: {{.Values.matomo.dashboard.hostname}}
     http:

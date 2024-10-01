@@ -22,7 +22,7 @@ matomo:
   ## imagePullSecrets:
   ##   - myRegistryKeySecretName
   imagePullSecrets: []
-  image: digitalist/matomo:5.1.1
+  image: digitalist/matomo:5.1.2
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   # Post install for helm chart. Starts a post-install-job.
@@ -43,8 +43,7 @@ matomo:
     enabled: true
     extralabels: {}
     annotations:
-      digitalist-net-services.org: "matomo"
-      kubernetes.io/ingress.class: "nginx"
+      digitalist.cloud/instance: "matomo"
   cli:
     replicas: 1
     enabled: true
@@ -98,6 +97,7 @@ matomo:
       email: foo@example.com
     nginx:
       nginxWorkerProcesses: 5
+    ingressClassName: ""
   queuedTrackingMonitor:
     enabled: true
   queuedTrackingProcess:
@@ -116,6 +116,7 @@ matomo:
       max_children: 75
       process_idle_timeout: 600s
       max_requests: 500
+    ingressClassName: ""
 nginx:
   image: digitalist/nginx:1.21.6
   imagePullSecrets: []
