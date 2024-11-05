@@ -33,7 +33,7 @@ spec:
           mountPath: /var/www/html/config/config.ini.php
           subPath: config.ini.php
 {{- if .Values.extraVolumeMounts }}
-{{ toYaml .Values.extraVolumeMounts | indent 10 }}
+{{ toYaml .Values.extraVolumeMounts | indent 8 }}
 {{- end }}
         # To do anything with Matomo, we first need to bootstrap it (curl).
         command:  [ 'bash' , '-c' , 'sleep {{.Values.matomo.preUpgradeSleepTime}}; curl -Il https://{{.Values.matomo.dashboard.hostname}}; {{.Values.matomo.preUpgradeCommand}}' ]
@@ -65,7 +65,7 @@ spec:
           configMap:
             name: matomo-startup-config
 {{- if .Values.extraVolumes }}
-{{ toYaml .Values.extraVolumes | indent 6 }}
+{{ toYaml .Values.extraVolumes | indent 8 }}
 {{- end }}
 
 {{- end -}}
