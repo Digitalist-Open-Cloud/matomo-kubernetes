@@ -3,6 +3,10 @@
 
 Helm chart for running the matomo containers (php) and nginx containers + cronjobs and configmaps needed.
 
+## Professional support
+
+We try to provide general community support in the issue queue, but for professional support, please contact matomo@digitalist.com.
+
 ## Version 11, breaking changes and improvements.
 * images are not using registry secret by default, you need to set it if you want to use it. This is an improvement, as before you were forced to have a
 secret, even if you just public matomo images.
