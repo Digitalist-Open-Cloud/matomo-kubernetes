@@ -1,5 +1,19 @@
 # Change log
 
+## [11.0.48] - 2025-01-25
+
+### Added
+
+- cspell CI checker.
+
+### Changed
+
+- Image to deploy
+
+### Removed
+
+- Blackfire nginx config.
+
 ## [11.0.39] - 2024-10-01
 
 ### Added
