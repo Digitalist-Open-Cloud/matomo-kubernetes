@@ -14,8 +14,8 @@ Thank you for installing {{ .Chart.Name }} from Digitalist.
 
 Your release is named {{ .Release.Name }}.
 
-At post install job is runned on the install that creates the first
-site, this couuld fail a copule of times, but should succeed in the end.
+At post install, job tuns on the install, and creates the first
+site, this could fail a couple of times, but should succeed in the end.
 
 After installation is complete, you can access your website by this url:
 {{ .Values.matomo.dashboard.hostname }}

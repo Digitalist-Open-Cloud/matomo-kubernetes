@@ -48,13 +48,6 @@ Add your overrides add deploy Matomo:
 helm upgrade -i --namespace=mynamespace -f overrides.yaml -i matomo oci://registry-1.docker.io/digitalist/matomo
 ```
 
-
-### Classic
-
-```
-helm repo add matomo-kubernetes https://digitalist-open-cloud.github.io/matomo-kubernetes/
-```
-
 Download values so you can override it with your own changes.
 
 ```
@@ -78,7 +71,7 @@ helm upgrade --namespace=mynamespace -f overrides.yaml -i my-matomo matomo-kuber
 | `templates/configmap-matomo-dashboard-php.yaml` | Contains the php conf file for the Matomo dashboard. |
 | `templates/configmap-nginx-matomo-dashboard.yaml` | Contains the nginx conf file for the Matomo dashboard. |
 | `templates/configmap-nginx-matomo-tracker.yaml` | Contains the nginx conf file for the Matomo tracker script. |
-| `templates/configmap-supervisor-queuedtrackingprocess.yaml` | Contains the supervisor.d config for the queeudtrackingprocess |
+| `templates/configmap-supervisor-queuedtrackingprocess.yaml` | Contains the supervisor.d config for the queuedtrackingprocess |
 | `templates/cronjob-matomo-backup-db.yaml` | Cronjob - For backing up database to Openstack Object storage. |
 | `templates/cronjob-matomo-corearchive.yaml` | Cronjob - Creates visitor reports in Matomo. |
 | `templates/cronjob-matomo-scheduled-tasks.yaml` | Cronjob - Runs scheduled tasks in Matomo, like sending e-mail reports on scheduled time. |
@@ -95,7 +88,7 @@ Check file for default values.
 
 | Key | Description |
 | --- | ----------- |
-| `changeCause` | Changes the changecause, which is added in all deployment files, will trigger a re-deployment of all pods. |
+| `changeCause` | Changes the change cause, which is added in all deployment files, will trigger a re-deployment of all pods. |
 | `namespace` | Describes what namespace Matomo should be deployed to. |
 | `nginxWorkerProcesses` | How many cpu cores should nginx use, should be same as number of cpu cores on server. |
 | `queuedTrackingProcess.numProcs` | How many processes should supervisor.d use for running `./console queuedtracking:process`. |
@@ -114,7 +107,7 @@ Check file for default values.
 | `matomo.cronJobs.swiftDbBackup.schedule` | Cronjob - swiftDbBackup - How often should we run the database backup cronjob. |
 | `matomo.cronJobs.swiftDbBackup.namePrefix` | Cronjob - swiftDbBackup - What should the prefix of the filename on database backups? |
 | `matomo.cronJobs.swiftDbBackup.deleteBackupAfter` | Cronjob - swiftDbBackup - How many days should we keep the backups? |
-| `matomo.cronJobs.swiftDbBackup.openStackSecret` | Cronjob - swiftDbBackup - Name of the Kubernetes secret where the Openstack Swift authenticaion is. |
+| `matomo.cronJobs.swiftDbBackup.openStackSecret` | Cronjob - swiftDbBackup - Name of the Kubernetes secret where the Openstack Swift authentication is. |
 | `matomo.dashboard.replicas` | Number of replicas we should run of the Matomo dashboard. |
 | `matomo.dashboard.hostname` | Hostname for the Matomo dashboard. |
 | `matomo.dashboard.tls` | Should we runt tls for the dashboard or not. |

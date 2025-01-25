@@ -1,0 +1,18 @@
+{
+    "version": "0.2",
+    "dictionaryDefinitions": [
+        {
+            "name": "dictionary",
+            "path": "./.cspell/dictionary",
+            "addWords": true
+        }
+    ],
+    "dictionaries": [
+        "dictionary",
+        "k8s"
+      ],
+    "words": [],
+    "ignoreWords": [],
+    "language": "en,en-GB",
+    "useGitignore": true
+}
