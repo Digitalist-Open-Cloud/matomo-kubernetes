@@ -102,7 +102,7 @@ spec:
               number: 8080
             {{- end }}
       - path: /js/.*
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
@@ -115,7 +115,7 @@ spec:
               number: 8080
             {{- end }}
       - path: /plugins/HeatmapSessionRecording/.*
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
@@ -128,7 +128,7 @@ spec:
               number: 8080
             {{- end }}
       - path: /plugins/Overlay/client/.*
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
@@ -141,20 +141,7 @@ spec:
               number: 8080
             {{- end }}
       - path: /node_modules/jquery/dist/.*
-        pathType: Prefix
-        backend:
-          service:
-            {{- if .Values.matomo.tracker.loadbalancer }}
-            name: matomo-tracker-lb
-            port:
-              number: 80
-              {{ else }}
-            name: matomo-tracker
-            port:
-              number: 8080
-            {{- end }}
-      - path: /plugins/UserFeedback/assets/.*
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
