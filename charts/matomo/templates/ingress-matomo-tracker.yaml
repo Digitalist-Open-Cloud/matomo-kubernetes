@@ -37,7 +37,7 @@ spec:
     http:
       paths:
       - path: /index.php
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
@@ -50,7 +50,7 @@ spec:
               number: 8080
             {{- end }}
       - path: /piwik.php
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
@@ -63,7 +63,7 @@ spec:
               number: 8080
             {{- end }}
       - path: /piwik.js
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
@@ -76,7 +76,7 @@ spec:
               number: 8080
             {{- end }}
       - path: /matomo.php
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
@@ -89,7 +89,7 @@ spec:
               number: 8080
             {{- end }}
       - path: /matomo.js
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             {{- if .Values.matomo.tracker.loadbalancer }}
