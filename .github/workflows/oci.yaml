@@ -3,7 +3,7 @@ on:
     tags:
       - '*'
 jobs:
-  release:
+  release-docker-hub:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,3 +28,33 @@ jobs:
            helm package matomo
            helm registry login registry-1.docker.io -u $REG_USER -p $REG_PASS
            helm push matomo-$VERSION.tgz oci://registry-1.docker.io/digitalist
+
+
+  release-internal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: build oci
+        env:
+          REG_USER: "${{ secrets.HUB_REG_USER }}"
+          REG_PASS: "${{ secrets.HUB_REG_PASS }}"
+          HUB_HOST: "${{ secrets.HUB_HOST }}"
+
+        run: |
+           VERSION=$(grep "^version:" charts/matomo/Chart.yaml | cut -d ' ' -f2)
+           echo "Version to push: $VERSION"
+           cd charts
+           helm package matomo
+           helm registry login $HUB_HOST -u $REG_USER -p $REG_PASS
+           helm push matomo-$VERSION.tgz oci://$HUB_HOST/internal/charts
+
+
