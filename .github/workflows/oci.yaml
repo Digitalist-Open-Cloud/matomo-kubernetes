@@ -55,6 +55,6 @@ jobs:
            cd charts
            helm package matomo
            helm registry login $HUB_HOST -u $REG_USER -p $REG_PASS
-           helm push matomo-$VERSION.tgz oci://$HUB_HOST/internal/charts
+           helm push matomo-$VERSION.tgz oci://$HUB_HOST/charts
 
 
