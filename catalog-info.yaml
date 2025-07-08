@@ -1,0 +1,14 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: helm-chart.matomo-kubernetes
+  title: Helm Chart for Matomo
+  description: Deploy Matomo to Kubernetes.
+  tags:
+    - helm-chart
+spec:
+  type: service
+  lifecycle: production
+  owner: group:digitalist-open-cloud
+
