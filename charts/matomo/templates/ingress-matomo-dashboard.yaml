@@ -20,6 +20,11 @@ metadata:
         {{- toYaml . | nindent 4 }}
       {{- end }}
     {{- end }}
+    {{- if .Values.matomo.dashboard.ingress.annotations }}
+      {{- with .Values.matomo.dashboard.ingress.annotations }}
+        {{- toYaml . | nindent 4 }}
+      {{- end }}
+    {{- end }}
     {{- if .Values.matomo.dashboard.whitelist }}
     nginx.ingress.kubernetes.io/whitelist-source-range: {{.Values.matomo.dashboard.whitelist | toPrettyJson}}
     {{ else }}

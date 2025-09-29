@@ -28,6 +28,11 @@ metadata:
         {{- toYaml . | nindent 4 }}
       {{- end }}
     {{- end }}
+    {{- if .Values.matomo.tracker.ingress.annotations }}
+      {{- with .Values.matomo.tracker.ingress.annotations }}
+        {{- toYaml . | nindent 4 }}
+      {{- end }}
+    {{- end }}
 spec:
   {{- if .Values.matomo.tracker.ingressClassName }}
   ingressClassName: {{.Values.matomo.tracker.ingressClassName}}
