@@ -98,6 +98,9 @@ matomo:
     nginx:
       nginxWorkerProcesses: 5
     ingressClassName: ""
+    ingress:
+      annotations:
+        digitalist.cloud/instance: "matomo"
   queuedTrackingMonitor:
     enabled: true
   queuedTrackingProcess:
@@ -117,6 +120,9 @@ matomo:
       process_idle_timeout: 600s
       max_requests: 500
     ingressClassName: ""
+    ingress:
+      annotations:
+        digitalist.cloud/instance: "matomo"
 nginx:
   image: digitalist/nginx:1.21.6
   imagePullSecrets: []
