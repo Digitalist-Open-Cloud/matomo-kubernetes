@@ -40,6 +40,7 @@ matomo:
   ##     key: matomo-license
   license:
   ingress:
+    compression: true
     enabled: true
     extralabels: {}
     annotations:
