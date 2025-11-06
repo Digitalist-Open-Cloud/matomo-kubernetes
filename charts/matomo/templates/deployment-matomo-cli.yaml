@@ -28,7 +28,7 @@ spec:
 {{ include "matomo.init" . | nindent 6 }}
       containers:
       - name: matomo
-        image: {{.Values.matomo.image}}
+        image: {{ printf "%s/%s" .Values.global.imageRegistry .Values.matomo.image }}
         {{- if .Values.matomo.cli.resources }}
         resources:
 {{ toYaml .Values.matomo.cli.resources | indent 10 }}
