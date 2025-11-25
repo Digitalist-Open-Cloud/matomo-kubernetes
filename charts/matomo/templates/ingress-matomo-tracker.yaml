@@ -11,7 +11,7 @@ metadata:
   namespace: {{.Values.namespace}}
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    {{- if .Values.matomo.ingress.annotations }}
+    {{- if .Values.matomo.ingress.compression }}
     nginx.ingress.kubernetes.io/server-snippet: |
       gzip on;
       gzip_disable "MSIE [1-6]\.";
