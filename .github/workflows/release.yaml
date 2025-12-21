@@ -33,4 +33,4 @@ jobs:
           charts_dir: charts
           charts_repo_url: https://digitalist-se.github.io/matomo-kubernetes
         env:
-          CR_TOKEN: "${{ secrets.PUBLISH_TOKEN }}"
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
