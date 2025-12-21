@@ -2,4 +2,4 @@ apiVersion: v2
 appVersion: "5.3.2"
 description: A Helm chart for Matomo
 name: matomo
-version: 11.0.55
+version: 11.0.56
