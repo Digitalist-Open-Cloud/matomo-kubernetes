@@ -23,11 +23,11 @@ secret, even if you just public matomo images.
 
 You need MySQL or MariaDB running, in the cluster our outside, also we recommend to use Redis for Queuedtracking and caching.
 
-We publish [Matomo images on docker hub](https://hub.docker.com/repository/docker/digitalist/matomo) - that could be used in this chart - you can also use your own docker images.
+We publish [Matomo images on docker hub](https://hub.docker.com/r/digitalist/matomo/tags) - that could be used in this chart - you can also use your own docker images.
 
 ## Install
 
-We recommend to use the OCI registry, [hosted at docker hub](https://hub.docker.com/repository/docker/digitalist/matomo).
+We recommend to use the OCI registry, [hosted at docker hub](https://hub.docker.com/r/digitalist/matomo/).
 
 ### OCI
 
