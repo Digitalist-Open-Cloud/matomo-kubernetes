@@ -116,11 +116,6 @@ spec:
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
-          {{- if .Values.xdebug.disabled  }}
-          - name: matomo-disable-xdebug
-            mountPath: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-            subPath: docker-php-ext-xdebug.ini
-          {{- end }}
 {{- if .Values.extraVolumeMounts }}
 {{ toYaml .Values.extraVolumeMounts | indent 10 }}
 {{- end }}
@@ -174,11 +169,6 @@ spec:
       - name: matomo-dashboard-php
         configMap:
           name: matomo-dashboard-php
-      {{- if .Values.xdebug.disabled  }}
-      - name: matomo-disable-xdebug
-        configMap:
-          name: matomo-disable-xdebug
-      {{- end }}
       - name: static-data
         emptyDir: {}
 {{- if .Values.extraVolumes }}

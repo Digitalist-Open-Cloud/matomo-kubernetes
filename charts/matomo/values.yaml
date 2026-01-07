@@ -22,7 +22,7 @@ matomo:
   ## imagePullSecrets:
   ##   - myRegistryKeySecretName
   imagePullSecrets: []
-  image: digitalist/matomo:5.2.1
+  image: digitalist/matomo:5.6.2
   runAsUser: 82
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   # Post install for helm chart. Starts a post-install-job.
@@ -136,8 +136,6 @@ db:
   name: matomo
   username: root
   prefix: matomo_
-xdebug:
-  disabled: 1
 extraSecrets:
   create: false
   data: {}
