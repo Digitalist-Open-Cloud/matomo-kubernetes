@@ -28,7 +28,7 @@ spec:
 {{ include "matomo.init" . | nindent 6 }}
       containers:
       - name: matomo
-        image: {{.Values.matomo.image}}
+        image: {{ printf "%s/%s" .Values.global.imageRegistry .Values.matomo.image }}
         resources:
           requests:
             memory: "128Mi"

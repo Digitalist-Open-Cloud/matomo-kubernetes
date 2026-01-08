@@ -35,7 +35,7 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
-        image: hipages/php-fpm_exporter:2.2.0
+        image: {{ printf "%s/%s" .Values.global.imageRegistry "hipages/php-fpm_exporter:2.2.0" }}
         imagePullPolicy: Always
         env:
         - name: PHP_FPM_FIX_PROCESS_COUNT
@@ -47,9 +47,9 @@ spec:
             cpu: 15m
             memory: 32Mi
       - name: nginx
-        image: {{.Values.nginx.image}}
+        image: {{ printf "%s/%s" .Values.global.imageRegistry .Values.nginx.image }}
         {{- if .Values.nginx.resources }}
-        resources:
+        resources: 
 {{ toYaml .Values.nginx.resources | indent 10 }}
         {{- end }}
         # readinessProbe:
@@ -88,7 +88,7 @@ spec:
         ports:
         - containerPort: 8080
       - name: matomo
-        image: {{.Values.matomo.image}}
+        image: {{ printf "%s/%s" .Values.global.imageRegistry .Values.matomo.image }}
         {{- if .Values.matomo.resources }}
         resources:
 {{ toYaml .Values.matomo.resources | indent 10 }}
