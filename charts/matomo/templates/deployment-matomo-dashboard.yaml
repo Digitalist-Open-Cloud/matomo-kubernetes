@@ -47,7 +47,11 @@ spec:
             cpu: 15m
             memory: 32Mi
       - name: nginx
+        {{- if .Values.matomo.dashboard.nginx.image }}
+        image: {{.Values.matomo.dashboard.nginx.image}}
+        {{ else }}
         image: {{.Values.nginx.image}}
+        {{- end }}
         {{- if .Values.nginx.resources }}
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}

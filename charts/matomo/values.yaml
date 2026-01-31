@@ -97,6 +97,7 @@ matomo:
       email: foo@example.com
     nginx:
       nginxWorkerProcesses: 5
+      image: ''
     ingressClassName: ""
     ingress:
       annotations:
@@ -162,7 +163,7 @@ extraServices: {}
     ## The loadbalancer ip address (only relevant for type LoadBalancer)
 #    loadBalancerIP:
 extraConfigMaps:
-  create: true
+  create: false
   data: {}
 # data:
 #   my.ini: |
