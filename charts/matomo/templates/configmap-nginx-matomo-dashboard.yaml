@@ -4,6 +4,9 @@ metadata:
   name: nginx-matomo-dashboard
   namespace: {{.Values.namespace}}
 data:
+{{- if .Values.matomo.dashboard.nginx.conf }}
+{{ toYaml .Values.matomo.dashboard.nginx.conf | indent 2 }}
+{{ else }}
   nginx.conf: |
     worker_processes {{ .Values.matomo.dashboard.nginx.nginxWorkerProcesses | default 5 }};
     load_module modules/ngx_http_geoip2_module.so;
@@ -306,3 +309,5 @@ data:
       video/x-ms-wmv                                   wmv;
       video/x-msvideo                                  avi;
     }
+
+{{- end -}}

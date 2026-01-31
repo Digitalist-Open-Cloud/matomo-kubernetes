@@ -1,5 +1,11 @@
 # Change log
 
+## [11.0.59] - 2026-01-31
+
+### Added
+
+- Possibility to override nginx config for dashboard.
+
 ## [11.0.58] - 2026-01-31
 
 ### Added

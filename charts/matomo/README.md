@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 11.0.57](https://img.shields.io/badge/Version-11.0.57-informational?style=flat-square) ![AppVersion: 5.6.2](https://img.shields.io/badge/AppVersion-5.6.2-informational?style=flat-square)
+![Version: 11.0.58](https://img.shields.io/badge/Version-11.0.58-informational?style=flat-square) ![AppVersion: 5.7.0](https://img.shields.io/badge/AppVersion-5.7.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -14,7 +14,7 @@ A Helm chart for Matomo
 | db.password.secretKeyRef.name | string | `"matomo-db-mysql"` |  |
 | db.prefix | string | `"matomo_"` |  |
 | db.username | string | `"root"` |  |
-| extraConfigMaps.create | bool | `true` |  |
+| extraConfigMaps.create | bool | `false` |  |
 | extraConfigMaps.data | object | `{}` |  |
 | extraSecrets.create | bool | `false` |  |
 | extraSecrets.data | object | `{}` |  |
@@ -53,6 +53,8 @@ A Helm chart for Matomo
 | matomo.dashboard.ingress.annotations."digitalist.cloud/instance" | string | `"matomo"` |  |
 | matomo.dashboard.ingressClassName | string | `""` |  |
 | matomo.dashboard.loadbalancer | bool | `false` |  |
+| matomo.dashboard.nginx.conf | string | `""` |  |
+| matomo.dashboard.nginx.image | string | `""` |  |
 | matomo.dashboard.nginx.nginxWorkerProcesses | int | `5` |  |
 | matomo.dashboard.replicas | int | `1` |  |
 | matomo.dashboard.sidecars | list | `[]` |  |
