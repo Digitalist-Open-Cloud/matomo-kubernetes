@@ -30,17 +30,15 @@ imagePullSecrets:
     {{- end }}
   {{- end }}
 {{- end -}}
-
-{{- define "matomo.license" -}}
-  {{- if .Values.matomo.license }}
+{{- define "matomo.license" }}
+{{- if .Values.matomo.license }}
 - name: MATOMO_LICENSE
   valueFrom:
     secretKeyRef:
       name: {{ .Values.matomo.license.secretKeyRef.name }}
       key: {{ .Values.matomo.license.secretKeyRef.key }}
-  {{- end -}}
 {{- end -}}
-
+{{- end -}}
 {{- define "matomo.init" -}}
 initContainers:
   - name: matomo-init
@@ -64,7 +62,7 @@ initContainers:
 {{ if .Values.db.prefix }}
     - name: MATOMO_DB_PREFIX
       value: {{.Values.db.prefix}}
-{{ end }}
+{{- end }}
     - name: MATOMO_DB_USERNAME
       value: {{.Values.db.username}}
     - name: MATOMO_DB_PASSWORD
@@ -72,7 +70,7 @@ initContainers:
         secretKeyRef:
           name: {{ .Values.db.password.secretKeyRef.name }}
           key: {{ .Values.db.password.secretKeyRef.key }}
-{{ include "matomo.license" . | nindent 4 }}
+{{- include "matomo.license" . | nindent 4 }}
     command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
     resources:
       limits:

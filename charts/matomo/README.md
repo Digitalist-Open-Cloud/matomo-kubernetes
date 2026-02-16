@@ -21,8 +21,9 @@ A Helm chart for Matomo
 | extraServices | object | `{}` |  |
 | extraVolumeMounts | list | `[]` |  |
 | extraVolumes | list | `[]` |  |
-| global.imagePullSecrets | list | `[]` |  |
-| global.imageRegistry | string | `""` |  |
+| global | object | `{"imagePullSecrets":[],"imageRegistry":""}` | Globals settings |
+| global.imagePullSecrets | list | `[]` | Global image pull secrets |
+| global.imageRegistry | string | `""` | Imageregistry |
 | matomo.cli.enabled | bool | `true` |  |
 | matomo.cli.replicas | int | `1` |  |
 | matomo.cronJobs.coreArchive.activeDeadlineSeconds | int | `43200` |  |
@@ -59,15 +60,15 @@ A Helm chart for Matomo
 | matomo.dashboard.replicas | int | `1` |  |
 | matomo.dashboard.sidecars | list | `[]` |  |
 | matomo.dashboard.tls | bool | `false` |  |
-| matomo.env | string | `nil` |  |
+| matomo.env | string | `nil` | Env variables to inject, if any. |
 | matomo.extralabels | object | `{}` |  |
-| matomo.image | string | `"digitalist/matomo:5.6.2"` |  |
-| matomo.imagePullSecrets | list | `[]` |  |
-| matomo.imageRegistry | string | `""` |  |
+| matomo.image | string | `"digitalist/matomo:5.7.1"` | Which image to use for Matomo deployment. |
+| matomo.imagePullSecrets | list | `[]` | Image pull secrets for Matomo. |
+| matomo.imageRegistry | string | `""` | Image registry to use. |
 | matomo.ingress.annotations."digitalist.cloud/instance" | string | `"matomo"` |  |
 | matomo.ingress.enabled | bool | `true` |  |
 | matomo.ingress.extralabels | object | `{}` |  |
-| matomo.installCommand | string | `"./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db"` |  |
+| matomo.installCommand | string | `"./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db"` | Install command. If already installed, it just creates the needed config. |
 | matomo.license | string | `nil` |  |
 | matomo.postInstallCommand | string | `""` |  |
 | matomo.postInstallSleepTime | int | `5` |  |
@@ -75,7 +76,7 @@ A Helm chart for Matomo
 | matomo.preUpgradeSleepTime | int | `5` |  |
 | matomo.queuedTrackingMonitor.enabled | bool | `true` |  |
 | matomo.queuedTrackingProcess.replicas | int | `1` |  |
-| matomo.runAsUser | int | `82` |  |
+| matomo.runAsUser | int | `82` | run container as user id. |
 | matomo.tracker.enabled | bool | `true` |  |
 | matomo.tracker.hostname | string | `"my.host"` |  |
 | matomo.tracker.ingress.annotations."digitalist.cloud/instance" | string | `"matomo"` |  |
@@ -89,7 +90,7 @@ A Helm chart for Matomo
 | matomo.tracker.phpfpm.type | string | `"ondemand"` |  |
 | matomo.tracker.replicas | int | `1` |  |
 | matomo.tracker.tls | bool | `false` |  |
-| namespace | string | `"matomo"` |  |
+| namespace | string | `"matomo"` | Namespace to install Matomo in, default matomo. |
 | nginx.image | string | `"digitalist/nginx:1.21.6"` |  |
 | nginx.imagePullSecrets | list | `[]` |  |
 | nginx.runAsUser | int | `100` |  |

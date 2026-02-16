@@ -47,21 +47,12 @@ spec:
         resources:
 {{ toYaml .Values.matomo.tracker.nginx.resources | indent 10 }}
         {{- end }}
-        # readinessProbe:
-        #   httpGet:
-        #     scheme: HTTP
-        #     path: /matomo.js
-        #     port: 8080
-        #  initialDelaySeconds: 10
-        #  periodSeconds: 5
-        livenessProbe:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        {{- with .Values.matomo.tracker.nginx.readinessProbe }}
+        readinessProbe: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.matomo.tracker.nginx.livenessProbe }}
+        livenessProbe: {{- toYaml . | nindent 10 }}
+        {{- end }}
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
           privileged: false
@@ -123,26 +114,11 @@ spec:
           - name: matomo-phpfpm-tracker
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf
-        {{- if .Values.matomo.livenessProbe }}
-        livenessProbe:
-          {{- if .Values.matomo.livenessProbe.exec }}
-          exec:
-            command:
-            - sh
-            - -c
-            - {{ .Values.matomo.livenessProbe.exec.command }}
-          initialDelaySeconds: {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 10 }}
-          periodSeconds: {{ .Values.matomo.livenessProbe.periodSeconds | default 20 }}
-          timeoutSeconds: {{ .Values.matomo.livenessProbe.timeoutSeconds | default 10 }}
-          {{- end }}
+        {{- with .Values.matomo.livenessProbe }}
+        livenessProbe: {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if .Values.matomo.readinessProbe }}
-        readinessProbe:
-          httpGet:
-            path: {{ .Values.matomo.readinessProbe.httpGet.path }}
-            port: {{ .Values.matomo.readinessProbe.httpGet.port | default 80 }}
-          initialDelaySeconds: {{ .Values.matomo.livenessProbe.initialDelaySeconds | default 5 }}
-          periodSeconds:  {{ .Values.matomo.livenessProbe.periodSeconds | default 5 }}
+        {{- with .Values.matomo.readinessProbe }}
+        readinessProbe: {{- toYaml . | nindent 10 }}
         {{- end }}
 {{ include "matomo.images.pullSecrets" ( dict "images" (list .Values.matomo) "global" .Values.global) | nindent 6 }}
       volumes:

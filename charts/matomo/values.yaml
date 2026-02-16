@@ -6,24 +6,33 @@
 ## @param global.imageRegistry Global Docker image registry
 ## @param global.imagePullSecrets Global Docker registry secret names as an array
 ##
+ # -- Globals settings
 global:
   ## As:
   ## imageRegistry: "docker.io"
+  # -- Global image registry
   imageRegistry: ""
   ## As:
   ## imagePullSecrets:
   ##   - myRegistryKeySecretName
   ##
+  # -- Global image pull secrets
   imagePullSecrets: []
+# -- Namespace to install Matomo in, default matomo.
 namespace: matomo
 matomo:
+  # -- Image registry to use.
   imageRegistry: ""
   ## As:
   ## imagePullSecrets:
   ##   - myRegistryKeySecretName
+  # -- Image pull secrets for Matomo.
   imagePullSecrets: []
-  image: digitalist/matomo:5.6.2
+  # -- Which image to use for Matomo deployment.
+  image: digitalist/matomo:5.7.1
+  # -- run container as user id.
   runAsUser: 82
+  # -- Install command. If already installed, it just creates the needed config.
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   # Post install for helm chart. Starts a post-install-job.
   postInstallSleepTime: 5
@@ -31,7 +40,18 @@ matomo:
   preUpgradeSleepTime: 5
   preUpgradeCommand: ""
   extralabels: {}
-  env:
+  readinessProbe: {}
+  livenessProbe: {}
+  ## matomo:
+  ##   env:
+  ##     - name: BAR
+  ##       value: foo
+  ##     - name: FOO
+  ##       valueFromSecret:
+  ##         secretName: foo
+  ##         key: bar
+  # -- Env variables to inject, if any.
+  env: []
   ## If you have a premium license for plugins, set it here.
   ## you need to create the secret before referring it.
   ## As:
@@ -43,8 +63,7 @@ matomo:
   ingress:
     enabled: true
     extralabels: {}
-    annotations:
-      digitalist.cloud/instance: "matomo"
+    annotations: {}
   cli:
     replicas: 1
     enabled: true
@@ -116,6 +135,21 @@ matomo:
       #       text/xml                                         xml;
       #       ...
       conf: ''
+      livenessProbe:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
+        initialDelaySeconds: 10
+        periodSeconds: 5
+      readinessProbe:
+        httpGet:
+          scheme: HTTP
+          path: /index.php
+          port: 8080
+        initialDelaySeconds: 10
+        periodSeconds: 5
     ingressClassName: ""
     ingress:
       annotations:
@@ -133,6 +167,21 @@ matomo:
     nginx:
       resources:
       nginxWorkerProcesses: 5
+      livenessProbe:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
+        initialDelaySeconds: 10
+        periodSeconds: 5
+      readinessProbe:
+        httpGet:
+          scheme: HTTP
+          path: /matomo.js
+          port: 8080
+        initialDelaySeconds: 10
+        periodSeconds: 5
     phpfpm:
       type: ondemand
       max_children: 75
