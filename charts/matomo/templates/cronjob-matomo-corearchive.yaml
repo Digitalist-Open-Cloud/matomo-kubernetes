@@ -46,6 +46,14 @@ spec:
                 subPath: zz-global.ini
           restartPolicy: OnFailure
 {{ include "matomo.images.pullSecrets" ( dict "images" (list .Values.matomo) "global" .Values.global) | nindent 10 }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumes:
           - name: matomo-configuration
             configMap:

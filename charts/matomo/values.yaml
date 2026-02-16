@@ -204,6 +204,7 @@ db:
   name: matomo
   username: root
   prefix: matomo_
+# -- Extra secrets
 extraSecrets:
   create: false
   data: {}
@@ -211,6 +212,7 @@ extraSecrets:
 #  data:
 #    name: Zm9vCg==
 #    bar: YmFyCg==
+# -- Extra services
 extraServices: {}
 #  - name: foo
     ## Service port type
@@ -229,6 +231,7 @@ extraServices: {}
 #    clusterIP:
     ## The loadbalancer ip address (only relevant for type LoadBalancer)
 #    loadBalancerIP:
+# -- Extra configMaps
 extraConfigMaps:
   create: false
   data: {}
@@ -236,6 +239,7 @@ extraConfigMaps:
 #   my.ini: |
 #     extension=foo.so
 #     foo.socket=tcp://bar:9309
+# -- Extra volumes
 extraVolumes: []
 # extraVolumes:
 # - name: mySecretVolume
@@ -247,6 +251,7 @@ extraVolumes: []
 #     items:
 #     - key: "my.ini"
 #       path: "my.ini"
+# -- Extra volumes to mount
 extraVolumeMounts: []
 # extraVolumeMounts:
 # - name: mySecretVolume
@@ -254,3 +259,9 @@ extraVolumeMounts: []
 # - name: my.ini
 #   mountPath: /usr/local/etc/php/conf.d/my.ini
 #   subPath: my.ini
+
+# -- Node labels for pod assignment.
+nodeSelector: {}
+
+# -- Tolerations for pod assignment
+tolerations: []
