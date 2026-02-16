@@ -1,5 +1,11 @@
 # Change log
 
+## [11.0.60] - 2026-02-16
+
+### Added
+
+- Support for adding env variables to Matomo pods, clear text or secrets
+
 ## [11.0.59] - 2026-01-31
 
 ### Added

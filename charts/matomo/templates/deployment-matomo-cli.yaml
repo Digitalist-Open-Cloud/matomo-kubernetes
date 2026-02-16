@@ -44,6 +44,18 @@ spec:
             secretKeyRef:
               name: {{ .Values.db.password.secretKeyRef.name }}
               key: {{ .Values.db.password.secretKeyRef.key }}
+        {{- range .Values.matomo.env }}
+        {{- if .valueFromSecret }}
+        - name: {{ .name }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .valueFromSecret.secretName | quote }}
+              key: {{ .valueFromSecret.key | quote }}
+        {{- else if .value }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        {{- end }}
 {{ include "matomo.license" . | nindent 8 }}
         command: [ 'sh' , '-c' , 'supervisord -n' ]
         volumeMounts:

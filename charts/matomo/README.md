@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 11.0.58](https://img.shields.io/badge/Version-11.0.58-informational?style=flat-square) ![AppVersion: 5.7.0](https://img.shields.io/badge/AppVersion-5.7.0-informational?style=flat-square)
+![Version: 11.0.60](https://img.shields.io/badge/Version-11.0.60-informational?style=flat-square) ![AppVersion: 5.7.1](https://img.shields.io/badge/AppVersion-5.7.1-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -59,6 +59,7 @@ A Helm chart for Matomo
 | matomo.dashboard.replicas | int | `1` |  |
 | matomo.dashboard.sidecars | list | `[]` |  |
 | matomo.dashboard.tls | bool | `false` |  |
+| matomo.env | string | `nil` |  |
 | matomo.extralabels | object | `{}` |  |
 | matomo.image | string | `"digitalist/matomo:5.6.2"` |  |
 | matomo.imagePullSecrets | list | `[]` |  |

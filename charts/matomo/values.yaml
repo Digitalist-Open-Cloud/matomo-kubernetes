@@ -31,6 +31,7 @@ matomo:
   preUpgradeSleepTime: 5
   preUpgradeCommand: ""
   extralabels: {}
+  env:
   ## If you have a premium license for plugins, set it here.
   ## you need to create the secret before referring it.
   ## As:
