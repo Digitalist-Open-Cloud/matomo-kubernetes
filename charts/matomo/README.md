@@ -66,6 +66,7 @@ A Helm chart for Matomo
 | matomo.dashboard.nginx.readinessProbe.initialDelaySeconds | int | `10` |  |
 | matomo.dashboard.nginx.readinessProbe.periodSeconds | int | `5` |  |
 | matomo.dashboard.replicas | int | `1` |  |
+| matomo.dashboard.secretName | string | `""` | Existing TLS secret name for the dashboard ingress. |
 | matomo.dashboard.sidecars | list | `[]` |  |
 | matomo.dashboard.tls | bool | `false` |  |
 | matomo.env | list | `[]` | Env variables to inject, if any. |
@@ -109,6 +110,7 @@ A Helm chart for Matomo
 | matomo.tracker.phpfpm.process_idle_timeout | string | `"600s"` |  |
 | matomo.tracker.phpfpm.type | string | `"ondemand"` |  |
 | matomo.tracker.replicas | int | `1` |  |
+| matomo.tracker.secretName | string | `""` | Existing TLS secret name for the tracker ingress. |
 | matomo.tracker.tls | bool | `false` |  |
 | namespace | string | `"matomo"` | Namespace to install Matomo in, default matomo. |
 | nginx.image | string | `"digitalist/nginx:1.21.6"` |  |
