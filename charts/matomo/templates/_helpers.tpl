@@ -42,7 +42,7 @@ imagePullSecrets:
 {{- define "matomo.init" -}}
 initContainers:
   - name: matomo-init
-    image: {{.Values.matomo.image}}
+    image: {{.Values.global.imageRegistry}}{{.Values.matomo.image}}
     securityContext:
       runAsUser: {{.Values.matomo.runAsUser}}
       privileged: false

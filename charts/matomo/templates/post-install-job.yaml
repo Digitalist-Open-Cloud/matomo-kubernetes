@@ -27,7 +27,7 @@ spec:
 {{ include "matomo.images.pullSecrets" ( dict "images" (list .Values.matomo) "global" .Values.global) | nindent 6 }}
       containers:
       - name: post-install-matomo
-        image: {{.Values.matomo.image}}
+        image: {{.Values.global.imageRegistry}}{{.Values.matomo.image}}
         lifecycle:
           postStart:
             exec:

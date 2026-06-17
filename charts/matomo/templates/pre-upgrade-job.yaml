@@ -27,7 +27,7 @@ spec:
 {{ include "matomo.images.pullSecrets" ( dict "images" (list .Values.matomo) "global" .Values.global) | nindent 6 }}
       containers:
       - name: pre-upgrade-matomo
-        image: {{.Values.matomo.image}}
+        image: {{.Values.global.imageRegistry}}{{.Values.matomo.image}}
         volumeMounts:
         - name: matomo-startup-config
           mountPath: /var/www/html/config/config.ini.php
