@@ -18,7 +18,7 @@ spec:
 {{ include "matomo.init" . | nindent 10 }}
           containers:
           - name: matomo-jobs-corearchive
-            image: {{.Values.matomo.image}}
+            image: {{.Values.global.imageRegistry}}{{.Values.matomo.image}}
             imagePullPolicy: Always
             {{- if .Values.matomo.cronJobs.coreArchive.resources }}
             resources:

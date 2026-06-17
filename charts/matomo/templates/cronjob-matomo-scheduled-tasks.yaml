@@ -19,7 +19,7 @@ spec:
 {{ include "matomo.init" . | nindent 10 }}
           containers:
           - name: matomo-jobs-scheduledtasks
-            image: {{.Values.matomo.image}}
+            image: {{.Values.global.imageRegistry}}{{.Values.matomo.image}}
             imagePullPolicy: Always
             securityContext:
               runAsUser: {{.Values.matomo.runAsUser}}
