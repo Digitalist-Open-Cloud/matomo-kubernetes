@@ -1,0 +1,40 @@
+{{- if .Values.matomo.httpRoute.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  labels:
+    app: matomo-dashboard
+{{- if .Values.matomo.httpRoute.extralabels }}
+{{ toYaml .Values.matomo.httpRoute.extralabels | indent 4 }}
+{{- end }}
+  name: matomo-dashboard
+  namespace: {{ .Values.namespace }}
+{{- $annotations := .Values.matomo.dashboard.httpRoute.annotations | default .Values.matomo.httpRoute.annotations }}
+{{- if $annotations }}
+  annotations:
+    {{- toYaml $annotations | nindent 4 }}
+{{- end }}
+spec:
+{{- $parentRefs := .Values.matomo.dashboard.httpRoute.parentRefs | default .Values.matomo.httpRoute.parentRefs }}
+{{- if $parentRefs }}
+  parentRefs:
+    {{- toYaml $parentRefs | nindent 4 }}
+{{- end }}
+{{- if .Values.matomo.dashboard.hostname }}
+  hostnames:
+    - {{ .Values.matomo.dashboard.hostname | quote }}
+{{- end }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        {{- if .Values.matomo.dashboard.loadbalancer }}
+        - name: matomo-dashboard-lb
+          port: 80
+        {{- else }}
+        - name: matomo-dashboard
+          port: 8080
+        {{- end }}
+{{- end }}

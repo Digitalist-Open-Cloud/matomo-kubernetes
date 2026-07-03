@@ -1,5 +1,11 @@
 # Change log
 
+## [11.0.65] - 2026-07-03
+
+### Added
+
+- Support for HTTPRoute (Gateway API) resources for the dashboard and tracker, opt-in via `matomo.httpRoute.enabled`.
+
 ## [11.0.60] - 2026-02-16
 
 ### Added

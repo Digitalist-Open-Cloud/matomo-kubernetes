@@ -64,6 +64,22 @@ matomo:
     enabled: true
     extralabels: {}
     annotations: {}
+  # -- HTTPRoute (Gateway API) settings, rendered alongside the Ingress when enabled.
+  httpRoute:
+    # -- Enable HTTPRoute (gateway.networking.k8s.io/v1) resources. Opt-in; TLS is terminated at the Gateway listener.
+    enabled: false
+    # -- Extra labels to add to the HTTPRoute resources.
+    extralabels: {}
+    # -- Default annotations for the HTTPRoute resources, can be overridden per surface.
+    annotations: {}
+    ## Default parentRefs (Gateways) to attach the HTTPRoutes to, can be overridden per surface.
+    ## As:
+    ## parentRefs:
+    ##   - name: my-gateway
+    ##     namespace: gateway-system
+    ##     sectionName: http
+    # -- Default parentRefs (Gateways) to attach the HTTPRoutes to.
+    parentRefs: []
   cli:
     replicas: 1
     enabled: true
@@ -154,6 +170,12 @@ matomo:
     ingress:
       annotations:
         digitalist.cloud/instance: "matomo"
+    # -- HTTPRoute overrides for the dashboard, falls back to matomo.httpRoute when unset.
+    httpRoute:
+      # -- Annotations for the dashboard HTTPRoute, overrides matomo.httpRoute.annotations.
+      annotations: {}
+      # -- parentRefs for the dashboard HTTPRoute, overrides matomo.httpRoute.parentRefs.
+      parentRefs: []
   queuedTrackingMonitor:
     enabled: true
   queuedTrackingProcess:
@@ -191,6 +213,12 @@ matomo:
     ingress:
       annotations:
         digitalist.cloud/instance: "matomo"
+    # -- HTTPRoute overrides for the tracker, falls back to matomo.httpRoute when unset.
+    httpRoute:
+      # -- Annotations for the tracker HTTPRoute, overrides matomo.httpRoute.annotations.
+      annotations: {}
+      # -- parentRefs for the tracker HTTPRoute, overrides matomo.httpRoute.parentRefs.
+      parentRefs: []
 nginx:
   image: digitalist/nginx:1.21.6
   imagePullSecrets: []
