@@ -22,6 +22,11 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
+      - name: Install Gateway API CRDs (not bundled in k8s 1.35)
+        run:
+          curl -sL https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/config/crd/standard.yaml \
+            | kubectl apply -f -
+
       - name: Install metallb for kind LoadBalancer support
         run: |
           helm repo add metallb https://metallb.github.io/metallb
