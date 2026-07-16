@@ -1,0 +1,93 @@
+name: E2E (kind)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Install chart on kind
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Create kind cluster
+        uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
+
+      - name: Install MariaDB and Valkey
+        run: |
+          kubectl create namespace matomo
+          kubectl apply -f tests/kind/mariadb.yaml -f tests/kind/valkey.yaml
+          kubectl -n matomo rollout status deployment/matomo-db-mysql --timeout=300s
+          kubectl -n matomo rollout status deployment/matomo-valkey --timeout=300s
+
+      - name: Install Matomo chart
+        run: |
+          helm install matomo charts/matomo --namespace matomo --values tests/kind/values.yaml
+
+      - name: Wait for Matomo workloads
+        run: |
+          for d in matomo-dashboard matomo-tracker matomo-cli \
+                   matomo-queuedtracking-monitor matomo-queuedtracking-process; do
+            echo "::group::rollout $d"
+            kubectl -n matomo rollout status "deployment/$d" --timeout=600s
+            echo "::endgroup::"
+          done
+
+      - name: Smoke test dashboard and tracker
+        run: |
+          kubectl -n matomo run smoke --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 --command -- sh -c '
+            set -e
+            echo "dashboard /index.php"
+            curl -sSf -o /dev/null http://matomo-dashboard:8080/index.php
+            echo "tracker /matomo.js"
+            curl -sSf -o /dev/null http://matomo-tracker:8080/matomo.js
+            echo "tracker hit /matomo.php"
+            code=$(curl -sS -o /dev/null -w "%{http_code}" "http://matomo-tracker:8080/matomo.php?idsite=1&rec=1&action_name=ci-smoke-test")
+            echo "tracking hit returned HTTP $code"
+            case "$code" in
+              200|204) ;;
+              *) echo "unexpected tracking response" ; exit 1 ;;
+            esac
+          '
+
+      - name: Verify QueuedTracking uses Valkey
+        run: |
+          # The tracking hit above should have been queued in Valkey by the
+          # QueuedTracking plugin (and consumed by the process worker).
+          connections=$(kubectl -n matomo exec deployment/matomo-valkey -- \
+            valkey-cli INFO stats | grep -oE "total_connections_received:[0-9]+" | cut -d: -f2)
+          commands=$(kubectl -n matomo exec deployment/matomo-valkey -- \
+            valkey-cli INFO stats | grep -oE "total_commands_processed:[0-9]+" | cut -d: -f2)
+          echo "Valkey total_connections_received=$connections total_commands_processed=$commands"
+          kubectl -n matomo exec deployment/matomo-valkey -- valkey-cli --scan || true
+          # The queuedtracking:process worker reconnects every few seconds, so a
+          # wired-up install accumulates far more connections than our own execs.
+          if [ "$connections" -le 5 ]; then
+            echo "almost no connections to Valkey - QueuedTracking is not wired up"
+            exit 1
+          fi
+
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          echo "::group::resources"
+          kubectl get all -n matomo || true
+          kubectl -n matomo get events --sort-by=.lastTimestamp | tail -n 50 || true
+          echo "::endgroup::"
+          for p in $(kubectl -n matomo get pods -o name); do
+            echo "::group::$p"
+            kubectl -n matomo describe "$p" | tail -n 40 || true
+            kubectl -n matomo logs "$p" --all-containers --tail=100 || true
+            kubectl -n matomo logs "$p" -c matomo-init --tail=100 || true
+            echo "::endgroup::"
+          done
