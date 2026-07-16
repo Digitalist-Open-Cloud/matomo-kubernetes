@@ -85,6 +85,20 @@ matomo:
     enabled: true
     extralabels: {}
     annotations: {}
+  # -- Gateway API support. When enabled, HTTPRoutes are created for the
+  # dashboard and tracker (using their `hostname` values) instead of - or
+  # alongside - the Ingress resources. Requires the Gateway API CRDs and a
+  # Gateway; TLS is terminated on the Gateway listener, not in the chart.
+  gatewayApi:
+    enabled: false
+    # -- parentRefs applied to all HTTPRoutes, e.g.:
+    # parentRefs:
+    #   - name: my-gateway
+    #     namespace: my-namespace
+    #     sectionName: http
+    parentRefs: []
+    # -- Extra labels for the HTTPRoutes.
+    extralabels: {}
   cli:
     replicas: 1
     enabled: true

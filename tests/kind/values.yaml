@@ -5,6 +5,15 @@
 # (tests/kind/valkey.yaml). The db.* defaults already match the MariaDB
 # fixture (tests/kind/mariadb.yaml), so they are not overridden here.
 matomo:
+  # route traffic through both ingress-nginx and Gateway API in the e2e test
+  gatewayApi:
+    enabled: true
+    parentRefs:
+      - name: matomo-gateway
+        namespace: matomo
+  dashboard:
+    hostname: dashboard.example.test
+    ingressClassName: nginx
   # the queuedtracking-process worker is disabled by default; the e2e test
   # needs it to consume the queued tracking hit from Valkey
   queuedTrackingProcess:
@@ -17,6 +26,8 @@ matomo:
       cpu: 1000m
       memory: 768Mi
   tracker:
+    hostname: tracker.example.test
+    ingressClassName: nginx
     resources:
       requests:
         cpu: 100m
