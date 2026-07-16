@@ -24,7 +24,8 @@
 - Explicit `imagePullPolicy: Always` on the nginx containers (dashboard, tracker) and the pre-upgrade/post-install job containers.
 - NetworkPolicy per component (Checkov remediation phase 3), enabled by default via `networkPolicy.enabled`. The default rule allows all ingress, so behavior is unchanged; tighten via `networkPolicy.ingress`.
 - `.checkov.yaml` with documented skips for the checks that require image changes to fix (CKV_K8S_35 secrets as env vars, CKV_K8S_40 high UID, CKV_K8S_43 image digests) and CKV_K8S_22 (read-only root filesystem, pending writable-path mapping). Wired into the CI workflow via `config_file`.
-- E2E test in CI (GitHub Actions): installs the chart on a kind cluster together with MariaDB and Valkey (`tests/kind/`), waits for all workloads, smoke tests the dashboard and tracker over HTTP, sends a tracking hit and verifies the QueuedTracking plugin talks to Valkey.
+- E2E test in CI (GitHub Actions): installs the chart on a kind cluster together with MariaDB and Valkey (`tests/kind/`), waits for all workloads, smoke tests the dashboard and tracker over HTTP, sends a tracking hit, verifies the QueuedTracking plugin talks to Valkey, and triggers both CronJobs (core:archive, scheduled-tasks) requiring them to complete.
+- Render matrix in CI (GitHub Actions): `helm lint` + `helm template` + kubeconform schema validation over values combinations in `tests/render/` (defaults, all components disabled, loadbalancers/TLS ingress, extra secrets/configmaps/services/volumes with hook jobs, env/license/sidecars, scaled workers with restrictive NetworkPolicy) plus the kind e2e values.
 
 ### Changed
 

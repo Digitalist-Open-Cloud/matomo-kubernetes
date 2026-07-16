@@ -77,6 +77,24 @@ jobs:
             exit 1
           fi
 
+      - name: Test cron jobs (core:archive and scheduled-tasks)
+        run: |
+          # trigger both CronJobs manually and require them to complete
+          for cj in matomo-jobs-corearchive matomo-jobs-scheduled-tasks; do
+            kubectl -n matomo create job "e2e-$cj" --from="cronjob/$cj"
+          done
+          fail=0
+          for cj in matomo-jobs-corearchive matomo-jobs-scheduled-tasks; do
+            echo "::group::job e2e-$cj"
+            if ! kubectl -n matomo wait --for=condition=complete "job/e2e-$cj" --timeout=420s; then
+              echo "::error::$cj did not complete"
+              fail=1
+            fi
+            kubectl -n matomo logs "job/e2e-$cj" --all-containers --tail=50 || true
+            echo "::endgroup::"
+          done
+          exit $fail
+
       - name: Diagnostics on failure
         if: failure()
         run: |
