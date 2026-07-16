@@ -49,6 +49,12 @@ spec:
             drop:
               - ALL
         imagePullPolicy: Always
+        {{- with .Values.matomo.queuedTrackingMonitor.livenessProbe }}
+        livenessProbe: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.matomo.queuedTrackingMonitor.readinessProbe }}
+        readinessProbe: {{- toYaml . | nindent 10 }}
+        {{- end }}
         env:
         - name: MATOMO_DB_PASSWORD
           valueFrom:

@@ -42,6 +42,16 @@ spec:
               - ALL
         image: hipages/php-fpm_exporter:2.2.0
         imagePullPolicy: Always
+        livenessProbe:
+          tcpSocket:
+            port: 9253
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          tcpSocket:
+            port: 9253
+          initialDelaySeconds: 10
+          periodSeconds: 10
         resources:
           limits:
             cpu: 40m
@@ -51,6 +61,7 @@ spec:
             memory: 32Mi
       - name: nginx
         image: {{.Values.nginx.image}}
+        imagePullPolicy: Always
         {{- if .Values.matomo.tracker.nginx.resources }}
         resources:
 {{ toYaml .Values.matomo.tracker.nginx.resources | indent 10 }}

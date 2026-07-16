@@ -48,8 +48,19 @@ spec:
         env:
         - name: PHP_FPM_FIX_PROCESS_COUNT
           value: "true"
+        livenessProbe:
+          tcpSocket:
+            port: 9253
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          tcpSocket:
+            port: 9253
+          initialDelaySeconds: 10
+          periodSeconds: 10
         resources:
           limits:
+            cpu: 100m
             memory: 128Mi
           requests:
             cpu: 15m
@@ -60,6 +71,7 @@ spec:
         {{ else }}
         image: {{.Values.nginx.image}}
         {{- end }}
+        imagePullPolicy: Always
         {{- if .Values.nginx.resources }}
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
