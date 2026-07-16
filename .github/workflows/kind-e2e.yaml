@@ -25,6 +25,7 @@ jobs:
       - name: Install metallb for kind LoadBalancer support
         run: |
           kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+          kubectl wait --for=condition=Established crd/ipaddresspools.metallb.io --timeout=90s
           kubectl rollout status deployment/controller -n metallb-system --timeout=90s
           cat <<EOF | kubectl apply -f -
           apiVersion: metallb.io/v1beta1
