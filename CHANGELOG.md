@@ -1,5 +1,13 @@
 # Change log
 
+## [Unreleased]
+
+### Added
+
+- Gateway API support: HTTPRoutes for the dashboard and tracker via `matomo.gatewayApi.enabled` and `matomo.gatewayApi.parentRefs`, mirroring the tracker Ingress path list and reusing the `hostname` values. TLS is terminated on the Gateway listener. Can be used instead of, or alongside, Ingress.
+- E2E routing coverage: the kind workflow installs ingress-nginx and Envoy Gateway (with Gateway API CRDs) and verifies the dashboard, tracker and a tracking hit through both an Ingress and an HTTPRoute.
+- `gateway-api` combination in the render matrix; kubeconform now also validates CRD-backed resources (HTTPRoute) via the CRDs-catalog schemas.
+
 ## [12.0.0] - 2026-07-16
 
 ### Added

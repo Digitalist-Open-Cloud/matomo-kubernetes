@@ -38,7 +38,10 @@ jobs:
             if ! helm template matomo charts/matomo --values "$values" > /tmp/rendered.yaml; then
               echo "::error file=$values::helm template failed"
               fail=1
-            elif ! kubeconform -strict -summary /tmp/rendered.yaml; then
+            elif ! kubeconform -strict -summary \
+                -schema-location default \
+                -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+                /tmp/rendered.yaml; then
               echo "::error file=$values::kubeconform validation failed"
               fail=1
             fi

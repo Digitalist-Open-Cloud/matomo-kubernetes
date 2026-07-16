@@ -22,10 +22,19 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
+      - name: Install ingress-nginx, Gateway API CRDs and Envoy Gateway
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/cloud/deploy.yaml
+          kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.0/standard-install.yaml
+          helm install eg oci://docker.io/envoyproxy/gateway-helm --version v1.8.2 \
+            --namespace envoy-gateway-system --create-namespace
+          kubectl wait --for=condition=Established crd/gateways.gateway.networking.k8s.io --timeout=120s
+          kubectl wait --for=condition=Established crd/httproutes.gateway.networking.k8s.io --timeout=120s
+
       - name: Install MariaDB and Valkey
         run: |
           kubectl create namespace matomo
-          kubectl apply -f tests/kind/mariadb.yaml -f tests/kind/valkey.yaml
+          kubectl apply -f tests/kind/mariadb.yaml -f tests/kind/valkey.yaml -f tests/kind/gateway.yaml
           kubectl -n matomo rollout status deployment/matomo-db-mysql --timeout=300s
           kubectl -n matomo rollout status deployment/matomo-valkey --timeout=300s
 
@@ -58,6 +67,42 @@ jobs:
               200|204) ;;
               *) echo "unexpected tracking response" ; exit 1 ;;
             esac
+          '
+
+      - name: Wait for routing controllers
+        run: |
+          kubectl -n ingress-nginx rollout status deployment/ingress-nginx-controller --timeout=300s
+          kubectl -n envoy-gateway-system rollout status deployment/envoy-gateway --timeout=300s
+          kubectl -n matomo wait --for=condition=Programmed gateway/matomo-gateway --timeout=180s
+
+      - name: Test routing through ingress-nginx and Gateway API
+        run: |
+          # Envoy Gateway creates one service per Gateway with a generated name
+          ENVOY_SVC=$(kubectl get svc -n envoy-gateway-system \
+            -l gateway.envoyproxy.io/owning-gateway-name=matomo-gateway,gateway.envoyproxy.io/owning-gateway-namespace=matomo \
+            -o jsonpath='{.items[0].metadata.name}')
+          echo "Envoy service: $ENVOY_SVC"
+          kubectl -n matomo run routing-smoke --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 \
+            --env="INGRESS=ingress-nginx-controller.ingress-nginx.svc.cluster.local" \
+            --env="GATEWAY=$ENVOY_SVC.envoy-gateway-system.svc.cluster.local" \
+            --command -- sh -c '
+            set -e
+            for entry in "$INGRESS ingress-nginx" "$GATEWAY gateway-api"; do
+              host=${entry% *}; label=${entry#* }
+              echo "--- $label: dashboard /index.php"
+              curl -sSf -o /dev/null -H "Host: dashboard.example.test" "http://$host/index.php"
+              echo "--- $label: tracker /matomo.js"
+              curl -sSf -o /dev/null -H "Host: tracker.example.test" "http://$host/matomo.js"
+              echo "--- $label: tracking hit /matomo.php"
+              code=$(curl -sS -o /dev/null -w "%{http_code}" -H "Host: tracker.example.test" \
+                "http://$host/matomo.php?idsite=1&rec=1&action_name=ci-$label")
+              echo "$label tracking hit returned HTTP $code"
+              case "$code" in
+                200|204) ;;
+                *) echo "unexpected tracking response via $label" ; exit 1 ;;
+              esac
+            done
           '
 
       - name: Verify QueuedTracking uses Valkey
@@ -101,6 +146,12 @@ jobs:
           echo "::group::resources"
           kubectl get all -n matomo || true
           kubectl -n matomo get events --sort-by=.lastTimestamp | tail -n 50 || true
+          kubectl -n matomo get ingress,httproute,gateway -o wide || true
+          echo "::endgroup::"
+          echo "::group::routing controllers"
+          kubectl -n ingress-nginx logs deployment/ingress-nginx-controller --tail=50 || true
+          kubectl -n envoy-gateway-system get pods || true
+          kubectl -n envoy-gateway-system logs deployment/envoy-gateway --tail=50 || true
           echo "::endgroup::"
           for p in $(kubectl -n matomo get pods -o name); do
             echo "::group::$p"

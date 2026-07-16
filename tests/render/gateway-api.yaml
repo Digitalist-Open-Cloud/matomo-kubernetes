@@ -1,0 +1,16 @@
+# Render combination: Gateway API HTTPRoutes instead of Ingress.
+matomo:
+  ingress:
+    enabled: false
+  gatewayApi:
+    enabled: true
+    parentRefs:
+      - name: shared-gateway
+        namespace: infrastructure
+        sectionName: https
+    extralabels:
+      team: analytics
+  dashboard:
+    hostname: matomo.example.com
+  tracker:
+    hostname: tracker.example.com

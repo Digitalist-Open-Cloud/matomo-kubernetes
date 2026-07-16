@@ -1,0 +1,26 @@
+# Gateway API fixture for the kind-based e2e test: an Envoy Gateway class
+# and a Gateway the chart's HTTPRoutes attach to (see tests/kind/values.yaml
+# matomo.gatewayApi.parentRefs).
+# CI fixture only - not for production use.
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: matomo-gateway
+  namespace: matomo
+spec:
+  gatewayClassName: envoy
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Same
