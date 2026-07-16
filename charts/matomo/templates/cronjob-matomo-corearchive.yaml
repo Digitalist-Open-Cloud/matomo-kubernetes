@@ -15,6 +15,10 @@ spec:
       activeDeadlineSeconds: {{.Values.matomo.cronJobs.coreArchive.activeDeadlineSeconds}}
       template:
         spec:
+          automountServiceAccountToken: {{ .Values.matomo.automountServiceAccountToken }}
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
 {{ include "matomo.init" . | nindent 10 }}
           containers:
           - name: matomo-jobs-corearchive
@@ -28,6 +32,10 @@ spec:
               runAsUser: {{.Values.matomo.runAsUser}}
               privileged: false
               allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              capabilities:
+                drop:
+                  - ALL
             command: [ 'sh' , '-c' , '{{.Values.matomo.cronJobs.coreArchive.command}}' ]
             env:
             - name: MARIADB_MATOMO_PASSWORD

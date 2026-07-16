@@ -25,6 +25,10 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
     spec:
+      automountServiceAccountToken: {{ .Values.matomo.automountServiceAccountToken }}
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
 {{ include "matomo.init" . | nindent 6 }}
       containers:
         {{- if .Values.matomo.dashboard.sidecars }}
@@ -35,13 +39,28 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         image: hipages/php-fpm_exporter:2.2.0
         imagePullPolicy: Always
         env:
         - name: PHP_FPM_FIX_PROCESS_COUNT
           value: "true"
+        livenessProbe:
+          tcpSocket:
+            port: 9253
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          tcpSocket:
+            port: 9253
+          initialDelaySeconds: 10
+          periodSeconds: 10
         resources:
           limits:
+            cpu: 100m
             memory: 128Mi
           requests:
             cpu: 15m
@@ -52,6 +71,7 @@ spec:
         {{ else }}
         image: {{.Values.nginx.image}}
         {{- end }}
+        imagePullPolicy: Always
         {{- if .Values.nginx.resources }}
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
@@ -66,6 +86,10 @@ spec:
           runAsUser: {{.Values.nginx.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         volumeMounts:
           - name: nginx-conf
             mountPath: /etc/nginx/nginx.conf
@@ -94,6 +118,10 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         imagePullPolicy: Always
         env:
           - name: MATOMO_DB_PASSWORD

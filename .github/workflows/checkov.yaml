@@ -1,30 +1,42 @@
-on: [push]
+name: Checkov
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
-  checkov-job:
+  checkov:
+    name: Checkov scan
     runs-on: ubuntu-latest
-    name: checkov-action
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for upload-sarif to push results to the Security tab
+      actions: read # required for upload-sarif on private repositories
     steps:
       - name: Checkout repo
-        uses: actions/checkout@master
+        uses: actions/checkout@v7
 
-      - name: Run Checkov action
+      - name: Run Checkov
         id: checkov
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # master 2026-07-09, checkov v3.3.8
         with:
           directory: charts/matomo
-          quiet: false # optional: display only failed checks
-          soft_fail: true # optional: do not return an error code if there are failed checks
-          framework: helm # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
-          output_format: sarif # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+          framework: helm
+          config_file: charts/matomo/.checkov.yaml
+          quiet: true # display only failed checks
+          soft_fail: false # fail the build on findings
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
 
-#          output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
-      # - name: Publish report
-      #   id: import-scan
-      #   uses: ivanamat/defectdojo-import-scan@v1
-      #   with:
-      #     token: ${{ secrets.DEFECTOJO_TOKEN }}
-      #     defectdojo_url: ${{ secrets.DEFECTOJO_URL }}
-      #     file: reports/trivy-scan-report.json
-      #     scan_type: Checkov Scan
-      #     engagement: 81
-      #     close_old_findings: true
+      - name: Upload SARIF file
+        # run even when the scan step failed, so findings reach the Security tab
+        if: success() || failure()
+        uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # main 2026-07-08, upload-sarif v4.37.0
+        with:
+          sarif_file: results.sarif

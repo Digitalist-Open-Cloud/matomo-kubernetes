@@ -25,6 +25,10 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
     spec:
+      automountServiceAccountToken: {{ .Values.matomo.automountServiceAccountToken }}
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
 {{ include "matomo.init" . | nindent 6 }}
       containers:
       - name: fpm-metrics
@@ -32,8 +36,22 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         image: hipages/php-fpm_exporter:2.2.0
         imagePullPolicy: Always
+        livenessProbe:
+          tcpSocket:
+            port: 9253
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          tcpSocket:
+            port: 9253
+          initialDelaySeconds: 10
+          periodSeconds: 10
         resources:
           limits:
             cpu: 40m
@@ -43,6 +61,7 @@ spec:
             memory: 32Mi
       - name: nginx
         image: {{.Values.nginx.image}}
+        imagePullPolicy: Always
         {{- if .Values.matomo.tracker.nginx.resources }}
         resources:
 {{ toYaml .Values.matomo.tracker.nginx.resources | indent 10 }}
@@ -57,6 +76,10 @@ spec:
           runAsUser: {{.Values.nginx.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         volumeMounts:
           - name: nginx-conf
             mountPath: /etc/nginx/nginx.conf
@@ -85,6 +108,10 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         imagePullPolicy: Always
         env:
         - name: MATOMO_DB_PASSWORD
@@ -164,6 +191,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: matomo-tracker
+  namespace: {{.Values.namespace}}
   labels:
     app: matomo-tracker
 spec:

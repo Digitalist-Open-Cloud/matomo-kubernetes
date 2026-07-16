@@ -32,6 +32,17 @@ matomo:
   image: digitalist/matomo:5.7.1
   # -- run container as user id.
   runAsUser: 82
+  # -- Mount the service account token into Matomo pods. No workload in this
+  # chart uses the Kubernetes API; enable only if a custom sidecar needs it.
+  automountServiceAccountToken: false
+  # -- Default resources for the Matomo php-fpm container (dashboard).
+  resources:
+    requests:
+      cpu: 300m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 768Mi
   # -- Install command. If already installed, it just creates the needed config.
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   # Post install for helm chart. Starts a post-install-job.
@@ -40,8 +51,18 @@ matomo:
   preUpgradeSleepTime: 5
   preUpgradeCommand: ""
   extralabels: {}
-  readinessProbe: {}
-  livenessProbe: {}
+  # -- Readiness probe for the Matomo php-fpm containers (dashboard, tracker).
+  readinessProbe:
+    tcpSocket:
+      port: 9000
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  # -- Liveness probe for the Matomo php-fpm containers (dashboard, tracker).
+  livenessProbe:
+    tcpSocket:
+      port: 9000
+    initialDelaySeconds: 15
+    periodSeconds: 20
   ## matomo:
   ##   env:
   ##     - name: BAR
@@ -67,6 +88,30 @@ matomo:
   cli:
     replicas: 1
     enabled: true
+    # -- Default resources for the Matomo cli container.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    livenessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - "ps -A | grep supervisord"
+      initialDelaySeconds: 15
+      periodSeconds: 20
+    readinessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - "ps -A | grep supervisord"
+      initialDelaySeconds: 10
+      periodSeconds: 10
   cronJobs:
     coreArchive:
       enabled: true
@@ -80,6 +125,14 @@ matomo:
       concurrencyPolicy: Allow
       activeDeadlineSeconds: 43200
       command: ./console core:archive --disable-scheduled-tasks
+      # -- Default resources for the core:archive cronjob.
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
     scheduledTasks:
       php:
       enabled: true
@@ -92,6 +145,14 @@ matomo:
       schedule: "*/60 * * * *"
       activeDeadlineSeconds: 43200
       command: ./console scheduled-tasks:run
+      # -- Default resources for the scheduled-tasks cronjob.
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
   dashboard:
     sidecars: []
     ## added like this:
@@ -156,16 +217,66 @@ matomo:
         digitalist.cloud/instance: "matomo"
   queuedTrackingMonitor:
     enabled: true
+    livenessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - "ps -A | grep supervisord"
+      initialDelaySeconds: 15
+      periodSeconds: 20
+    readinessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - "ps -A | grep supervisord"
+      initialDelaySeconds: 10
+      periodSeconds: 10
   queuedTrackingProcess:
+    # -- Enable the queuedtracking:process worker deployment. Required when
+    # QueuedTracking runs with processDuringTrackingRequest disabled.
+    enabled: false
     replicas: 1
+    livenessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - "ps -A | grep supervisord"
+      initialDelaySeconds: 15
+      periodSeconds: 20
+    readinessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - "ps -A | grep supervisord"
+      initialDelaySeconds: 10
+      periodSeconds: 10
   tracker:
     enabled: true
     replicas: 1
     hostname: my.host
     tls: false
     loadbalancer: false
+    # -- Default resources for the Matomo php-fpm container in the tracker.
+    resources:
+      requests:
+        cpu: 300m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 768Mi
     nginx:
+      # -- Default resources for the tracker nginx container.
       resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
       nginxWorkerProcesses: 5
       livenessProbe:
         exec:
@@ -195,6 +306,14 @@ nginx:
   image: digitalist/nginx:1.21.6
   imagePullSecrets: []
   runAsUser: 100
+  # -- Default resources for the dashboard nginx container.
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
 db:
   hostname: matomo-db-mysql
   password:
@@ -259,6 +378,17 @@ extraVolumeMounts: []
 # - name: my.ini
 #   mountPath: /usr/local/etc/php/conf.d/my.ini
 #   subPath: my.ini
+
+# -- NetworkPolicy for the Matomo workloads. When enabled, one NetworkPolicy
+# per component (dashboard, tracker, cli, queuedtracking monitor/process) is
+# created. The default rule allows all ingress, which changes nothing
+# functionally but makes every pod covered by a policy; tighten by overriding
+# `networkPolicy.ingress` for your environment.
+networkPolicy:
+  enabled: true
+  # -- Ingress rules applied to every component policy. Default: allow all.
+  ingress:
+    - {}
 
 # -- Node labels for pod assignment.
 nodeSelector: {}

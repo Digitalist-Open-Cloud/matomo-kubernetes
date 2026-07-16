@@ -1,0 +1,47 @@
+name: Render matrix
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    name: Lint, render and validate values combinations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Install kubeconform
+        run: |
+          curl -sSL -o /tmp/kubeconform.tar.gz \
+            https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz
+          sudo tar xzf /tmp/kubeconform.tar.gz -C /usr/local/bin kubeconform
+          kubeconform -v
+
+      - name: Lint, render and validate
+        run: |
+          fail=0
+          for values in tests/render/*.yaml tests/kind/values.yaml; do
+            echo "::group::$values"
+            if ! helm lint charts/matomo --values "$values" --quiet; then
+              echo "::error file=$values::helm lint failed"
+              fail=1
+            fi
+            if ! helm template matomo charts/matomo --values "$values" > /tmp/rendered.yaml; then
+              echo "::error file=$values::helm template failed"
+              fail=1
+            elif ! kubeconform -strict -summary /tmp/rendered.yaml; then
+              echo "::error file=$values::kubeconform validation failed"
+              fail=1
+            fi
+            echo "::endgroup::"
+          done
+          exit $fail
