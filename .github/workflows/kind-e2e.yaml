@@ -29,7 +29,9 @@ jobs:
           helm install metallb metallb/metallb \
             --namespace metallb-system --create-namespace \
             --wait
-          cat <<EOF | kubectl apply -f -
+          # APIServer aggregation layer latency in CI/kind means CRDs may not be
+          # discoverable until several seconds after Helm finishes.  Retry the apply.
+          cat > /tmp/metallb-addresspool.yaml <<'EOF'
           apiVersion: metallb.io/v1beta2
           kind: IPAddressPool
           metadata:
@@ -40,6 +42,10 @@ jobs:
             addresses:
               - 172.18.255.0/24
           EOF
+          for i in $(seq 1 30); do
+            if kubectl apply -f /tmp/metallb-addresspool.yaml 2>/dev/null; then break; fi
+            sleep 1
+          done
 
       - name: Install ingress-nginx and Envoy Gateway
         run: |
