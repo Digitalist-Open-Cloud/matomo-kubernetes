@@ -1,4 +1,4 @@
-Thank you for installing {{ .Chart.Name }} from Digitalist.
+Thank you for installing {{ .Chart.Name }} from Digitalist Open Cloud.
 
 {{- if empty (.Values.matomo.dashboard.hostname) -}}
 ###############################################################################

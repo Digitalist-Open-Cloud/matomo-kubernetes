@@ -5,6 +5,10 @@
 # (tests/kind/valkey.yaml). The db.* defaults already match the MariaDB
 # fixture (tests/kind/mariadb.yaml), so they are not overridden here.
 matomo:
+  # the queuedtracking-process worker is disabled by default; the e2e test
+  # needs it to consume the queued tracking hit from Valkey
+  queuedTrackingProcess:
+    enabled: true
   resources:
     requests:
       cpu: 100m

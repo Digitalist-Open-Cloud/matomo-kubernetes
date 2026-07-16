@@ -234,6 +234,9 @@ matomo:
       initialDelaySeconds: 10
       periodSeconds: 10
   queuedTrackingProcess:
+    # -- Enable the queuedtracking:process worker deployment. Required when
+    # QueuedTracking runs with processDuringTrackingRequest disabled.
+    enabled: false
     replicas: 1
     livenessProbe:
       exec:
