@@ -32,31 +32,18 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
-      # ── Step 1: Gateway API CRDs + wait for them ───────────────────────
-      - name: Install Gateway API CRDs + standard resources
-        run: |
-          set -euo pipefail
-          curl -sL https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml \
-            | kubectl apply -f -
-          
-          # ── Fix: use / (not .) to separate kind from name ────────────
-          kubectl wait --for=condition=Established \
-            crd/gateways.gateway.networking.k8s.io \
-            crd/httproutes.gateway.networking.k8s.io \
-            crd/gatewayclasses.gateway.networking.k8s.io \
-            --timeout=60s
 
       # ── Step 2: Install cloud-provider-kind (not MetalLB!) ──────────────
       - name: Install cloud-provider-kind
         run: |
           set -euo pipefail
-          
+
           VERSION="${CLOUD_PROVIDER_KIND_VERSION:-v0.11.1}"
-          
+
           # Download and extract tarball (releases are tar.gz, not raw binaries)
           curl -sL "https://github.com/kubernetes-sigs/cloud-provider-kind/releases/download/${VERSION}/cloud-provider-kind_${VERSION#v}_linux_amd64.tar.gz" \
             | tar xz -C /usr/local/bin/ cloud-provider-kind
-          
+
           # Run as background service (sudo needed per readme)
           echo "Starting cloud-provider-kind..."
           sudo cloud-provider-kind --gateway-channel standard &
@@ -77,7 +64,7 @@ jobs:
       - name: Deploy matomo namespace and gateway.yaml fixture
         run: |
           set -euo pipefail
-          
+
           # Apply the cluster-level namespaces and Gateway API resources
           kubectl apply -f tests/kind/gateway.yaml
 
