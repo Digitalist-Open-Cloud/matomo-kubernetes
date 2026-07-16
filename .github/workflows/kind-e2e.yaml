@@ -22,6 +22,7 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
+      # ── Database / caching fixtures ────────────────────────────────────
       - name: Install MariaDB and Valkey
         run: |
           kubectl create namespace matomo
@@ -29,9 +30,53 @@ jobs:
           kubectl -n matomo rollout status deployment/matomo-db-mysql --timeout=300s
           kubectl -n matomo rollout status deployment/matomo-valkey --timeout=300s
 
+      # ── Gateway API infrastructure (cloud-provider-kind) ───────────────
+      - name: Install cloud-provider-kind
+        run: |
+          set -euo pipefail
+
+          VERSION="${CLOUD_PROVIDER_KIND_VERSION:-v0.11.1}"
+
+          curl -sL "https://github.com/kubernetes-sigs/cloud-provider-kind/releases/download/${VERSION}/cloud-provider-kind_${VERSION#v}_linux_amd64.tar.gz" \
+            | tar xz -C /usr/local/bin/ cloud-provider-kind
+
+          echo "Starting cloud-provider-kind..."
+          sudo cloud-provider-kind --gateway-channel standard &
+          sleep 5
+
+      - name: Wait for and verify GatewayClass from cloud-provider-kind
+        run: |
+          set -euo pipefail
+          kubectl wait --for=condition=Accepted gatewayclass/cloud-provider-kind \
+            --timeout=60s || {
+              echo "ERROR: GatewayClass not ready!"
+              kubectl get gatewayclass -A -o wide
+              exit 1
+            }
+          echo "✅ cloud-provider-kind GatewayClass ready"
+
+      # ── Deploy Gateway fixture ────────────────────────────────────────
+      - name: Deploy gateway.yaml fixture
+        run: |
+          set -euo pipefail
+          kubectl apply -f tests/kind/gateway.yaml
+
+      - name: Wait for Gateway → Programmed
+        run: |
+          set -euo pipefail
+          kubectl -n matomo wait --for=condition=Programmed \
+            gateway/matomo-gateway --timeout=120s || {
+              echo "Gateway did not reach Programmed state"
+              echo "=== Events ==="; kubectl describe gateway matomo-gateway -n matomo
+              exit 1
+            }
+          echo "✅ Gateway programed"
+
+      # ── Install Matomo chart (ingress + gatewayApi) ────────────────────
       - name: Install Matomo chart
         run: |
-          helm install matomo charts/matomo --namespace matomo --values tests/kind/values.yaml
+          helm install matomo charts/matomo --namespace matomo \
+            --values tests/kind/values.yaml
 
       - name: Wait for Matomo workloads
         run: |
@@ -42,7 +87,8 @@ jobs:
             echo "::endgroup::"
           done
 
-      - name: Smoke test dashboard and tracker
+      # ── Smoke tests ────────────────────────────────────────────────────
+      - name: Smoke test dashboard and tracker (in-cluster)
         run: |
           kubectl -n matomo run smoke --rm -i --restart=Never \
             --image=curlimages/curl:8.14.1 --command -- sh -c '
@@ -54,32 +100,68 @@ jobs:
             echo "tracker hit /matomo.php"
             code=$(curl -sS -o /dev/null -w "%{http_code}" "http://matomo-tracker:8080/matomo.php?idsite=1&rec=1&action_name=ci-smoke-test")
             echo "tracking hit returned HTTP $code"
-            case "$code" in
-              200|204) ;;
-              *) echo "unexpected tracking response" ; exit 1 ;;
-            esac
-          '
+            case "$code" in 200|204) ;; *) echo "unexpected tracking response"; exit 1 ;; esac
+            '
 
       - name: Verify QueuedTracking uses Valkey
         run: |
-          # The tracking hit above should have been queued in Valkey by the
-          # QueuedTracking plugin (and consumed by the process worker).
           connections=$(kubectl -n matomo exec deployment/matomo-valkey -- \
             valkey-cli INFO stats | grep -oE "total_connections_received:[0-9]+" | cut -d: -f2)
-          commands=$(kubectl -n matomo exec deployment/matomo-valkey -- \
-            valkey-cli INFO stats | grep -oE "total_commands_processed:[0-9]+" | cut -d: -f2)
-          echo "Valkey total_connections_received=$connections total_commands_processed=$commands"
-          kubectl -n matomo exec deployment/matomo-valkey -- valkey-cli --scan || true
-          # The queuedtracking:process worker reconnects every few seconds, so a
-          # wired-up install accumulates far more connections than our own execs.
+          echo "Valkey total_connections_received=$connections"
           if [ "$connections" -le 5 ]; then
             echo "almost no connections to Valkey - QueuedTracking is not wired up"
             exit 1
           fi
 
+      # ── Gateway API routing test (via HTTPRoute) ───────────────────────
+      - name: Get Gateway IP and test HTTPRoute routing
+        id: gateway-ip
+        run: |
+          set -euo pipefail
+
+          GW_IP=$(kubectl get gateway matomo-gateway -n matomo \
+            -o jsonpath='{.status.addresses[0].address}') || true
+
+          if [ -z "$GW_IP" ]; then
+            echo "Failed to get Gateway IP — this indicates the Gateway was not programmed"
+            kubectl get gateway matomo-gateway -n matomo -o yaml || true
+            exit 1
+          fi
+          echo "Gateway IP: $GW_IP"
+          echo "$GW_IP" > /tmp/gw_ip.txt
+
+      - name: Test HTTPRoute routing (via curl)
+        run: |
+          set -euo pipefail
+          GW_IP=$(cat /tmp/gw_ip.txt)
+
+          # Dashboard via Host header
+          echo "Dashboard via HTTPRoute host=dashboard.example.test"
+          curl -sfL --max-time 15 -H 'Host: dashboard.example.test' "http://$GW_IP/index.php" \
+            | grep -q '<html>' || {
+                echo "Dashboard body not found — HTTPRoute may be misrouted"
+                exit 1
+              }
+
+          # Tracker via Host header
+          echo "Tracker via HTTPRoute host=tracker.example.test"
+          curl -sfL --max-time 15 -H 'Host: tracker.example.test' "http://$GW_IP/matomo.js" \
+            | grep -q 'var Piwik' || {
+                echo "Tracker body not found — HTTPRoute may be misrouted"
+                exit 1
+              }
+
+          # Tracker hit via Host header
+          echo "Tracking hit via HTTPRoute"
+          code=$(curl -sfL --max-time 15 \
+            -H 'Host: tracker.example.test' \
+            -w '%{http_code}' \
+            "http://$GW_IP/matomo.php?idsite=1&rec=1")
+          echo "tracking via Gateway returned HTTP $code"
+          case "$code" in 200|301|302) ;; *) exit 1 ;; esac
+
       - name: Test cron jobs (core:archive and scheduled-tasks)
         run: |
-          # trigger both CronJobs manually and require them to complete
           for cj in matomo-jobs-corearchive matomo-jobs-scheduled-tasks; do
             kubectl -n matomo create job "e2e-$cj" --from="cronjob/$cj"
           done
@@ -106,6 +188,5 @@ jobs:
             echo "::group::$p"
             kubectl -n matomo describe "$p" | tail -n 40 || true
             kubectl -n matomo logs "$p" --all-containers --tail=100 || true
-            kubectl -n matomo logs "$p" -c matomo-init --tail=100 || true
             echo "::endgroup::"
           done
