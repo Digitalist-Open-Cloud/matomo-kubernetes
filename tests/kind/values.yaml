@@ -133,10 +133,13 @@ matomo:
         time_before_range_archive_considered_outdated: 10800
       QueuedTracking:
         backend: redis
-        redis_host: matomo-valkey
-        redis_port: 6379
-        redis_timeout: '0.0'
-        redis_database: 0
-        queue_enabled: 1
+        redisHost: matomo-valkey
+        redisPort: 6379
+        redisTimeout: '0.0'
+        redisDatabase: 0
+        queueEnabled: 1
         numQueueWorkers: 1
+        # process each request immediately (default 25) so the single CI
+        # tracking hit is consumed by the queuedtracking-process worker
+        numRequestsToProcess: 1
         processDuringTrackingRequest: 0
