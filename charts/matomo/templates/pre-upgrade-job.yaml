@@ -56,7 +56,7 @@ spec:
           mountPath: /var/www/html/config/common.config.ini.php
           subPath: common.config.ini.php
         # To do anything with Matomo, we first need to bootstrap it (curl).
-        command:  [ 'bash' , '-c' , 'sleep {{.Values.matomo.preUpgradeSleepTime}}; curl -Il https://{{.Values.matomo.dashboard.hostname}}; {{.Values.matomo.preUpgradeCommand}}' ]
+        command:  [ 'bash' , '-c' , 'sleep {{.Values.matomo.preUpgradeSleepTime}}; curl -Il --max-time 10 https://{{.Values.matomo.dashboard.hostname}}; {{.Values.matomo.preUpgradeCommand}}' ]
         env:
         - name: MATOMO_FIRST_USER_NAME
           value: {{.Values.matomo.dashboard.firstuser.username}}
