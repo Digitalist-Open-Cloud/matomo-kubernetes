@@ -22,6 +22,25 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
+      - name: Install metallb for kind LoadBalancer support
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+          kubectl wait --namespace metallb-system \
+            --for=condition=ready pod \
+            --selector=app.metallb.io/class=controller \
+            --timeout=90s
+          cat <<EOF | kubectl apply -f -
+          apiVersion: metallb.io/v1beta1
+          kind: AddressPool
+          metadata:
+            name: default
+            namespace: metallb-system
+          spec:
+            protocol: layer2
+            addresses:
+              - 172.18.255.0/24
+          EOF
+
       - name: Install ingress-nginx and Envoy Gateway
         run: |
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/cloud/deploy.yaml
