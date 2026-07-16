@@ -1,11 +1,10 @@
 # Change log
 
-## [Unreleased]
+## [12.0.0] - 2026-07-16
 
 ### Added
 
 - Checkov security scanning in CI (GitHub Actions): blocking on failed checks, SARIF results uploaded to the GitHub Security tab.
-- Remediation plan for current Checkov findings, see `CHECKOV_REMEDIATION_PLAN.md`.
 - Security hardening (Checkov remediation phase 1):
   - `automountServiceAccountToken: false` on all pods, overridable via new value `matomo.automountServiceAccountToken`.
   - Pod-level `seccompProfile: RuntimeDefault` on all workloads.
@@ -25,6 +24,7 @@
 - Explicit `imagePullPolicy: Always` on the nginx containers (dashboard, tracker) and the pre-upgrade/post-install job containers.
 - NetworkPolicy per component (Checkov remediation phase 3), enabled by default via `networkPolicy.enabled`. The default rule allows all ingress, so behavior is unchanged; tighten via `networkPolicy.ingress`.
 - `.checkov.yaml` with documented skips for the checks that require image changes to fix (CKV_K8S_35 secrets as env vars, CKV_K8S_40 high UID, CKV_K8S_43 image digests) and CKV_K8S_22 (read-only root filesystem, pending writable-path mapping). Wired into the CI workflow via `config_file`.
+- E2E test in CI (GitHub Actions): installs the chart on a kind cluster together with MariaDB and Valkey (`tests/kind/`), waits for all workloads, smoke tests the dashboard and tracker over HTTP, sends a tracking hit and verifies the QueuedTracking plugin talks to Valkey.
 
 ### Changed
 
@@ -33,6 +33,7 @@
 ### Fixed
 
 - `matomo-tracker` Service, both loadbalancer Services and extra services were missing `namespace` and were installed into the current context namespace instead of `.Values.namespace`.
+- `matomo.queuedTrackingProcess.enabled` was required by the template but undefined in values; now documented explicitly (default `false`). Its NetworkPolicy is only created when the deployment is enabled.
 
 ## [11.0.60] - 2026-02-16
 

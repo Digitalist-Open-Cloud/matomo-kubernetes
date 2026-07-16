@@ -1,5 +1,3 @@
-Thank you for installing {{ .Chart.Name }} from Digitalist Open Cloud.
-
 {{- if empty (.Values.matomo.dashboard.hostname) -}}
 ###############################################################################
 ### ERROR: You didn't provide a host for matomo dashboard ###
@@ -11,6 +9,8 @@ Thank you for installing {{ .Chart.Name }} from Digitalist Open Cloud.
 ### ERROR: You didn't provide a host for matomo tracker ###
 ###############################################################################
 {{- end -}}
+
+Thank you for installing {{ .Chart.Name }} from Digitalist Open Cloud.
 
 Your release is named {{ .Release.Name }}.
 
