@@ -32,6 +32,9 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       # ── Step 1: Gateway API CRDs + wait for them ───────────────────────
       - name: Install Gateway API CRDs + standard resources
         run: |
@@ -51,12 +54,14 @@ jobs:
         run: |
           set -euo pipefail
           
-          # Download the latest release binary for the runner's arch
-          curl -sL "https://github.com/kubernetes-sigs/cloud-provider-kind/releases/latest/download/cloud-provider-kind-linux-amd64" \
-            > /usr/local/bin/cloud-provider-kind
-          chmod +x /usr/local/bin/cloud-provider-kind
-
-          # Run as a background service (sudo needed per the README)
+          # Get the latest version tag
+          VERSION=$(curl -s https://api.github.com/repos/kubernetes-sigs/cloud-provider-kind/releases/latest | jq -r .tag_name)
+          
+          # Download and extract tarball (releases are tar.gz, not raw binaries)
+          curl -sL "https://github.com/kubernetes-sigs/cloud-provider-kind/releases/download/${VERSION}/cloud-provider-kind_${VERSION}_linux_amd64.tar.gz" \
+            | tar xz -C /usr/local/bin/ cloud-provider-kind
+          
+          # Run as background service (sudo needed per readme)
           echo "Starting cloud-provider-kind..."
           sudo cloud-provider-kind --gateway-channel standard &
           sleep 5   # let it create the GatewayClass before we apply anything
