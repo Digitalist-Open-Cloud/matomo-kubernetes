@@ -28,8 +28,8 @@ jobs:
           kubectl wait --for=condition=Established crd/ipaddresspools.metallb.io --timeout=90s
           kubectl rollout status deployment/controller -n metallb-system --timeout=90s
           cat <<EOF | kubectl apply -f -
-          apiVersion: metallb.io/v1beta1
-          kind: AddressPool
+          apiVersion: metallb.io/v1beta2
+          kind: IPAddressPool
           metadata:
             name: default
             namespace: metallb-system
