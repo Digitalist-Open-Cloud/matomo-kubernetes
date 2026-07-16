@@ -114,16 +114,13 @@ jobs:
           fi
 
       # ── Gateway API routing test (via HTTPRoute) ───────────────────────
-      - name: Get Gateway IP and test HTTPRoute routing
+      - name: Get Gateway IP
         id: gateway-ip
         run: |
-          set -euo pipefail
-
           GW_IP=$(kubectl get gateway matomo-gateway -n matomo \
-            -o jsonpath='{.status.addresses[0].address}') || true
-
+            -o json | jq -r '.status.addresses[] | select(.type=="IPAddress") | .value' | head -1)
           if [ -z "$GW_IP" ]; then
-            echo "Failed to get Gateway IP — this indicates the Gateway was not programmed"
+            echo "Failed to get Gateway IP — the Gateway might not be programmed"
             kubectl get gateway matomo-gateway -n matomo -o yaml || true
             exit 1
           fi
