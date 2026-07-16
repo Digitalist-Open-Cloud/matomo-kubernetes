@@ -10,6 +10,7 @@ datatable
 dbtable
 digitalist
 Ecommerce
+elif
 endgroup
 esac
 extralabels
@@ -28,7 +29,9 @@ jardiff
 jnlp
 jquery
 keepalive
+kubeconform
 LEGALNOTICE
+letsencrypt
 makeself
 mathml
 MATOMO
@@ -80,3 +83,4 @@ wmlc
 wordprocessingml
 xpinstall
 xspf
+yannh

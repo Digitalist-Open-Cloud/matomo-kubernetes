@@ -1,0 +1,21 @@
+# Render combination: every optional component switched off.
+matomo:
+  ingress:
+    enabled: false
+  cli:
+    enabled: false
+  cronJobs:
+    coreArchive:
+      enabled: false
+    scheduledTasks:
+      enabled: false
+  dashboard:
+    enabled: false
+  queuedTrackingMonitor:
+    enabled: false
+  queuedTrackingProcess:
+    enabled: false
+  tracker:
+    enabled: false
+networkPolicy:
+  enabled: false
