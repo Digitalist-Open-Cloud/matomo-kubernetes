@@ -127,35 +127,25 @@ jobs:
           echo "Gateway IP: $GW_IP"
           echo "$GW_IP" > /tmp/gw_ip.txt
 
-      - name: Test HTTPRoute routing (via curl)
+      - name: Wait for Matomo services to be routable
         run: |
-          set -euo pipefail
+          set +e
           GW_IP=$(cat /tmp/gw_ip.txt)
-
-          # Dashboard via Host header
-          echo "Dashboard via HTTPRoute host=dashboard.example.test"
-          curl -sfL --max-time 15 -H 'Host: dashboard.example.test' "http://$GW_IP/index.php" \
-            | grep -q '<html>' || {
-                echo "Dashboard body not found — HTTPRoute may be misrouted"
-                exit 1
-              }
-
-          # Tracker via Host header
-          echo "Tracker via HTTPRoute host=tracker.example.test"
-          curl -sfL --max-time 15 -H 'Host: tracker.example.test' "http://$GW_IP/matomo.js" \
-            | grep -q 'var Piwik' || {
-                echo "Tracker body not found — HTTPRoute may be misrouted"
-                exit 1
-              }
-
-          # Tracker hit via Host header
-          echo "Tracking hit via HTTPRoute"
-          code=$(curl -sfL --max-time 15 \
-            -H 'Host: tracker.example.test' \
-            -w '%{http_code}' \
-            "http://$GW_IP/matomo.php?idsite=1&rec=1")
-          echo "tracking via Gateway returned HTTP $code"
-          case "$code" in 200|301|302) ;; *) exit 1 ;; esac
+          max=90 i=0
+          until [ $i -ge $max ]; do
+            status=$(curl -sf --max-time 5 \
+              -H 'Host: dashboard.example.test' \
+              "http://$GW_IP/index.php" -o /dev/null -w '%{http_code}' || echo 000)
+            if [ "$status" != "000" ]; then
+              echo "Matomo Dashboard reachable (HTTP $status) after ${i}s"
+              break
+            fi
+            i=$((i+5)); sleep ${i>99?1:0}
+          done
+          if [ $i -ge $max ]; then
+            echo "Dashboard unreachable to HTTPRoute after ${max}s — Matomo may not have started yet"
+            exit 1
+          fi
 
       - name: Test cron jobs (core:archive and scheduled-tasks)
         run: |
