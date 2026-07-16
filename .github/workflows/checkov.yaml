@@ -24,7 +24,7 @@ jobs:
 
       - name: Run Checkov
         id: checkov
-        uses: bridgecrewio/checkov-action@v12.1347.0
+        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # master 2026-07-09, checkov 3.3.8
         with:
           directory: charts/matomo
           framework: helm
