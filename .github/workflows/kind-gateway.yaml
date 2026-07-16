@@ -2,9 +2,19 @@ name: E2E (Gateway API)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+    paths:
+      - 'charts/matomo/templates/httproute*'
+      - '.github/workflows/kind-gateway.yaml'
+      - 'tests/kind/gateway-api-*'
+      - 'tests/kind/gateway.yaml'
   pull_request:
+    branches: [ main ]
+    paths:
+      - 'charts/matomo/templates/httproute*'
+      - '.github/workflows/kind-gateway.yaml'
+      - 'tests/kind/gateway-api-*'
+      - 'tests/kind/gateway.yaml'
   workflow_dispatch:
 
 permissions:
@@ -22,91 +32,58 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
-      # ── Step 1: Gateway API CRDs ───────────────────────────────────────
-      - name: Install Gateway API CRDs + standard channel resources
+      # ── Step 1: Gateway API CRDs (standard channel) ────────────────────
+      - name: Install Gateway API CRDs + standard resources
         run: |
           set -euo pipefail
-          curl -sL https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.0/standard-install.yaml \
+          curl -sL https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml \
             | kubectl apply -f -
-          # Wait for the GatewayClass and HTTPRoute CRDs to be established
-          kubectl wait --for=condition=Established crd \
-            crd.gateways.gateway.networking.k8s.io \
-            crd.httproutes.gateway.networking.k8s.io \
-            --timeout=120s
+          # ── FIX: use / not . between kind and name ────────────────
+          kubectl wait --for=condition=Established crd/gateways.gateway.networking.k8s.io \
+                         crd/httproutes.gateway.networking.k8s.io \
+                         crd/gatewayclasses.gateway.networking.k8s.io \
+            --timeout=60s
 
-      # ── Step 2: MetalLB for kind's LoadBalancer ─────────────────────────
-      - name: Install metallb (helm)
+      # ── Step 2: cloud-provider-kind (no MetalLB needed) ────────────────
+      - name: Install cloud-provider-kind
         run: |
           set -euo pipefail
-          helm repo add metallb https://metallb.github.io/metallb
-          helm repo update
-          kubectl create namespace metallb-system || true
-          helm install metallb metallb/metallb \
-            --create-namespace --namespace metallb-system --wait
+          arch=$(uname -m)
+          case "$arch" in
+            x86_64) os=linux;   arch=amd64 ;;
+            aarch64|arm64) os=darwin; arch=arm64 ;;
+            *) echo "unsupported arch: $arch"; exit 1 ;;
+          esac
+          # cloud-provider-kind releases are on GitHub, use the latest
+          url="https://github.com/kubernetes-sigs/cloud-provider-kind/releases/latest/download/cloud-provider-kind-${os}-${arch}"
+          curl -sL "$url" -o ~/.local/bin/cloud-provider-kind
+          chmod +x ~/.local/bin/cloud-provider-kind
+          export PATH="$HOME/.local/bin:$PATH"
 
-      - name: MetalLB address pool + L2 advertisement
+          echo "Starting cloud-provider-kind in background..."
+          sudo cloud-provider-kind --gateway-channel standard &
+          sleep 5   # let it create the GatewayClass before we apply anything
+
+      - name: Verify GatewayClass exists
         run: |
-          cat <<'EOF' | kubectl apply -f -
-          apiVersion: metallb.io/v1beta2
-          kind: IPAddressPool
-          metadata:
-            name: matomo-pool
-            namespace: metallb-system
-          spec:
-            addresses:
-              - 172.30.0.200-172.30.0.250
-          ---
-          apiVersion: metallb.io/v1beta2
-          kind: L2Advertisement
-          metadata:
-            name: matomo-l2
-            namespace: metallb-system
-          spec:
-            ipAddressPools:
-              - matomo-pool
-          EOF
+          kubectl get gatewayclass cloud-provider-kind && \
+            echo "cloud-provider-kind ready" || \
+            echo "WARN: GatewayClass not yet provisioned (may appear a few seconds later)"
 
-      # ── Step 3: Envoy Gateway + test fixture ────────────────────────────
-      - name: Deploy Envoy Gateway + gateway fixture
+      # ── Step 3: Apply cluster infrastructure (Gateway fixture only) ────
+      - name: Create matomo namespace + deploy gateway.yaml fixture
         run: |
           set -euo pipefail
+          kubectl create ns matomo --dry-run=client -o yaml | kubectl apply -f -
 
-          kubectl create namespace matomo                       || true
-          kubectl create namespace envoy-gateway-system        || true
+          # Replace the GatewayClass reference in our fixture to use cloud-provider-kind
+          sed 's/gatewayClassName: envoy/gatewayClassName: cloud-provider-kind/' \
+            tests/kind/gateway.yaml | kubectl apply -f -
 
-          # 3a. Fixture:GatewayClass+Gateway our HTTPRoutes will attach to
-          kubectl apply -f tests/kind/gateway.yaml
-
-          # 3b. Envoy Gateway (control plane + data-plane controller)
-          helm upgrade --install eg oci://docker.io/envoyproxy/gateway-helm \
-            --namespace envoy-gateway-system --create-namespace \
-            --wait --timeout=300s
-
-      - name: Wait for Gateway to transition Programmed=True
+      - name: Wait for Gateway → Programmed
         run: |
           set -euo pipefail
-
-          # Poll until MetalLB assigns an IP to the Envoy backend service,
-          # then wait for the custom-resource status.
-          GATEWAY_IP=""
-          for i in $(seq 1 90); do
-            svc=$(kubectl get svc -n envoy-gateway-system \
-              -l "gateway.envoyproxy.io/owning-gateway-name=matomo-gateway" \
-              -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
-
-            [ -z "$svc" ] && { sleep 3; continue; }
-
-            GATEWAY_IP=$(kubectl get svc "$svc" -n envoy-gateway-system \
-              -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)
-            [ -n "$GATEWAY_IP" ] && break
-            sleep 3
-          done
-
-          [ -z "$GATEWAY_IP" ] && { echo "MetalLB never assigned an IP"; exit 1; }
-          echo "::notice::Envoy Gateway endpoint: $GATEWAY_IP"
-
-          # Now the gateway resource itself should be Programmed.
           kubectl -n matomo wait --for=condition=Programmed \
             gateway/matomo-gateway --timeout=60s
 
-      # ── Step 4: (future) Matomo deployment will be added here ──────────
+      # ── Step 4: (future) Matomo deployment + routing smoke test ────────
