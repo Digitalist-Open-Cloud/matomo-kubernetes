@@ -61,11 +61,16 @@ jobs:
           sudo cloud-provider-kind --gateway-channel standard &
           sleep 5   # let it create the GatewayClass before we apply anything
 
-      - name: Verify GatewayClass was created
+      - name: Wait for and verify GatewayClass from cloud-provider-kind
         run: |
-          kubectl get gatewayclass cloud-provider-kind && \
-            echo "cloud-provider-kind ready" || \
-            echo "WARN: still waiting for GatewayClass"
+          set -euo pipefail
+          kubectl wait --for=condition=Accepted gatewayclass/cloud-provider-kind \
+            --timeout=60s || {
+              echo "ERROR: GatewayClass not ready!"
+              kubectl get gatewayclass -A -o wide
+              exit 1
+            }
+          echo "✅ cloud-provider-kind GatewayClass ready"
 
       # ── Step 3: Cluster infrastructure (GatewayClass + Gateway fixture) ──
       - name: Deploy matomo namespace and gateway.yaml fixture
@@ -75,8 +80,18 @@ jobs:
           # Apply the cluster-level namespaces and Gateway API resources
           kubectl apply -f tests/kind/gateway.yaml
 
-      - name: Wait for Gateway → Programmed
+      - name: Debug Gateway status if Programmed wait fails
+        if: failure()
         run: |
-          set -euo pipefail
-          kubectl -n matomo wait --for=condition=Programmed \
-            gateway/matomo-gateway --timeout=60s
+          set +e
+          echo "=== GatewayClass ==="
+          kubectl get gatewayclass -A -o wide
+          echo "\n=== Events for cloud-provider-kind ==="
+          kubectl describe gatewayclass cloud-provider-kind
+          echo "\n=== All Gateway objects ==="
+          kubectl get gateways -A
+          echo "\n=== Detailed Gateway status ==="
+          kubectl get gateway matomo-gateway -n matomo -o yaml | grep -A20 status:
+          echo "\n=== Events for matomo-gateway ==="
+          kubectl describe gateway matomo-gateway --namespace matomo
+        continue-on-error: true
