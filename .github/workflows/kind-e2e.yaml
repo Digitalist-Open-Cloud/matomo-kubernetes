@@ -27,33 +27,11 @@ jobs:
           helm repo add metallb https://metallb.github.io/metallb
           helm repo update
           helm install metallb metallb/metallb \
-            --namespace metallb-system --create-namespace \
-            --wait
-          # APIServer aggregation layer latency in CI/kind means CRDs may not be
-          # discoverable until several seconds after Helm finishes.  Retry the apply.
-          cat > /tmp/metallb-addresspool.yaml <<'EOF'
-          apiVersion: metallb.io/v1beta2
-          kind: IPAddressPool
-          metadata:
-            name: default
-            namespace: metallb-system
-          spec:
-            protocol: layer2
-            addresses:
-              - 172.18.255.0/24
-          EOF
-          for i in $(seq 1 30); do
-            if kubectl apply -f /tmp/metallb-addresspool.yaml 2>/dev/null; then break; fi
-            sleep 1
-          done
+            --namespace metallb-system --create-namespace
 
-      - name: Install ingress-nginx and Envoy Gateway
-        run: |
+      - name: Install ingress-nginx and Valkey
+        run:
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/cloud/deploy.yaml
-          helm install eg oci://docker.io/envoyproxy/gateway-helm --version v1.8.2 \
-            --namespace envoy-gateway-system --create-namespace
-          kubectl wait --for=condition=Established crd/gateways.gateway.networking.k8s.io --timeout=120s
-          kubectl wait --for=condition=Established crd/httproutes.gateway.networking.k8s.io --timeout=120s
 
       - name: Install MariaDB and Valkey
         run: |
@@ -96,7 +74,18 @@ jobs:
       - name: Wait for routing controllers
         run: |
           kubectl -n ingress-nginx rollout status deployment/ingress-nginx-controller --timeout=300s
-          kubectl -n envoy-gateway-system rollout status deployment/envoy-gateway --timeout=300s
+          helm upgrade --install eg oci://docker.io/envoyproxy/gateway-helm \
+            --namespace envoy-gateway-system --create-namespace --wait
+          # Wait up to 5 min for the Envoy Gateway to create the backend LoadBalancer Service,
+          # assign it an IP from metallb (layer 2 is async), and write the status.
+          for i in $(seq 1 60); do
+            if kubectl get svc -n envoy-gateway-system \
+              -l gateway.envoyproxy.io/owning-gateway-name=matomo-gateway,gateway.envoyproxy.io/owning-gateway-namespace=matomo \
+              -o jsonpath='{.items[0].status.loadBalancer.ingress}' 2>/dev/null | grep -q .; then
+              break
+            fi
+            sleep 5
+          done || true
           kubectl -n matomo wait --for=condition=Programmed gateway/matomo-gateway --timeout=180s
 
       - name: Test routing through ingress-nginx and Gateway API
