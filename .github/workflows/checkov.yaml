@@ -28,6 +28,7 @@ jobs:
         with:
           directory: charts/matomo
           framework: helm
+          config_file: charts/matomo/.checkov.yaml
           quiet: true # display only failed checks
           soft_fail: false # fail the build on findings
           output_format: cli,sarif

@@ -376,6 +376,17 @@ extraVolumeMounts: []
 #   mountPath: /usr/local/etc/php/conf.d/my.ini
 #   subPath: my.ini
 
+# -- NetworkPolicy for the Matomo workloads. When enabled, one NetworkPolicy
+# per component (dashboard, tracker, cli, queuedtracking monitor/process) is
+# created. The default rule allows all ingress, which changes nothing
+# functionally but makes every pod covered by a policy; tighten by overriding
+# `networkPolicy.ingress` for your environment.
+networkPolicy:
+  enabled: true
+  # -- Ingress rules applied to every component policy. Default: allow all.
+  ingress:
+    - {}
+
 # -- Node labels for pod assignment.
 nodeSelector: {}
 
