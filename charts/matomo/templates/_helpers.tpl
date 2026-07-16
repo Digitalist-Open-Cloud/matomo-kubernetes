@@ -47,6 +47,10 @@ initContainers:
       runAsUser: {{.Values.matomo.runAsUser}}
       privileged: false
       allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      capabilities:
+        drop:
+          - ALL
     imagePullPolicy: Always
     env:
     - name: MATOMO_FIRST_USER_NAME

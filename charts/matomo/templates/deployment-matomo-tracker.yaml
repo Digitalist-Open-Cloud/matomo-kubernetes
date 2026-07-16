@@ -25,6 +25,10 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
     spec:
+      automountServiceAccountToken: {{ .Values.matomo.automountServiceAccountToken }}
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
 {{ include "matomo.init" . | nindent 6 }}
       containers:
       - name: fpm-metrics
@@ -32,6 +36,10 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         image: hipages/php-fpm_exporter:2.2.0
         imagePullPolicy: Always
         resources:
@@ -57,6 +65,10 @@ spec:
           runAsUser: {{.Values.nginx.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         volumeMounts:
           - name: nginx-conf
             mountPath: /etc/nginx/nginx.conf
@@ -85,6 +97,10 @@ spec:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         imagePullPolicy: Always
         env:
         - name: MATOMO_DB_PASSWORD
@@ -164,6 +180,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: matomo-tracker
+  namespace: {{.Values.namespace}}
   labels:
     app: matomo-tracker
 spec:

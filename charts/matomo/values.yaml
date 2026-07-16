@@ -32,6 +32,9 @@ matomo:
   image: digitalist/matomo:5.7.1
   # -- run container as user id.
   runAsUser: 82
+  # -- Mount the service account token into Matomo pods. No workload in this
+  # chart uses the Kubernetes API; enable only if a custom sidecar needs it.
+  automountServiceAccountToken: false
   # -- Install command. If already installed, it just creates the needed config.
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   # Post install for helm chart. Starts a post-install-job.
