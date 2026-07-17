@@ -28,6 +28,7 @@ A Helm chart for Matomo
 | matomo.cli.readinessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":10,"periodSeconds":10}` | Readiness probe for the cli container (checks supervisord is running). |
 | matomo.cli.replicas | int | `1` | Number of replicas for the cli Deployment. |
 | matomo.cli.resources | object | `{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the Matomo cli container. |
+| matomo.config | object | `{}` | Full install.json content, replacing the chart's built-in default when set. |
 | matomo.cronJobs.coreArchive.activeDeadlineSeconds | int | `43200` | activeDeadlineSeconds for the core:archive Job. |
 | matomo.cronJobs.coreArchive.command | string | `"./console core:archive --disable-scheduled-tasks"` | Command run by the core:archive CronJob. |
 | matomo.cronJobs.coreArchive.concurrencyPolicy | string | `"Allow"` | concurrencyPolicy for the core:archive CronJob. |
@@ -57,6 +58,7 @@ A Helm chart for Matomo
 | matomo.dashboard.secretName | string | `""` | Existing TLS secret name for the dashboard ingress. |
 | matomo.dashboard.sidecars | list | `[]` | Extra containers to run alongside the dashboard pod. Added like this: sidecars: - name: fpm-metrics   image: hipages/php-fpm_exporter:2.2.0   imagePullPolicy: IfNotPresent   resources:     limits:       cpu: 500m       memory: 256Mi     requests:       cpu: 40m       memory: 32Mi |
 | matomo.dashboard.tls | bool | `false` | Add a TLS block to the dashboard Ingress for `hostname`. |
+| matomo.dashboard.whitelist | list | `[]` | List of CIDRs allowed to reach the dashboard Ingress (nginx.ingress.kubernetes.io/whitelist-source-range). Empty disables the restriction. |
 | matomo.env | list | `[]` | Env variables to inject, if any. |
 | matomo.extralabels | object | `{}` | Extra labels applied to Matomo pods (dashboard, tracker, cli, cronjobs, queuedtracking). |
 | matomo.gatewayApi | object | `{"enabled":false,"extralabels":{},"parentRefs":[]}` | Gateway API support. When enabled, HTTPRoutes are created for the dashboard and tracker (using their `hostname` values) instead of - or alongside - the Ingress resources. Requires the Gateway API CRDs and a Gateway; TLS is terminated on the Gateway listener, not in the chart. |
@@ -71,6 +73,8 @@ A Helm chart for Matomo
 | matomo.installCommand | string | `"./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db"` | Install command. If already installed, it just creates the needed config. |
 | matomo.license | string | `nil` | Reference to a secret holding a premium plugin license, if any. |
 | matomo.livenessProbe | object | `{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":9000}}` | Liveness probe for the Matomo php-fpm containers (dashboard, tracker). |
+| matomo.php | string | `nil` | php.ini overrides for the dashboard and core:archive php-fpm containers. |
+| matomo.phpfpm | string | `nil` | php-fpm pool tuning for the dashboard and core:archive php-fpm containers. |
 | matomo.postInstallCommand | string | `""` | Command to run in a post-install Job. The Job (and its resources) is only created when this is non-empty. |
 | matomo.postInstallSleepTime | int | `5` | Seconds the post-install Job sleeps before running `postInstallCommand` (gives Matomo time to finish bootstrapping). |
 | matomo.preUpgradeCommand | string | `""` | Command to run in a pre-upgrade Job. The Job (and its resources) is only created when this is non-empty. |
@@ -78,8 +82,10 @@ A Helm chart for Matomo
 | matomo.queuedTrackingMonitor.enabled | bool | `true` | Enable the queuedtracking:monitor Deployment. |
 | matomo.queuedTrackingMonitor.livenessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":15,"periodSeconds":20}` | Liveness probe for the queuedtracking-monitor container (checks supervisord is running). |
 | matomo.queuedTrackingMonitor.readinessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":10,"periodSeconds":10}` | Readiness probe for the queuedtracking-monitor container (checks supervisord is running). |
+| matomo.queuedTrackingMonitor.replicas | int | `1` | Number of replicas for the queuedtracking-monitor Deployment. |
 | matomo.queuedTrackingProcess.enabled | bool | `false` | Enable the queuedtracking:process worker deployment. Required when QueuedTracking runs with processDuringTrackingRequest disabled. |
 | matomo.queuedTrackingProcess.livenessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":15,"periodSeconds":20}` | Liveness probe for the queuedtracking-process container (checks supervisord is running). |
+| matomo.queuedTrackingProcess.numProcs | int | `1` | Number of supervisord worker processes for queuedtracking:process per pod. |
 | matomo.queuedTrackingProcess.readinessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":10,"periodSeconds":10}` | Readiness probe for the queuedtracking-process container (checks supervisord is running). |
 | matomo.queuedTrackingProcess.replicas | int | `1` | Number of replicas for the queuedtracking-process Deployment. |
 | matomo.readinessProbe | object | `{"initialDelaySeconds":10,"periodSeconds":10,"tcpSocket":{"port":9000}}` | Readiness probe for the Matomo php-fpm containers (dashboard, tracker). |
@@ -94,7 +100,7 @@ A Helm chart for Matomo
 | matomo.tracker.nginx.nginxWorkerProcesses | int | `5` | Worker process count for the tracker nginx. |
 | matomo.tracker.nginx.readinessProbe | object | `{"httpGet":{"path":"/matomo.js","port":8080,"scheme":"HTTP"},"initialDelaySeconds":10,"periodSeconds":5}` | Readiness probe for the tracker nginx container. |
 | matomo.tracker.nginx.resources | object | `{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}` | Default resources for the tracker nginx container. |
-| matomo.tracker.phpfpm | object | `{"max_children":75,"max_requests":500,"process_idle_timeout":"600s","type":"ondemand"}` | php-fpm pool tuning for the tracker (process manager type, max children, idle timeout, max requests). |
+| matomo.tracker.phpfpm | object | `{"max_children":75,"max_requests":500,"max_spare_servers":75,"memory_limit":"2048M","min_spare_servers":5,"process_idle_timeout":"600s","start_servers":5,"status_path":"/status","type":"ondemand"}` | php-fpm pool tuning for the tracker (process manager type, max/spare children, idle timeout, max requests, status path). |
 | matomo.tracker.replicas | int | `1` | Number of replicas for the tracker Deployment. |
 | matomo.tracker.resources | object | `{"limits":{"cpu":"1000m","memory":"768Mi"},"requests":{"cpu":"300m","memory":"256Mi"}}` | Default resources for the Matomo php-fpm container in the tracker. |
 | matomo.tracker.secretName | string | `""` | Existing TLS secret name for the tracker ingress. |
