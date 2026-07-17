@@ -50,18 +50,6 @@ Add your overrides add deploy Matomo:
 helm upgrade -i --namespace=mynamespace -f overrides.yaml -i matomo oci://registry-1.docker.io/digitalist/matomo
 ```
 
-Download values so you can override it with your own changes.
-
-```
-helm show values matomo-kubernetes/matomo > overrides.yaml
-```
-
-Add your overrides add deploy Matomo:
-
-```
-helm upgrade --namespace=mynamespace -f overrides.yaml -i my-matomo matomo-kubernetes/matomo
-```
-
 
 ## Matomo - File structure (`matomo` directory)
 
