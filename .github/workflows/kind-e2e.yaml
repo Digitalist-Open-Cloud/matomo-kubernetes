@@ -30,6 +30,12 @@ jobs:
           kubectl -n matomo rollout status deployment/matomo-db-mysql --timeout=300s
           kubectl -n matomo rollout status deployment/matomo-valkey --timeout=300s
 
+      # ── Ingress infrastructure (ingress-nginx) ─────────────────────────
+      - name: Install ingress-nginx
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/cloud/deploy.yaml
+          kubectl -n ingress-nginx rollout status deployment/ingress-nginx-controller --timeout=300s
+
       # ── Gateway API infrastructure (cloud-provider-kind) ───────────────
       - name: Install cloud-provider-kind
         run: |
@@ -113,6 +119,24 @@ jobs:
             exit 1
           fi
 
+      # ── Ingress routing test (via ingress-nginx) ───────────────────────
+      - name: Test routing through ingress-nginx
+        run: |
+          kubectl -n matomo run ingress-smoke --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 --command -- sh -c '
+            set -e
+            HOST=ingress-nginx-controller.ingress-nginx.svc.cluster.local
+            echo "dashboard /index.php via ingress-nginx"
+            curl -sSf -o /dev/null -H "Host: dashboard.example.test" "http://$HOST/index.php"
+            echo "tracker /matomo.js via ingress-nginx"
+            curl -sSf -o /dev/null -H "Host: tracker.example.test" "http://$HOST/matomo.js"
+            echo "tracking hit /matomo.php via ingress-nginx"
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -H "Host: tracker.example.test" \
+              "http://$HOST/matomo.php?idsite=1&rec=1&action_name=ci-ingress-nginx")
+            echo "tracking hit returned HTTP $code"
+            case "$code" in 200|204) ;; *) echo "unexpected tracking response via ingress-nginx"; exit 1 ;; esac
+            '
+
       # ── Gateway API routing test (via HTTPRoute) ───────────────────────
       - name: Get Gateway IP
         id: gateway-ip
@@ -127,25 +151,33 @@ jobs:
           echo "Gateway IP: $GW_IP"
           echo "$GW_IP" > /tmp/gw_ip.txt
 
-      - name: Wait for Matomo services to be routable
+      - name: Test routing through Gateway API (HTTPRoute)
         run: |
-          set +e
+          set -e
           GW_IP=$(cat /tmp/gw_ip.txt)
-          max=90 i=0
-          until [ $i -ge $max ]; do
-            status=$(curl -sf --max-time 5 \
-              -H 'Host: dashboard.example.test' \
+
+          echo "waiting for dashboard to become routable via Gateway IP $GW_IP..."
+          max=90 i=0 status=000
+          until [ "$status" = "200" ] || [ $i -ge $max ]; do
+            status=$(curl -sf --max-time 5 -H 'Host: dashboard.example.test' \
               "http://$GW_IP/index.php" -o /dev/null -w '%{http_code}' || echo 000)
-            if [ "$status" != "000" ]; then
-              echo "Matomo Dashboard reachable (HTTP $status) after ${i}s"
-              break
-            fi
-            i=$((i+5)); sleep ${i>99?1:0}
+            [ "$status" = "200" ] && break
+            i=$((i+5)); sleep 5
           done
-          if [ $i -ge $max ]; then
-            echo "Dashboard unreachable to HTTPRoute after ${max}s — Matomo may not have started yet"
+          if [ "$status" != "200" ]; then
+            echo "dashboard did not become routable via Gateway API after ${max}s (last HTTP $status)"
             exit 1
           fi
+          echo "dashboard /index.php via Gateway API: HTTP $status (after ${i}s)"
+
+          echo "tracker /matomo.js via Gateway API"
+          curl -sSf -o /dev/null -H "Host: tracker.example.test" "http://$GW_IP/matomo.js"
+
+          echo "tracking hit /matomo.php via Gateway API"
+          code=$(curl -sS -o /dev/null -w "%{http_code}" -H "Host: tracker.example.test" \
+            "http://$GW_IP/matomo.php?idsite=1&rec=1&action_name=ci-gateway-api")
+          echo "tracking hit returned HTTP $code"
+          case "$code" in 200|204) ;; *) echo "unexpected tracking response via Gateway API"; exit 1 ;; esac
 
       - name: Test cron jobs (core:archive and scheduled-tasks)
         run: |
@@ -170,6 +202,12 @@ jobs:
           echo "::group::resources"
           kubectl get all -n matomo || true
           kubectl -n matomo get events --sort-by=.lastTimestamp | tail -n 50 || true
+          kubectl -n matomo get ingress,httproute,gateway -o wide || true
+          echo "::endgroup::"
+          echo "::group::routing controllers"
+          kubectl -n ingress-nginx get pods || true
+          kubectl -n ingress-nginx logs deployment/ingress-nginx-controller --tail=50 || true
+          kubectl get gatewayclass -o wide || true
           echo "::endgroup::"
           for p in $(kubectl -n matomo get pods -o name); do
             echo "::group::$p"

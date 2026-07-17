@@ -5,6 +5,7 @@ kind: CronJob
 metadata:
   name: matomo-jobs-corearchive
   namespace: {{.Values.namespace}}
+  {{- template "matomo.labels" .Values.matomo.cronJobs.coreArchive.labels }}
 spec:
   schedule: {{quote .Values.matomo.cronJobs.coreArchive.schedule}}
   concurrencyPolicy: {{.Values.matomo.cronJobs.coreArchive.concurrencyPolicy}}
@@ -43,6 +44,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.db.password.secretKeyRef.name }}
                   key: {{ .Values.db.password.secretKeyRef.key }}
+{{ include "matomo.license" . | nindent 12 }}
             volumeMounts:
               - name: static-data
                 mountPath: /var/www/html
