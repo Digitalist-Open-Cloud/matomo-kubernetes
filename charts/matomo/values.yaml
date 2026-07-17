@@ -186,6 +186,8 @@ matomo:
     loadbalancer: false
     hostname: my.host
     tls: false
+    # -- Existing TLS secret name for the dashboard ingress.
+    secretName: ""
     firstuser:
       username: admin
       password: admin123
@@ -273,6 +275,8 @@ matomo:
     replicas: 1
     hostname: my.host
     tls: false
+    # -- Existing TLS secret name for the tracker ingress.
+    secretName: ""
     loadbalancer: false
     # -- Default resources for the Matomo php-fpm container in the tracker.
     resources:
