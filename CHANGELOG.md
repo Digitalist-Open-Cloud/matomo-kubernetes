@@ -1,17 +1,6 @@
 # Change log
 
-## [Unreleased]
-
-### Added
-
-- Gateway API support: HTTPRoutes for the dashboard and tracker via `matomo.gatewayApi.enabled` and `matomo.gatewayApi.parentRefs`, mirroring the tracker Ingress path list and reusing the `hostname` values. TLS is terminated on the Gateway listener. Can be used instead of, or alongside, Ingress.
-- E2E routing coverage: the kind workflow installs ingress-nginx and uses `cloud-provider-kind` (which provides the Gateway API CRDs and GatewayClass) to program the chart's Gateway/HTTPRoutes, then verifies the dashboard, tracker and a tracking hit through both an Ingress and an HTTPRoute.
-- `gateway-api` combination in the render matrix; kubeconform now also validates CRD-backed resources (HTTPRoute) via the CRDs-catalog schemas.
-- Documented previously-undocumented but template-referenced override points: `matomo.config` (full install.json replacement), `matomo.php`/`matomo.phpfpm` (shared php.ini/php-fpm pool tuning for dashboard + core:archive), `matomo.dashboard.whitelist`, `matomo.queuedTrackingMonitor.replicas`, `matomo.queuedTrackingProcess.numProcs`, and the remaining `matomo.tracker.phpfpm` pool settings.
-- `# @schema` annotations on open-ended fields (`matomo.env`, `matomo.license`, `matomo.php`, `matomo.phpfpm`, `matomo.cronJobs.scheduledTasks.php`, `matomo.config`, `matomo.dashboard.nginx.conf`, `extraSecrets.data`, `extraConfigMaps.data`, `extraServices`, `extraVolumes`, `extraVolumeMounts`, `networkPolicy.ingress`) so a generated `values.schema.json` can be strict (`additionalProperties: false`) everywhere else without rejecting legitimate overrides. Also extended to every label map (`matomo.extralabels`, `matomo.ingress.extralabels`, `matomo.gatewayApi.extralabels`), every ingress annotations map (`matomo.ingress.annotations`, `matomo.dashboard.ingress.annotations`, `matomo.tracker.ingress.annotations`), `nodeSelector`, and every liveness/readiness probe (dashboard/tracker php-fpm, cli, nginx, queuedtracking monitor/process) since probes are polymorphic (`exec`/`httpGet`/`tcpSocket`) and label/annotation maps are inherently arbitrary-key.
-- CI workflow (`schema.yaml`) that regenerates `values.schema.json` with `helm-schema` (`--helm-docs-compatibility-mode --no-dependencies --skip-auto-generation required`) and fails if the committed file is missing or out of date. `helm lint`/`helm template` (already run in the render matrix) validate against it automatically once generated.
-
-## [12.0.0] - 2026-07-16
+## [12.0.0] - 2026-07-17
 
 ### Added
 
@@ -37,6 +26,12 @@
 - `.checkov.yaml` with documented skips for the checks that require image changes to fix (CKV_K8S_35 secrets as env vars, CKV_K8S_40 high UID, CKV_K8S_43 image digests) and CKV_K8S_22 (read-only root filesystem, pending writable-path mapping). Wired into the CI workflow via `config_file`.
 - E2E test in CI (GitHub Actions): installs the chart on a kind cluster together with MariaDB and Valkey (`tests/kind/`), waits for all workloads, smoke tests the dashboard and tracker over HTTP, sends a tracking hit, verifies the QueuedTracking plugin talks to Valkey, and triggers both CronJobs (core:archive, scheduled-tasks) requiring them to complete.
 - Render matrix in CI (GitHub Actions): `helm lint` + `helm template` + kubeconform schema validation over values combinations in `tests/render/` (defaults, all components disabled, loadbalancers/TLS ingress, extra secrets/configmaps/services/volumes with hook jobs, env/license/sidecars, scaled workers with restrictive NetworkPolicy) plus the kind e2e values.
+- Gateway API support: HTTPRoutes for the dashboard and tracker via `matomo.gatewayApi.enabled` and `matomo.gatewayApi.parentRefs`, mirroring the tracker Ingress path list and reusing the `hostname` values. TLS is terminated on the Gateway listener. Can be used instead of, or alongside, Ingress.
+- E2E routing coverage: the kind workflow installs ingress-nginx and uses `cloud-provider-kind` (which provides the Gateway API CRDs and GatewayClass) to program the chart's Gateway/HTTPRoutes, then verifies the dashboard, tracker and a tracking hit through both an Ingress and an HTTPRoute.
+- `gateway-api` combination in the render matrix; kubeconform now also validates CRD-backed resources (HTTPRoute) via the CRDs-catalog schemas.
+- Documented previously-undocumented but template-referenced override points: `matomo.config` (full install.json replacement), `matomo.php`/`matomo.phpfpm` (shared php.ini/php-fpm pool tuning for dashboard + core:archive), `matomo.dashboard.whitelist`, `matomo.queuedTrackingMonitor.replicas`, `matomo.queuedTrackingProcess.numProcs`, and the remaining `matomo.tracker.phpfpm` pool settings.
+- `# @schema` annotations on open-ended fields (`matomo.env`, `matomo.license`, `matomo.php`, `matomo.phpfpm`, `matomo.cronJobs.scheduledTasks.php`, `matomo.config`, `matomo.dashboard.nginx.conf`, `extraSecrets.data`, `extraConfigMaps.data`, `extraServices`, `extraVolumes`, `extraVolumeMounts`, `networkPolicy.ingress`) so a generated `values.schema.json` can be strict (`additionalProperties: false`) everywhere else without rejecting legitimate overrides. Also extended to every label map (`matomo.extralabels`, `matomo.ingress.extralabels`, `matomo.gatewayApi.extralabels`), every ingress annotations map (`matomo.ingress.annotations`, `matomo.dashboard.ingress.annotations`, `matomo.tracker.ingress.annotations`), `nodeSelector`, and every liveness/readiness probe (dashboard/tracker php-fpm, cli, nginx, queuedtracking monitor/process) since probes are polymorphic (`exec`/`httpGet`/`tcpSocket`) and label/annotation maps are inherently arbitrary-key.
+- CI workflow (`schema.yaml`) that regenerates `values.schema.json` with `helm-schema` (`--helm-docs-compatibility-mode --no-dependencies --skip-auto-generation required`) and fails if the committed file is missing or out of date. `helm lint`/`helm template` (already run in the render matrix) validate against it automatically once generated.
 
 ### Changed
 

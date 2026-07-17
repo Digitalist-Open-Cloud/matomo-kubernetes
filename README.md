@@ -8,6 +8,11 @@ Helm chart for running the matomo containers (php) and nginx containers + cronjo
 
 We try to provide general community support in the issue queue, but for professional support, please contact matomo@digitalist.com.
 
+## Version 12.x
+
+Experimental support for Gateway API added.
+Also a lot fixes for best practices. And a lot of more, please see [Change log](CHANGELOG.md)
+
 ## Version 11, breaking changes and improvements
 
 * images are not using registry secret by default, you need to set it if you want to use it. This is an improvement, as before you were forced to have a
