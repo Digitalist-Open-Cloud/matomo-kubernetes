@@ -24,8 +24,8 @@ A Helm chart for Matomo
 | global.imageRegistry | string | `""` | Global image registry |
 | matomo.automountServiceAccountToken | bool | `false` | Mount the service account token into Matomo pods. No workload in this chart uses the Kubernetes API; enable only if a custom sidecar needs it. |
 | matomo.cli.enabled | bool | `true` | Enable the cli Deployment (runs supervisord for one-off `console` commands via `kubectl exec`). |
-| matomo.cli.livenessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":15,"periodSeconds":20}` | Liveness probe for the cli container (checks supervisord is running). |
-| matomo.cli.readinessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":10,"periodSeconds":10}` | Readiness probe for the cli container (checks supervisord is running). |
+| matomo.cli.livenessProbe | object | `{}` | Liveness probe for the cli container (checks supervisord is running). |
+| matomo.cli.readinessProbe | object | `{}` | Readiness probe for the cli container (checks supervisord is running). |
 | matomo.cli.replicas | int | `1` | Number of replicas for the cli Deployment. |
 | matomo.cli.resources | object | `{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the Matomo cli container. |
 | matomo.config | object | `{}` | Full install.json content, replacing the chart's built-in default when set. |
@@ -44,6 +44,9 @@ A Helm chart for Matomo
 | matomo.cronJobs.scheduledTasks.resources | object | `{"limits":{"cpu":"1000m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the scheduled-tasks cronjob. |
 | matomo.cronJobs.scheduledTasks.schedule | string | `"*/60 * * * *"` | Cron schedule for scheduled-tasks:run. |
 | matomo.dashboard.enabled | bool | `true` | Enable the dashboard Deployment and Service. |
+| matomo.dashboard.exporter | object | `{"livenessProbe":{},"readinessProbe":{}}` | php-fpm_exporter (fpm-metrics) sidecar probes for the dashboard pod. |
+| matomo.dashboard.exporter.livenessProbe | object | `{}` | Liveness probe for the dashboard php-fpm_exporter (fpm-metrics) container. |
+| matomo.dashboard.exporter.readinessProbe | object | `{}` | Readiness probe for the dashboard php-fpm_exporter (fpm-metrics) container. |
 | matomo.dashboard.firstuser | object | `{"email":"foo@example.com","password":"admin123","username":"admin"}` | Credentials for the first (super)user, applied by the init container on install. |
 | matomo.dashboard.hostname | string | `"my.host"` | Hostname used for the dashboard Ingress/HTTPRoute rule. |
 | matomo.dashboard.ingress.annotations | object | `{"digitalist.cloud/instance":"matomo"}` | Extra annotations for the dashboard Ingress. |
@@ -51,9 +54,9 @@ A Helm chart for Matomo
 | matomo.dashboard.loadbalancer | bool | `false` | Create a LoadBalancer Service for the dashboard, used as the Ingress/HTTPRoute backend when true. |
 | matomo.dashboard.nginx.conf | string | `""` | Override the full dashboard nginx configuration (nginx.conf, fastcgi_params, mime.types). As: conf:   nginx.conf: |     worker_processes 5;     load_module modules/ngx_http_geoip2_module.so;     ...   fastcgi_params: |     fastcgi_param   COUNTRY_CODE            $geoip2_data_country_code;     fastcgi_param   QUERY_STRING            $query_string;     fastcgi_param   REQUEST_METHOD          $request_method;     ...   mime.types: |     types {       text/html                                        html htm shtml;       text/css                                         css;       text/xml                                         xml;       ... |
 | matomo.dashboard.nginx.image | string | `""` | Override the nginx image used for the dashboard (falls back to `nginx.image` when empty). |
-| matomo.dashboard.nginx.livenessProbe | object | `{"exec":{"command":["/bin/sh","-c","[ -f /tmp/nginx.pid ] && ps -A | grep nginx"]},"initialDelaySeconds":10,"periodSeconds":5}` | Liveness probe for the dashboard nginx container. |
+| matomo.dashboard.nginx.livenessProbe | object | `{}` | Liveness probe for the dashboard nginx container. |
 | matomo.dashboard.nginx.nginxWorkerProcesses | int | `5` | Worker process count for the dashboard nginx. |
-| matomo.dashboard.nginx.readinessProbe | object | `{"httpGet":{"path":"/index.php","port":8080,"scheme":"HTTP"},"initialDelaySeconds":10,"periodSeconds":5}` | Readiness probe for the dashboard nginx container. |
+| matomo.dashboard.nginx.readinessProbe | object | `{}` | Readiness probe for the dashboard nginx container. |
 | matomo.dashboard.replicas | int | `1` | Number of replicas for the dashboard Deployment. |
 | matomo.dashboard.secretName | string | `""` | Existing TLS secret name for the dashboard ingress. |
 | matomo.dashboard.sidecars | list | `[]` | Extra containers to run alongside the dashboard pod. Added like this: sidecars: - name: fpm-metrics   image: hipages/php-fpm_exporter:2.2.0   imagePullPolicy: IfNotPresent   resources:     limits:       cpu: 500m       memory: 256Mi     requests:       cpu: 40m       memory: 32Mi |
@@ -72,7 +75,7 @@ A Helm chart for Matomo
 | matomo.ingress.extralabels | object | `{}` | Extra labels for the dashboard and tracker Ingress resources. |
 | matomo.installCommand | string | `"./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db"` | Install command. If already installed, it just creates the needed config. |
 | matomo.license | string | `nil` | Reference to a secret holding a premium plugin license, if any. |
-| matomo.livenessProbe | object | `{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":9000}}` | Liveness probe for the Matomo php-fpm containers (dashboard, tracker). |
+| matomo.livenessProbe | object | `{}` | Liveness probe for the Matomo php-fpm containers (dashboard, tracker). |
 | matomo.php | string | `nil` | php.ini overrides for the dashboard and core:archive php-fpm containers. |
 | matomo.phpfpm | string | `nil` | php-fpm pool tuning for the dashboard and core:archive php-fpm containers. |
 | matomo.postInstallCommand | string | `""` | Command to run in a post-install Job. The Job (and its resources) is only created when this is non-empty. |
@@ -80,25 +83,28 @@ A Helm chart for Matomo
 | matomo.preUpgradeCommand | string | `""` | Command to run in a pre-upgrade Job. The Job (and its resources) is only created when this is non-empty. |
 | matomo.preUpgradeSleepTime | int | `5` | Seconds the pre-upgrade Job sleeps before running `preUpgradeCommand`. |
 | matomo.queuedTrackingMonitor.enabled | bool | `true` | Enable the queuedtracking:monitor Deployment. |
-| matomo.queuedTrackingMonitor.livenessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":15,"periodSeconds":20}` | Liveness probe for the queuedtracking-monitor container (checks supervisord is running). |
-| matomo.queuedTrackingMonitor.readinessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":10,"periodSeconds":10}` | Readiness probe for the queuedtracking-monitor container (checks supervisord is running). |
+| matomo.queuedTrackingMonitor.livenessProbe | object | `{}` | Liveness probe for the queuedtracking-monitor container (checks supervisord is running). |
+| matomo.queuedTrackingMonitor.readinessProbe | object | `{}` | Readiness probe for the queuedtracking-monitor container (checks supervisord is running). |
 | matomo.queuedTrackingMonitor.replicas | int | `1` | Number of replicas for the queuedtracking-monitor Deployment. |
 | matomo.queuedTrackingProcess.enabled | bool | `false` | Enable the queuedtracking:process worker deployment. Required when QueuedTracking runs with processDuringTrackingRequest disabled. |
-| matomo.queuedTrackingProcess.livenessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":15,"periodSeconds":20}` | Liveness probe for the queuedtracking-process container (checks supervisord is running). |
+| matomo.queuedTrackingProcess.livenessProbe | object | `{}` | Liveness probe for the queuedtracking-process container (checks supervisord is running). |
 | matomo.queuedTrackingProcess.numProcs | int | `1` | Number of supervisord worker processes for queuedtracking:process per pod. |
-| matomo.queuedTrackingProcess.readinessProbe | object | `{"exec":{"command":["/bin/sh","-c","ps -A | grep supervisord"]},"initialDelaySeconds":10,"periodSeconds":10}` | Readiness probe for the queuedtracking-process container (checks supervisord is running). |
+| matomo.queuedTrackingProcess.readinessProbe | object | `{}` | Readiness probe for the queuedtracking-process container (checks supervisord is running). |
 | matomo.queuedTrackingProcess.replicas | int | `1` | Number of replicas for the queuedtracking-process Deployment. |
-| matomo.readinessProbe | object | `{"initialDelaySeconds":10,"periodSeconds":10,"tcpSocket":{"port":9000}}` | Readiness probe for the Matomo php-fpm containers (dashboard, tracker). |
+| matomo.readinessProbe | object | `{}` | Readiness probe for the Matomo php-fpm containers (dashboard, tracker). |
 | matomo.resources | object | `{"limits":{"cpu":"1000m","memory":"768Mi"},"requests":{"cpu":"300m","memory":"256Mi"}}` | Default resources for the Matomo php-fpm container (dashboard). |
 | matomo.runAsUser | int | `82` | run container as user id. |
 | matomo.tracker.enabled | bool | `true` | Enable the tracker Deployment and Service. |
+| matomo.tracker.exporter | object | `{"livenessProbe":{},"readinessProbe":{}}` | php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod. |
+| matomo.tracker.exporter.livenessProbe | object | `{}` | Liveness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
+| matomo.tracker.exporter.readinessProbe | object | `{}` | Readiness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
 | matomo.tracker.hostname | string | `"my.host"` | Hostname used for the tracker Ingress/HTTPRoute rule. |
 | matomo.tracker.ingress.annotations | object | `{"digitalist.cloud/instance":"matomo"}` | Extra annotations for the tracker Ingress. |
 | matomo.tracker.ingressClassName | string | `""` | ingressClassName for the tracker Ingress. |
 | matomo.tracker.loadbalancer | bool | `false` | Create a LoadBalancer Service for the tracker, used as the Ingress/HTTPRoute backend when true. |
-| matomo.tracker.nginx.livenessProbe | object | `{"exec":{"command":["/bin/sh","-c","[ -f /tmp/nginx.pid ] && ps -A | grep nginx"]},"initialDelaySeconds":10,"periodSeconds":5}` | Liveness probe for the tracker nginx container. |
+| matomo.tracker.nginx.livenessProbe | object | `{}` | Liveness probe for the tracker nginx container. |
 | matomo.tracker.nginx.nginxWorkerProcesses | int | `5` | Worker process count for the tracker nginx. |
-| matomo.tracker.nginx.readinessProbe | object | `{"httpGet":{"path":"/matomo.js","port":8080,"scheme":"HTTP"},"initialDelaySeconds":10,"periodSeconds":5}` | Readiness probe for the tracker nginx container. |
+| matomo.tracker.nginx.readinessProbe | object | `{}` | Readiness probe for the tracker nginx container. |
 | matomo.tracker.nginx.resources | object | `{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}` | Default resources for the tracker nginx container. |
 | matomo.tracker.phpfpm | object | `{"max_children":75,"max_requests":500,"max_spare_servers":75,"memory_limit":"2048M","min_spare_servers":5,"process_idle_timeout":"600s","start_servers":5,"status_path":"/status","type":"ondemand"}` | php-fpm pool tuning for the tracker (process manager type, max/spare children, idle timeout, max requests, status path). |
 | matomo.tracker.replicas | int | `1` | Number of replicas for the tracker Deployment. |

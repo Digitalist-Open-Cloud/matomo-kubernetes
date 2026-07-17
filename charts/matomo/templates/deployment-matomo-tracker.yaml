@@ -42,16 +42,8 @@ spec:
               - ALL
         image: hipages/php-fpm_exporter:2.2.0
         imagePullPolicy: Always
-        livenessProbe:
-          tcpSocket:
-            port: 9253
-          initialDelaySeconds: 15
-          periodSeconds: 20
-        readinessProbe:
-          tcpSocket:
-            port: 9253
-          initialDelaySeconds: 10
-          periodSeconds: 10
+        livenessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.tracker.exporter.livenessProbe "default" (include "matomo.probe.default.exporter.liveness" .)) | nindent 10 }}
+        readinessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.tracker.exporter.readinessProbe "default" (include "matomo.probe.default.exporter.readiness" .)) | nindent 10 }}
         resources:
           limits:
             cpu: 40m
@@ -66,12 +58,8 @@ spec:
         resources:
 {{ toYaml .Values.matomo.tracker.nginx.resources | indent 10 }}
         {{- end }}
-        {{- with .Values.matomo.tracker.nginx.readinessProbe }}
-        readinessProbe: {{- toYaml . | nindent 10 }}
-        {{- end }}
-        {{- with .Values.matomo.tracker.nginx.livenessProbe }}
-        livenessProbe: {{- toYaml . | nindent 10 }}
-        {{- end }}
+        readinessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.tracker.nginx.readinessProbe "default" (include "matomo.probe.default.nginx.tracker.readiness" .)) | nindent 10 }}
+        livenessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.tracker.nginx.livenessProbe "default" (include "matomo.probe.default.nginx.liveness" .)) | nindent 10 }}
         securityContext:
           runAsUser: {{.Values.nginx.runAsUser}}
           privileged: false
@@ -141,12 +129,8 @@ spec:
           - name: matomo-phpfpm-tracker
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf
-        {{- with .Values.matomo.livenessProbe }}
-        livenessProbe: {{- toYaml . | nindent 10 }}
-        {{- end }}
-        {{- with .Values.matomo.readinessProbe }}
-        readinessProbe: {{- toYaml . | nindent 10 }}
-        {{- end }}
+        livenessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.livenessProbe "default" (include "matomo.probe.default.phpfpm.liveness" .)) | nindent 10 }}
+        readinessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.readinessProbe "default" (include "matomo.probe.default.phpfpm.readiness" .)) | nindent 10 }}
 {{ include "matomo.images.pullSecrets" ( dict "images" (list .Values.matomo) "global" .Values.global) | nindent 6 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

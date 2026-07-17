@@ -79,20 +79,12 @@ matomo:
   # additionalProperties: true
   # @schema
   # -- Readiness probe for the Matomo php-fpm containers (dashboard, tracker).
-  readinessProbe:
-    tcpSocket:
-      port: 9000
-    initialDelaySeconds: 10
-    periodSeconds: 10
+  readinessProbe: {}
   # @schema
   # additionalProperties: true
   # @schema
   # -- Liveness probe for the Matomo php-fpm containers (dashboard, tracker).
-  livenessProbe:
-    tcpSocket:
-      port: 9000
-    initialDelaySeconds: 15
-    periodSeconds: 20
+  livenessProbe: {}
   ## matomo:
   ##   env:
   ##     - name: BAR
@@ -200,26 +192,12 @@ matomo:
     # additionalProperties: true
     # @schema
     # -- Liveness probe for the cli container (checks supervisord is running).
-    livenessProbe:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - "ps -A | grep supervisord"
-      initialDelaySeconds: 15
-      periodSeconds: 20
+    livenessProbe: {}
     # @schema
     # additionalProperties: true
     # @schema
     # -- Readiness probe for the cli container (checks supervisord is running).
-    readinessProbe:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - "ps -A | grep supervisord"
-      initialDelaySeconds: 10
-      periodSeconds: 10
+    readinessProbe: {}
 
   cronJobs:
     coreArchive:
@@ -316,6 +294,18 @@ matomo:
       username: admin
       password: admin123
       email: foo@example.com
+    # -- php-fpm_exporter (fpm-metrics) sidecar probes for the dashboard pod.
+    exporter:
+      # @schema
+      # additionalProperties: true
+      # @schema
+      # -- Liveness probe for the dashboard php-fpm_exporter (fpm-metrics) container.
+      livenessProbe: {}
+      # @schema
+      # additionalProperties: true
+      # @schema
+      # -- Readiness probe for the dashboard php-fpm_exporter (fpm-metrics) container.
+      readinessProbe: {}
     nginx:
       # -- Worker process count for the dashboard nginx.
       nginxWorkerProcesses: 5
@@ -347,25 +337,12 @@ matomo:
       # additionalProperties: true
       # @schema
       # -- Liveness probe for the dashboard nginx container.
-      livenessProbe:
-        exec:
-          command:
-          - /bin/sh
-          - -c
-          - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
-        initialDelaySeconds: 10
-        periodSeconds: 5
+      livenessProbe: {}
       # @schema
       # additionalProperties: true
       # @schema
       # -- Readiness probe for the dashboard nginx container.
-      readinessProbe:
-        httpGet:
-          scheme: HTTP
-          path: /index.php
-          port: 8080
-        initialDelaySeconds: 10
-        periodSeconds: 5
+      readinessProbe: {}
     # -- ingressClassName for the dashboard Ingress.
     ingressClassName: ""
     # -- List of CIDRs allowed to reach the dashboard Ingress (nginx.ingress.kubernetes.io/whitelist-source-range). Empty disables the restriction.
@@ -387,26 +364,12 @@ matomo:
     # additionalProperties: true
     # @schema
     # -- Liveness probe for the queuedtracking-monitor container (checks supervisord is running).
-    livenessProbe:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - "ps -A | grep supervisord"
-      initialDelaySeconds: 15
-      periodSeconds: 20
+    livenessProbe: {}
     # @schema
     # additionalProperties: true
     # @schema
     # -- Readiness probe for the queuedtracking-monitor container (checks supervisord is running).
-    readinessProbe:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - "ps -A | grep supervisord"
-      initialDelaySeconds: 10
-      periodSeconds: 10
+    readinessProbe: {}
   queuedTrackingProcess:
     # -- Enable the queuedtracking:process worker deployment. Required when
     # QueuedTracking runs with processDuringTrackingRequest disabled.
@@ -419,26 +382,12 @@ matomo:
     # additionalProperties: true
     # @schema
     # -- Liveness probe for the queuedtracking-process container (checks supervisord is running).
-    livenessProbe:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - "ps -A | grep supervisord"
-      initialDelaySeconds: 15
-      periodSeconds: 20
+    livenessProbe: {}
     # @schema
     # additionalProperties: true
     # @schema
     # -- Readiness probe for the queuedtracking-process container (checks supervisord is running).
-    readinessProbe:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - "ps -A | grep supervisord"
-      initialDelaySeconds: 10
-      periodSeconds: 10
+    readinessProbe: {}
 
   tracker:
     # -- Enable the tracker Deployment and Service.
@@ -461,6 +410,18 @@ matomo:
       limits:
         cpu: 1000m
         memory: 768Mi
+    # -- php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod.
+    exporter:
+      # @schema
+      # additionalProperties: true
+      # @schema
+      # -- Liveness probe for the tracker php-fpm_exporter (fpm-metrics) container.
+      livenessProbe: {}
+      # @schema
+      # additionalProperties: true
+      # @schema
+      # -- Readiness probe for the tracker php-fpm_exporter (fpm-metrics) container.
+      readinessProbe: {}
     nginx:
       # -- Default resources for the tracker nginx container.
       resources:
@@ -476,25 +437,12 @@ matomo:
       # additionalProperties: true
       # @schema
       # -- Liveness probe for the tracker nginx container.
-      livenessProbe:
-        exec:
-          command:
-          - /bin/sh
-          - -c
-          - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
-        initialDelaySeconds: 10
-        periodSeconds: 5
+      livenessProbe: {}
       # @schema
       # additionalProperties: true
       # @schema
       # -- Readiness probe for the tracker nginx container.
-      readinessProbe:
-        httpGet:
-          scheme: HTTP
-          path: /matomo.js
-          port: 8080
-        initialDelaySeconds: 10
-        periodSeconds: 5
+      readinessProbe: {}
     # -- php-fpm pool tuning for the tracker (process manager type, max/spare children, idle timeout, max requests, status path).
     phpfpm:
       type: ondemand
