@@ -70,14 +70,23 @@ matomo:
   # -- Command to run in a pre-upgrade Job. The Job (and its resources) is
   # only created when this is non-empty.
   preUpgradeCommand: ""
+  # @schema
+  # additionalProperties: true
+  # @schema
   # -- Extra labels applied to Matomo pods (dashboard, tracker, cli, cronjobs, queuedtracking).
   extralabels: {}
+  # @schema
+  # additionalProperties: true
+  # @schema
   # -- Readiness probe for the Matomo php-fpm containers (dashboard, tracker).
   readinessProbe:
     tcpSocket:
       port: 9000
     initialDelaySeconds: 10
     periodSeconds: 10
+  # @schema
+  # additionalProperties: true
+  # @schema
   # -- Liveness probe for the Matomo php-fpm containers (dashboard, tracker).
   livenessProbe:
     tcpSocket:
@@ -145,8 +154,14 @@ matomo:
   ingress:
     # -- Create Ingress resources for the dashboard and tracker.
     enabled: true
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Extra labels for the dashboard and tracker Ingress resources.
     extralabels: {}
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Extra annotations applied to both the dashboard and tracker Ingress resources.
     annotations: {}
 
@@ -162,6 +177,9 @@ matomo:
     #     namespace: my-namespace
     #     sectionName: http
     parentRefs: []
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Extra labels for the HTTPRoutes.
     extralabels: {}
 
@@ -178,6 +196,9 @@ matomo:
       limits:
         cpu: 500m
         memory: 512Mi
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Liveness probe for the cli container (checks supervisord is running).
     livenessProbe:
       exec:
@@ -187,6 +208,9 @@ matomo:
         - "ps -A | grep supervisord"
       initialDelaySeconds: 15
       periodSeconds: 20
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Readiness probe for the cli container (checks supervisord is running).
     readinessProbe:
       exec:
@@ -319,6 +343,9 @@ matomo:
       #       text/xml                                         xml;
       #       ...
       conf: ''
+      # @schema
+      # additionalProperties: true
+      # @schema
       # -- Liveness probe for the dashboard nginx container.
       livenessProbe:
         exec:
@@ -328,6 +355,9 @@ matomo:
           - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
         initialDelaySeconds: 10
         periodSeconds: 5
+      # @schema
+      # additionalProperties: true
+      # @schema
       # -- Readiness probe for the dashboard nginx container.
       readinessProbe:
         httpGet:
@@ -341,6 +371,9 @@ matomo:
     # -- List of CIDRs allowed to reach the dashboard Ingress (nginx.ingress.kubernetes.io/whitelist-source-range). Empty disables the restriction.
     whitelist: []
     ingress:
+      # @schema
+      # additionalProperties: true
+      # @schema
       # -- Extra annotations for the dashboard Ingress.
       annotations:
         digitalist.cloud/instance: "matomo"
@@ -350,6 +383,9 @@ matomo:
     enabled: true
     # -- Number of replicas for the queuedtracking-monitor Deployment.
     replicas: 1
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Liveness probe for the queuedtracking-monitor container (checks supervisord is running).
     livenessProbe:
       exec:
@@ -359,6 +395,9 @@ matomo:
         - "ps -A | grep supervisord"
       initialDelaySeconds: 15
       periodSeconds: 20
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Readiness probe for the queuedtracking-monitor container (checks supervisord is running).
     readinessProbe:
       exec:
@@ -376,6 +415,9 @@ matomo:
     replicas: 1
     # -- Number of supervisord worker processes for queuedtracking:process per pod.
     numProcs: 1
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Liveness probe for the queuedtracking-process container (checks supervisord is running).
     livenessProbe:
       exec:
@@ -385,6 +427,9 @@ matomo:
         - "ps -A | grep supervisord"
       initialDelaySeconds: 15
       periodSeconds: 20
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Readiness probe for the queuedtracking-process container (checks supervisord is running).
     readinessProbe:
       exec:
@@ -427,6 +472,9 @@ matomo:
           memory: 256Mi
       # -- Worker process count for the tracker nginx.
       nginxWorkerProcesses: 5
+      # @schema
+      # additionalProperties: true
+      # @schema
       # -- Liveness probe for the tracker nginx container.
       livenessProbe:
         exec:
@@ -436,6 +484,9 @@ matomo:
           - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
         initialDelaySeconds: 10
         periodSeconds: 5
+      # @schema
+      # additionalProperties: true
+      # @schema
       # -- Readiness probe for the tracker nginx container.
       readinessProbe:
         httpGet:
@@ -458,6 +509,9 @@ matomo:
     # -- ingressClassName for the tracker Ingress.
     ingressClassName: ""
     ingress:
+      # @schema
+      # additionalProperties: true
+      # @schema
       # -- Extra annotations for the tracker Ingress.
       annotations:
         digitalist.cloud/instance: "matomo"
@@ -588,6 +642,9 @@ networkPolicy:
   ingress:
     - {}
 
+# @schema
+# additionalProperties: true
+# @schema
 # -- Node labels for pod assignment.
 nodeSelector: {}
 

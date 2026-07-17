@@ -171,7 +171,7 @@
               "title": "enabled"
             },
             "livenessProbe": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Liveness probe for the cli container (checks supervisord is running).",
               "properties": {
                 "exec": {
@@ -215,7 +215,7 @@
               "title": "livenessProbe"
             },
             "readinessProbe": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Readiness probe for the cli container (checks supervisord is running).",
               "properties": {
                 "exec": {
@@ -604,7 +604,7 @@
               "additionalProperties": false,
               "properties": {
                 "annotations": {
-                  "additionalProperties": false,
+                  "additionalProperties": true,
                   "description": "Extra annotations for the dashboard Ingress.",
                   "properties": {
                     "digitalist.cloud/instance": {
@@ -654,7 +654,7 @@
                   "title": "image"
                 },
                 "livenessProbe": {
-                  "additionalProperties": false,
+                  "additionalProperties": true,
                   "description": "Liveness probe for the dashboard nginx container.",
                   "properties": {
                     "exec": {
@@ -704,7 +704,7 @@
                   "title": "nginxWorkerProcesses"
                 },
                 "readinessProbe": {
-                  "additionalProperties": false,
+                  "additionalProperties": true,
                   "description": "Readiness probe for the dashboard nginx container.",
                   "properties": {
                     "httpGet": {
@@ -799,7 +799,7 @@
           "title": "env"
         },
         "extralabels": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Extra labels applied to Matomo pods (dashboard, tracker, cli, cronjobs, queuedtracking).",
           "required": [],
           "title": "extralabels"
@@ -814,7 +814,7 @@
               "type": "boolean"
             },
             "extralabels": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Extra labels for the HTTPRoutes.",
               "required": [],
               "title": "extralabels"
@@ -855,7 +855,7 @@
           "additionalProperties": false,
           "properties": {
             "annotations": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Extra annotations applied to both the dashboard and tracker Ingress resources.",
               "required": [],
               "title": "annotations"
@@ -867,7 +867,7 @@
               "title": "enabled"
             },
             "extralabels": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Extra labels for the dashboard and tracker Ingress resources.",
               "required": [],
               "title": "extralabels"
@@ -895,7 +895,7 @@
           ]
         },
         "livenessProbe": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Liveness probe for the Matomo php-fpm containers (dashboard, tracker).",
           "properties": {
             "initialDelaySeconds": {
@@ -981,7 +981,7 @@
               "title": "enabled"
             },
             "livenessProbe": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Liveness probe for the queuedtracking-monitor container (checks supervisord is running).",
               "properties": {
                 "exec": {
@@ -1025,7 +1025,7 @@
               "title": "livenessProbe"
             },
             "readinessProbe": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Readiness probe for the queuedtracking-monitor container (checks supervisord is running).",
               "properties": {
                 "exec": {
@@ -1089,7 +1089,7 @@
               "title": "enabled"
             },
             "livenessProbe": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Liveness probe for the queuedtracking-process container (checks supervisord is running).",
               "properties": {
                 "exec": {
@@ -1139,7 +1139,7 @@
               "title": "numProcs"
             },
             "readinessProbe": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Readiness probe for the queuedtracking-process container (checks supervisord is running).",
               "properties": {
                 "exec": {
@@ -1194,7 +1194,7 @@
           "type": "object"
         },
         "readinessProbe": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Readiness probe for the Matomo php-fpm containers (dashboard, tracker).",
           "properties": {
             "initialDelaySeconds": {
@@ -1293,7 +1293,7 @@
               "additionalProperties": false,
               "properties": {
                 "annotations": {
-                  "additionalProperties": false,
+                  "additionalProperties": true,
                   "description": "Extra annotations for the tracker Ingress.",
                   "properties": {
                     "digitalist.cloud/instance": {
@@ -1326,7 +1326,7 @@
               "additionalProperties": false,
               "properties": {
                 "livenessProbe": {
-                  "additionalProperties": false,
+                  "additionalProperties": true,
                   "description": "Liveness probe for the tracker nginx container.",
                   "properties": {
                     "exec": {
@@ -1376,7 +1376,7 @@
                   "title": "nginxWorkerProcesses"
                 },
                 "readinessProbe": {
-                  "additionalProperties": false,
+                  "additionalProperties": true,
                   "description": "Readiness probe for the tracker nginx container.",
                   "properties": {
                     "httpGet": {
@@ -1692,7 +1692,7 @@
       "title": "nginx"
     },
     "nodeSelector": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "Node labels for pod assignment.",
       "required": [],
       "title": "nodeSelector"
