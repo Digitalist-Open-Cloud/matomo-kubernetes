@@ -173,88 +173,12 @@
             "livenessProbe": {
               "additionalProperties": true,
               "description": "Liveness probe for the cli container (checks supervisord is running).",
-              "properties": {
-                "exec": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "command": {
-                      "items": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "required": []
-                      },
-                      "title": "command",
-                      "type": "array"
-                    }
-                  },
-                  "required": [],
-                  "title": "exec",
-                  "type": "object"
-                },
-                "initialDelaySeconds": {
-                  "default": 15,
-                  "title": "initialDelaySeconds",
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "default": 20,
-                  "title": "periodSeconds",
-                  "type": "integer"
-                }
-              },
               "required": [],
               "title": "livenessProbe"
             },
             "readinessProbe": {
               "additionalProperties": true,
               "description": "Readiness probe for the cli container (checks supervisord is running).",
-              "properties": {
-                "exec": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "command": {
-                      "items": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "required": []
-                      },
-                      "title": "command",
-                      "type": "array"
-                    }
-                  },
-                  "required": [],
-                  "title": "exec",
-                  "type": "object"
-                },
-                "initialDelaySeconds": {
-                  "default": 10,
-                  "title": "initialDelaySeconds",
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "default": 10,
-                  "title": "periodSeconds",
-                  "type": "integer"
-                }
-              },
               "required": [],
               "title": "readinessProbe"
             },
@@ -571,6 +495,26 @@
               "required": [],
               "title": "enabled"
             },
+            "exporter": {
+              "additionalProperties": false,
+              "description": "php-fpm_exporter (fpm-metrics) sidecar probes for the dashboard pod.",
+              "properties": {
+                "livenessProbe": {
+                  "additionalProperties": true,
+                  "description": "Liveness probe for the dashboard php-fpm_exporter (fpm-metrics) container.",
+                  "required": [],
+                  "title": "livenessProbe"
+                },
+                "readinessProbe": {
+                  "additionalProperties": true,
+                  "description": "Readiness probe for the dashboard php-fpm_exporter (fpm-metrics) container.",
+                  "required": [],
+                  "title": "readinessProbe"
+                }
+              },
+              "required": [],
+              "title": "exporter"
+            },
             "firstuser": {
               "additionalProperties": false,
               "description": "Credentials for the first (super)user, applied by the init container on install.",
@@ -656,44 +600,6 @@
                 "livenessProbe": {
                   "additionalProperties": true,
                   "description": "Liveness probe for the dashboard nginx container.",
-                  "properties": {
-                    "exec": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "command": {
-                          "items": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "string"
-                              }
-                            ],
-                            "required": []
-                          },
-                          "title": "command",
-                          "type": "array"
-                        }
-                      },
-                      "required": [],
-                      "title": "exec",
-                      "type": "object"
-                    },
-                    "initialDelaySeconds": {
-                      "default": 10,
-                      "title": "initialDelaySeconds",
-                      "type": "integer"
-                    },
-                    "periodSeconds": {
-                      "default": 5,
-                      "title": "periodSeconds",
-                      "type": "integer"
-                    }
-                  },
                   "required": [],
                   "title": "livenessProbe"
                 },
@@ -706,41 +612,6 @@
                 "readinessProbe": {
                   "additionalProperties": true,
                   "description": "Readiness probe for the dashboard nginx container.",
-                  "properties": {
-                    "httpGet": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "path": {
-                          "default": "/index.php",
-                          "title": "path",
-                          "type": "string"
-                        },
-                        "port": {
-                          "default": 8080,
-                          "title": "port",
-                          "type": "integer"
-                        },
-                        "scheme": {
-                          "default": "HTTP",
-                          "title": "scheme",
-                          "type": "string"
-                        }
-                      },
-                      "required": [],
-                      "title": "httpGet",
-                      "type": "object"
-                    },
-                    "initialDelaySeconds": {
-                      "default": 10,
-                      "title": "initialDelaySeconds",
-                      "type": "integer"
-                    },
-                    "periodSeconds": {
-                      "default": 5,
-                      "title": "periodSeconds",
-                      "type": "integer"
-                    }
-                  },
                   "required": [],
                   "title": "readinessProbe"
                 }
@@ -897,31 +768,6 @@
         "livenessProbe": {
           "additionalProperties": true,
           "description": "Liveness probe for the Matomo php-fpm containers (dashboard, tracker).",
-          "properties": {
-            "initialDelaySeconds": {
-              "default": 15,
-              "title": "initialDelaySeconds",
-              "type": "integer"
-            },
-            "periodSeconds": {
-              "default": 20,
-              "title": "periodSeconds",
-              "type": "integer"
-            },
-            "tcpSocket": {
-              "additionalProperties": false,
-              "properties": {
-                "port": {
-                  "default": 9000,
-                  "title": "port",
-                  "type": "integer"
-                }
-              },
-              "required": [],
-              "title": "tcpSocket",
-              "type": "object"
-            }
-          },
           "required": [],
           "title": "livenessProbe"
         },
@@ -983,88 +829,12 @@
             "livenessProbe": {
               "additionalProperties": true,
               "description": "Liveness probe for the queuedtracking-monitor container (checks supervisord is running).",
-              "properties": {
-                "exec": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "command": {
-                      "items": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "required": []
-                      },
-                      "title": "command",
-                      "type": "array"
-                    }
-                  },
-                  "required": [],
-                  "title": "exec",
-                  "type": "object"
-                },
-                "initialDelaySeconds": {
-                  "default": 15,
-                  "title": "initialDelaySeconds",
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "default": 20,
-                  "title": "periodSeconds",
-                  "type": "integer"
-                }
-              },
               "required": [],
               "title": "livenessProbe"
             },
             "readinessProbe": {
               "additionalProperties": true,
               "description": "Readiness probe for the queuedtracking-monitor container (checks supervisord is running).",
-              "properties": {
-                "exec": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "command": {
-                      "items": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "required": []
-                      },
-                      "title": "command",
-                      "type": "array"
-                    }
-                  },
-                  "required": [],
-                  "title": "exec",
-                  "type": "object"
-                },
-                "initialDelaySeconds": {
-                  "default": 10,
-                  "title": "initialDelaySeconds",
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "default": 10,
-                  "title": "periodSeconds",
-                  "type": "integer"
-                }
-              },
               "required": [],
               "title": "readinessProbe"
             },
@@ -1091,44 +861,6 @@
             "livenessProbe": {
               "additionalProperties": true,
               "description": "Liveness probe for the queuedtracking-process container (checks supervisord is running).",
-              "properties": {
-                "exec": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "command": {
-                      "items": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "required": []
-                      },
-                      "title": "command",
-                      "type": "array"
-                    }
-                  },
-                  "required": [],
-                  "title": "exec",
-                  "type": "object"
-                },
-                "initialDelaySeconds": {
-                  "default": 15,
-                  "title": "initialDelaySeconds",
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "default": 20,
-                  "title": "periodSeconds",
-                  "type": "integer"
-                }
-              },
               "required": [],
               "title": "livenessProbe"
             },
@@ -1141,44 +873,6 @@
             "readinessProbe": {
               "additionalProperties": true,
               "description": "Readiness probe for the queuedtracking-process container (checks supervisord is running).",
-              "properties": {
-                "exec": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "command": {
-                      "items": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "required": []
-                      },
-                      "title": "command",
-                      "type": "array"
-                    }
-                  },
-                  "required": [],
-                  "title": "exec",
-                  "type": "object"
-                },
-                "initialDelaySeconds": {
-                  "default": 10,
-                  "title": "initialDelaySeconds",
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "default": 10,
-                  "title": "periodSeconds",
-                  "type": "integer"
-                }
-              },
               "required": [],
               "title": "readinessProbe"
             },
@@ -1196,31 +890,6 @@
         "readinessProbe": {
           "additionalProperties": true,
           "description": "Readiness probe for the Matomo php-fpm containers (dashboard, tracker).",
-          "properties": {
-            "initialDelaySeconds": {
-              "default": 10,
-              "title": "initialDelaySeconds",
-              "type": "integer"
-            },
-            "periodSeconds": {
-              "default": 10,
-              "title": "periodSeconds",
-              "type": "integer"
-            },
-            "tcpSocket": {
-              "additionalProperties": false,
-              "properties": {
-                "port": {
-                  "default": 9000,
-                  "title": "port",
-                  "type": "integer"
-                }
-              },
-              "required": [],
-              "title": "tcpSocket",
-              "type": "object"
-            }
-          },
           "required": [],
           "title": "readinessProbe"
         },
@@ -1283,6 +952,26 @@
               "required": [],
               "title": "enabled"
             },
+            "exporter": {
+              "additionalProperties": false,
+              "description": "php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod.",
+              "properties": {
+                "livenessProbe": {
+                  "additionalProperties": true,
+                  "description": "Liveness probe for the tracker php-fpm_exporter (fpm-metrics) container.",
+                  "required": [],
+                  "title": "livenessProbe"
+                },
+                "readinessProbe": {
+                  "additionalProperties": true,
+                  "description": "Readiness probe for the tracker php-fpm_exporter (fpm-metrics) container.",
+                  "required": [],
+                  "title": "readinessProbe"
+                }
+              },
+              "required": [],
+              "title": "exporter"
+            },
             "hostname": {
               "default": "my.host",
               "description": "Hostname used for the tracker Ingress/HTTPRoute rule.",
@@ -1328,44 +1017,6 @@
                 "livenessProbe": {
                   "additionalProperties": true,
                   "description": "Liveness probe for the tracker nginx container.",
-                  "properties": {
-                    "exec": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "command": {
-                          "items": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "string"
-                              }
-                            ],
-                            "required": []
-                          },
-                          "title": "command",
-                          "type": "array"
-                        }
-                      },
-                      "required": [],
-                      "title": "exec",
-                      "type": "object"
-                    },
-                    "initialDelaySeconds": {
-                      "default": 10,
-                      "title": "initialDelaySeconds",
-                      "type": "integer"
-                    },
-                    "periodSeconds": {
-                      "default": 5,
-                      "title": "periodSeconds",
-                      "type": "integer"
-                    }
-                  },
                   "required": [],
                   "title": "livenessProbe"
                 },
@@ -1378,41 +1029,6 @@
                 "readinessProbe": {
                   "additionalProperties": true,
                   "description": "Readiness probe for the tracker nginx container.",
-                  "properties": {
-                    "httpGet": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "path": {
-                          "default": "/matomo.js",
-                          "title": "path",
-                          "type": "string"
-                        },
-                        "port": {
-                          "default": 8080,
-                          "title": "port",
-                          "type": "integer"
-                        },
-                        "scheme": {
-                          "default": "HTTP",
-                          "title": "scheme",
-                          "type": "string"
-                        }
-                      },
-                      "required": [],
-                      "title": "httpGet",
-                      "type": "object"
-                    },
-                    "initialDelaySeconds": {
-                      "default": 10,
-                      "title": "initialDelaySeconds",
-                      "type": "integer"
-                    },
-                    "periodSeconds": {
-                      "default": 5,
-                      "title": "periodSeconds",
-                      "type": "integer"
-                    }
-                  },
                   "required": [],
                   "title": "readinessProbe"
                 },

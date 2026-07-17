@@ -122,3 +122,10 @@ Check file for default values.
 | `db.name` | Database name for Matomo |
 | `db.username` | Username to use to access the Matomo database. |
 | `db.prefix` | Prefix for the Matomo database tables. |
+
+## Development
+
+Generate helm schema:
+
+```shell
+helm-schema --chart-search-root charts/matomo --helm-docs-compatibility-mode --no-dependencies --skip-auto-generation required

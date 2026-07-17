@@ -49,12 +49,8 @@ spec:
             drop:
               - ALL
         imagePullPolicy: Always
-        {{- with .Values.matomo.queuedTrackingProcess.livenessProbe }}
-        livenessProbe: {{- toYaml . | nindent 10 }}
-        {{- end }}
-        {{- with .Values.matomo.queuedTrackingProcess.readinessProbe }}
-        readinessProbe: {{- toYaml . | nindent 10 }}
-        {{- end }}
+        livenessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.queuedTrackingProcess.livenessProbe "default" (include "matomo.probe.default.supervisord.liveness" .)) | nindent 10 }}
+        readinessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.queuedTrackingProcess.readinessProbe "default" (include "matomo.probe.default.supervisord.readiness" .)) | nindent 10 }}
         env:
         - name: MATOMO_DB_PASSWORD
           valueFrom:

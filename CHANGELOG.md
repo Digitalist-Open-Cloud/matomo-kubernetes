@@ -1,5 +1,15 @@
 # Change log
 
+## [12.0.3] - 2026-07-17
+
+### Added
+
+- The php-fpm_exporter (fpm-metrics) sidecar liveness and readiness probes are now overridable via new values `matomo.dashboard.exporter.livenessProbe`/`readinessProbe` and `matomo.tracker.exporter.livenessProbe`/`readinessProbe`.
+
+### Changed
+
+- All container probes now use **replace** semantics instead of merge. Setting any `livenessProbe`/`readinessProbe` value (matomo php-fpm, cli, nginx, queuedtracking, exporter) fully replaces the built-in default rather than deep-merging with it. This lets you switch handler type (e.g. `tcpSocket` → `exec`) without hitting `may not specify more than 1 handler type`. The defaults themselves are unchanged; each probe value now defaults to `{}` in `values.yaml` and the effective default is applied by the template when the value is empty.
+
 ## [12.0.2] - 2026-07-17
 
 ### Changed
