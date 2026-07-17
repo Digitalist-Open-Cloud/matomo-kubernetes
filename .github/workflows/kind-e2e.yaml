@@ -78,48 +78,6 @@ jobs:
             }
           echo "✅ Gateway programed"
 
-      # ── Gateway API infrastructure (cloud-provider-kind) ───────────────
-      - name: Install cloud-provider-kind
-        run: |
-          set -euo pipefail
-
-          VERSION="${CLOUD_PROVIDER_KIND_VERSION:-v0.11.1}"
-
-          curl -sL "https://github.com/kubernetes-sigs/cloud-provider-kind/releases/download/${VERSION}/cloud-provider-kind_${VERSION#v}_linux_amd64.tar.gz" \
-            | tar xz -C /usr/local/bin/ cloud-provider-kind
-
-          echo "Starting cloud-provider-kind..."
-          sudo cloud-provider-kind --gateway-channel standard &
-          sleep 5
-
-      - name: Wait for and verify GatewayClass from cloud-provider-kind
-        run: |
-          set -euo pipefail
-          kubectl wait --for=condition=Accepted gatewayclass/cloud-provider-kind \
-            --timeout=60s || {
-              echo "ERROR: GatewayClass not ready!"
-              kubectl get gatewayclass -A -o wide
-              exit 1
-            }
-          echo "✅ cloud-provider-kind GatewayClass ready"
-
-      # ── Deploy Gateway fixture ────────────────────────────────────────
-      - name: Deploy gateway.yaml fixture
-        run: |
-          set -euo pipefail
-          kubectl apply -f tests/kind/gateway.yaml
-
-      - name: Wait for Gateway → Programmed
-        run: |
-          set -euo pipefail
-          kubectl -n matomo wait --for=condition=Programmed \
-            gateway/matomo-gateway --timeout=120s || {
-              echo "Gateway did not reach Programmed state"
-              echo "=== Events ==="; kubectl describe gateway matomo-gateway -n matomo
-              exit 1
-            }
-          echo "✅ Gateway programed"
-
       # ── Install Matomo chart (ingress + gatewayApi) ────────────────────
       - name: Install Matomo chart
         run: |
@@ -193,59 +151,33 @@ jobs:
           echo "Gateway IP: $GW_IP"
           echo "$GW_IP" > /tmp/gw_ip.txt
 
-      - name: Wait for Matomo services to be routable
+      - name: Test routing through Gateway API (HTTPRoute)
         run: |
-          set +e
+          set -e
           GW_IP=$(cat /tmp/gw_ip.txt)
-          max=90 i=0
-          until [ $i -ge $max ]; do
-            status=$(curl -sf --max-time 5 \
-              -H 'Host: dashboard.example.test' \
-              "http://$GW_IP/index.php" -o /dev/null -w '%{http_code}' || echo 000)
-            if [ "$status" != "000" ]; then
-              echo "Matomo Dashboard reachable (HTTP $status) after ${i}s"
-              break
-            fi
-            i=$((i+5)); sleep ${i>99?1:0}
-          done
-          if [ $i -ge $max ]; then
-            echo "Dashboard unreachable to HTTPRoute after ${max}s — Matomo may not have started yet"
-            exit 1
-          fi
 
-      # ── Gateway API routing test (via HTTPRoute) ───────────────────────
-      - name: Get Gateway IP
-        id: gateway-ip
-        run: |
-          GW_IP=$(kubectl get gateway matomo-gateway -n matomo \
-            -o json | jq -r '.status.addresses[] | select(.type=="IPAddress") | .value' | head -1)
-          if [ -z "$GW_IP" ]; then
-            echo "Failed to get Gateway IP — the Gateway might not be programmed"
-            kubectl get gateway matomo-gateway -n matomo -o yaml || true
-            exit 1
-          fi
-          echo "Gateway IP: $GW_IP"
-          echo "$GW_IP" > /tmp/gw_ip.txt
-
-      - name: Wait for Matomo services to be routable
-        run: |
-          set +e
-          GW_IP=$(cat /tmp/gw_ip.txt)
-          max=90 i=0
-          until [ $i -ge $max ]; do
-            status=$(curl -sf --max-time 5 \
-              -H 'Host: dashboard.example.test' \
+          echo "waiting for dashboard to become routable via Gateway IP $GW_IP..."
+          max=90 i=0 status=000
+          until [ "$status" = "200" ] || [ $i -ge $max ]; do
+            status=$(curl -sf --max-time 5 -H 'Host: dashboard.example.test' \
               "http://$GW_IP/index.php" -o /dev/null -w '%{http_code}' || echo 000)
-            if [ "$status" != "000" ]; then
-              echo "Matomo Dashboard reachable (HTTP $status) after ${i}s"
-              break
-            fi
-            i=$((i+5)); sleep ${i>99?1:0}
+            [ "$status" = "200" ] && break
+            i=$((i+5)); sleep 5
           done
-          if [ $i -ge $max ]; then
-            echo "Dashboard unreachable to HTTPRoute after ${max}s — Matomo may not have started yet"
+          if [ "$status" != "200" ]; then
+            echo "dashboard did not become routable via Gateway API after ${max}s (last HTTP $status)"
             exit 1
           fi
+          echo "dashboard /index.php via Gateway API: HTTP $status (after ${i}s)"
+
+          echo "tracker /matomo.js via Gateway API"
+          curl -sSf -o /dev/null -H "Host: tracker.example.test" "http://$GW_IP/matomo.js"
+
+          echo "tracking hit /matomo.php via Gateway API"
+          code=$(curl -sS -o /dev/null -w "%{http_code}" -H "Host: tracker.example.test" \
+            "http://$GW_IP/matomo.php?idsite=1&rec=1&action_name=ci-gateway-api")
+          echo "tracking hit returned HTTP $code"
+          case "$code" in 200|204) ;; *) echo "unexpected tracking response via Gateway API"; exit 1 ;; esac
 
       - name: Test cron jobs (core:archive and scheduled-tasks)
         run: |
