@@ -1,5 +1,17 @@
 # Change log
 
+## [12.0.2] - 2026-07-17
+
+### Changed
+
+- Changelog and chart README, missed in 12.0.1
+
+## [12.0.1] - 2026-07-17
+
+### Changed
+
+- Matomo to 5.12.0
+
 ## [12.0.0] - 2026-07-17
 
 ### Added
