@@ -1,11 +1,6 @@
-## @section Global parameters
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, configured to use the global value
 ## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
-
-## @param global.imageRegistry Global Docker image registry
-## @param global.imagePullSecrets Global Docker registry secret names as an array
-##
  # -- Globals settings
 global:
   ## As:
@@ -18,8 +13,10 @@ global:
   ##
   # -- Global image pull secrets
   imagePullSecrets: []
+
 # -- Namespace to install Matomo in, default matomo.
 namespace: matomo
+
 matomo:
   # -- Image registry to use.
   imageRegistry: ""
@@ -43,13 +40,21 @@ matomo:
     limits:
       cpu: 1000m
       memory: 768Mi
+
   # -- Install command. If already installed, it just creates the needed config.
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
-  # Post install for helm chart. Starts a post-install-job.
+  # -- Seconds the post-install Job sleeps before running `postInstallCommand`
+  # (gives Matomo time to finish bootstrapping).
   postInstallSleepTime: 5
+  # -- Command to run in a post-install Job. The Job (and its resources) is
+  # only created when this is non-empty.
   postInstallCommand: ""
+  # -- Seconds the pre-upgrade Job sleeps before running `preUpgradeCommand`.
   preUpgradeSleepTime: 5
+  # -- Command to run in a pre-upgrade Job. The Job (and its resources) is
+  # only created when this is non-empty.
   preUpgradeCommand: ""
+  # -- Extra labels applied to Matomo pods (dashboard, tracker, cli, cronjobs, queuedtracking).
   extralabels: {}
   # -- Readiness probe for the Matomo php-fpm containers (dashboard, tracker).
   readinessProbe:
@@ -80,11 +85,17 @@ matomo:
   ##   secretKeyRef:
   ##     name: matomo-license
   ##     key: matomo-license
+  # -- Reference to a secret holding a premium plugin license, if any.
   license:
+
   ingress:
+    # -- Create Ingress resources for the dashboard and tracker.
     enabled: true
+    # -- Extra labels for the dashboard and tracker Ingress resources.
     extralabels: {}
+    # -- Extra annotations applied to both the dashboard and tracker Ingress resources.
     annotations: {}
+
   # -- Gateway API support. When enabled, HTTPRoutes are created for the
   # dashboard and tracker (using their `hostname` values) instead of - or
   # alongside - the Ingress resources. Requires the Gateway API CRDs and a
@@ -99,8 +110,11 @@ matomo:
     parentRefs: []
     # -- Extra labels for the HTTPRoutes.
     extralabels: {}
+
   cli:
+    # -- Number of replicas for the cli Deployment.
     replicas: 1
+    # -- Enable the cli Deployment (runs supervisord for one-off `console` commands via `kubectl exec`).
     enabled: true
     # -- Default resources for the Matomo cli container.
     resources:
@@ -110,6 +124,7 @@ matomo:
       limits:
         cpu: 500m
         memory: 512Mi
+    # -- Liveness probe for the cli container (checks supervisord is running).
     livenessProbe:
       exec:
         command:
@@ -118,6 +133,7 @@ matomo:
         - "ps -A | grep supervisord"
       initialDelaySeconds: 15
       periodSeconds: 20
+    # -- Readiness probe for the cli container (checks supervisord is running).
     readinessProbe:
       exec:
         command:
@@ -126,18 +142,25 @@ matomo:
         - "ps -A | grep supervisord"
       initialDelaySeconds: 10
       periodSeconds: 10
+
   cronJobs:
     coreArchive:
+      # -- Enable the core:archive CronJob.
       enabled: true
+      # -- Labels applied to the coreArchive CronJob (name, instance, component, part-of, managed-by).
       labels:
         name: matomo-jobs-corearchive
         instance: matomo
         component: cronjob
         partOf: matomo
         managedBy: helm
+      # -- Cron schedule for core:archive.
       schedule: "*/60 * * * *"
+      # -- concurrencyPolicy for the core:archive CronJob.
       concurrencyPolicy: Allow
+      # -- activeDeadlineSeconds for the core:archive Job.
       activeDeadlineSeconds: 43200
+      # -- Command run by the core:archive CronJob.
       command: ./console core:archive --disable-scheduled-tasks
       # -- Default resources for the core:archive cronjob.
       resources:
@@ -148,16 +171,27 @@ matomo:
           cpu: 1000m
           memory: 1Gi
     scheduledTasks:
+      ## PHP ini overrides for the scheduled-tasks CronJob container. Only
+      ## rendered (as a ConfigMap) when set. As:
+      ## php:
+      ##   memory_limit: 4G
+      ##   max_execution_time: 0
+      # -- PHP configuration overrides for the scheduled-tasks CronJob.
       php:
+      # -- Enable the scheduled-tasks CronJob.
       enabled: true
+      # -- Labels applied to the scheduledTasks CronJob (name, instance, component, part-of, managed-by).
       labels:
         name: matomo-jobs-scheduled-tasks
         instance: matomo
         component: cronjob
         partOf: matomo
         managedBy: helm
+      # -- Cron schedule for scheduled-tasks:run.
       schedule: "*/60 * * * *"
+      # -- activeDeadlineSeconds for the scheduled-tasks Job.
       activeDeadlineSeconds: 43200
+      # -- Command run by the scheduled-tasks CronJob.
       command: ./console scheduled-tasks:run
       # -- Default resources for the scheduled-tasks cronjob.
       resources:
@@ -167,9 +201,9 @@ matomo:
         limits:
           cpu: 1000m
           memory: 1Gi
+
   dashboard:
-    sidecars: []
-    ## added like this:
+    # -- Extra containers to run alongside the dashboard pod. Added like this:
     # sidecars:
     # - name: fpm-metrics
     #   image: hipages/php-fpm_exporter:2.2.0
@@ -181,20 +215,30 @@ matomo:
     #     requests:
     #       cpu: 40m
     #       memory: 32Mi
+    sidecars: []
+    # -- Enable the dashboard Deployment and Service.
     enabled: true
+    # -- Number of replicas for the dashboard Deployment.
     replicas: 1
+    # -- Create a LoadBalancer Service for the dashboard, used as the Ingress/HTTPRoute backend when true.
     loadbalancer: false
+    # -- Hostname used for the dashboard Ingress/HTTPRoute rule.
     hostname: my.host
+    # -- Add a TLS block to the dashboard Ingress for `hostname`.
     tls: false
     # -- Existing TLS secret name for the dashboard ingress.
     secretName: ""
+    # -- Credentials for the first (super)user, applied by the init container on install.
     firstuser:
       username: admin
       password: admin123
       email: foo@example.com
     nginx:
+      # -- Worker process count for the dashboard nginx.
       nginxWorkerProcesses: 5
+      # -- Override the nginx image used for the dashboard (falls back to `nginx.image` when empty).
       image: ''
+      # -- Override the full dashboard nginx configuration (nginx.conf, fastcgi_params, mime.types). As:
       # conf:
       #   nginx.conf: |
       #     worker_processes 5;
@@ -212,6 +256,7 @@ matomo:
       #       text/xml                                         xml;
       #       ...
       conf: ''
+      # -- Liveness probe for the dashboard nginx container.
       livenessProbe:
         exec:
           command:
@@ -220,6 +265,7 @@ matomo:
           - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
         initialDelaySeconds: 10
         periodSeconds: 5
+      # -- Readiness probe for the dashboard nginx container.
       readinessProbe:
         httpGet:
           scheme: HTTP
@@ -227,12 +273,17 @@ matomo:
           port: 8080
         initialDelaySeconds: 10
         periodSeconds: 5
+    # -- ingressClassName for the dashboard Ingress.
     ingressClassName: ""
     ingress:
+      # -- Extra annotations for the dashboard Ingress.
       annotations:
         digitalist.cloud/instance: "matomo"
+
   queuedTrackingMonitor:
+    # -- Enable the queuedtracking:monitor Deployment.
     enabled: true
+    # -- Liveness probe for the queuedtracking-monitor container (checks supervisord is running).
     livenessProbe:
       exec:
         command:
@@ -241,6 +292,7 @@ matomo:
         - "ps -A | grep supervisord"
       initialDelaySeconds: 15
       periodSeconds: 20
+    # -- Readiness probe for the queuedtracking-monitor container (checks supervisord is running).
     readinessProbe:
       exec:
         command:
@@ -253,7 +305,9 @@ matomo:
     # -- Enable the queuedtracking:process worker deployment. Required when
     # QueuedTracking runs with processDuringTrackingRequest disabled.
     enabled: false
+    # -- Number of replicas for the queuedtracking-process Deployment.
     replicas: 1
+    # -- Liveness probe for the queuedtracking-process container (checks supervisord is running).
     livenessProbe:
       exec:
         command:
@@ -262,6 +316,7 @@ matomo:
         - "ps -A | grep supervisord"
       initialDelaySeconds: 15
       periodSeconds: 20
+    # -- Readiness probe for the queuedtracking-process container (checks supervisord is running).
     readinessProbe:
       exec:
         command:
@@ -270,13 +325,19 @@ matomo:
         - "ps -A | grep supervisord"
       initialDelaySeconds: 10
       periodSeconds: 10
+
   tracker:
+    # -- Enable the tracker Deployment and Service.
     enabled: true
+    # -- Number of replicas for the tracker Deployment.
     replicas: 1
+    # -- Hostname used for the tracker Ingress/HTTPRoute rule.
     hostname: my.host
+    # -- Add a TLS block to the tracker Ingress for `hostname`.
     tls: false
     # -- Existing TLS secret name for the tracker ingress.
     secretName: ""
+    # -- Create a LoadBalancer Service for the tracker, used as the Ingress/HTTPRoute backend when true.
     loadbalancer: false
     # -- Default resources for the Matomo php-fpm container in the tracker.
     resources:
@@ -295,7 +356,9 @@ matomo:
         limits:
           cpu: 500m
           memory: 256Mi
+      # -- Worker process count for the tracker nginx.
       nginxWorkerProcesses: 5
+      # -- Liveness probe for the tracker nginx container.
       livenessProbe:
         exec:
           command:
@@ -304,6 +367,7 @@ matomo:
           - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
         initialDelaySeconds: 10
         periodSeconds: 5
+      # -- Readiness probe for the tracker nginx container.
       readinessProbe:
         httpGet:
           scheme: HTTP
@@ -311,18 +375,27 @@ matomo:
           port: 8080
         initialDelaySeconds: 10
         periodSeconds: 5
+    # -- php-fpm pool tuning for the tracker (process manager type, max children, idle timeout, max requests).
     phpfpm:
       type: ondemand
       max_children: 75
       process_idle_timeout: 600s
       max_requests: 500
+    # -- ingressClassName for the tracker Ingress.
     ingressClassName: ""
     ingress:
+      # -- Extra annotations for the tracker Ingress.
       annotations:
         digitalist.cloud/instance: "matomo"
+
+# -- Default nginx image and settings shared by the dashboard (unless
+# `matomo.dashboard.nginx.image` is set) and the tracker.
 nginx:
+  # -- nginx image used for the dashboard and tracker.
   image: digitalist/nginx:1.21.6
+  # -- Image pull secrets for the nginx image.
   imagePullSecrets: []
+  # -- run the nginx container as this user id.
   runAsUser: 100
   # -- Default resources for the dashboard nginx container.
   resources:
@@ -332,15 +405,23 @@ nginx:
     limits:
       cpu: 500m
       memory: 256Mi
+
 db:
+  # -- Database hostname.
   hostname: matomo-db-mysql
   password:
     secretKeyRef:
+      # -- Name of the secret holding the database password.
       name: matomo-db-mysql
+      # -- Key within the secret holding the database password.
       key: mysql-root-password
+  # -- Database name.
   name: matomo
+  # -- Database username.
   username: root
+  # -- Table prefix.
   prefix: matomo_
+
 # -- Extra secrets
 extraSecrets:
   create: false
