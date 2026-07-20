@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.4] - 2026-07-20
+
+### Added
+
+- Example for queued tracking process liveness probe.
+
 ## [12.0.3] - 2026-07-17
 
 ### Added

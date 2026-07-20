@@ -381,7 +381,15 @@ matomo:
     # @schema
     # additionalProperties: true
     # @schema
-    # -- Liveness probe for the queuedtracking-process container (checks supervisord is running).
+    # -- Liveness probe for the queuedtracking-process container (checks supervisord is running). Overriding replaces the default entirely. Example:
+    # livenessProbe:
+    #   exec:
+    #     command:
+    #     - /bin/sh
+    #     - -c
+    #     - "ps -A | grep supervisord"
+    #   initialDelaySeconds: 15
+    #   periodSeconds: 20
     livenessProbe: {}
     # @schema
     # additionalProperties: true

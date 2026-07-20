@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 12.0.3](https://img.shields.io/badge/Version-12.0.3-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
+![Version: 12.0.4](https://img.shields.io/badge/Version-12.0.4-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -87,7 +87,7 @@ A Helm chart for Matomo
 | matomo.queuedTrackingMonitor.readinessProbe | object | `{}` | Readiness probe for the queuedtracking-monitor container (checks supervisord is running). |
 | matomo.queuedTrackingMonitor.replicas | int | `1` | Number of replicas for the queuedtracking-monitor Deployment. |
 | matomo.queuedTrackingProcess.enabled | bool | `false` | Enable the queuedtracking:process worker deployment. Required when QueuedTracking runs with processDuringTrackingRequest disabled. |
-| matomo.queuedTrackingProcess.livenessProbe | object | `{}` | Liveness probe for the queuedtracking-process container (checks supervisord is running). |
+| matomo.queuedTrackingProcess.livenessProbe | object | `{}` | Liveness probe for the queuedtracking-process container (checks supervisord is running). Overriding replaces the default entirely. Example: livenessProbe:   exec:     command:     - /bin/sh     - -c     - "ps -A | grep supervisord"   initialDelaySeconds: 15   periodSeconds: 20 |
 | matomo.queuedTrackingProcess.numProcs | int | `1` | Number of supervisord worker processes for queuedtracking:process per pod. |
 | matomo.queuedTrackingProcess.readinessProbe | object | `{}` | Readiness probe for the queuedtracking-process container (checks supervisord is running). |
 | matomo.queuedTrackingProcess.replicas | int | `1` | Number of replicas for the queuedtracking-process Deployment. |
