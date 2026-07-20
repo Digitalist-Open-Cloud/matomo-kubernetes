@@ -403,7 +403,7 @@ matomo:
     # -- Number of replicas for the tracker Deployment.
     replicas: 1
     # -- Hostname used for the tracker Ingress/HTTPRoute rule.
-    hostname: my.host
+    hostname: tracker.my.host
     # -- Add a TLS block to the tracker Ingress for `hostname`.
     tls: false
     # -- Existing TLS secret name for the tracker ingress.

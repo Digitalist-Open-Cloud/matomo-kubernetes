@@ -973,7 +973,7 @@
               "title": "exporter"
             },
             "hostname": {
-              "default": "my.host",
+              "default": "tracker.my.host",
               "description": "Hostname used for the tracker Ingress/HTTPRoute rule.",
               "required": [],
               "title": "hostname"

@@ -98,7 +98,7 @@ A Helm chart for Matomo
 | matomo.tracker.exporter | object | `{"livenessProbe":{},"readinessProbe":{}}` | php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod. |
 | matomo.tracker.exporter.livenessProbe | object | `{}` | Liveness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
 | matomo.tracker.exporter.readinessProbe | object | `{}` | Readiness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
-| matomo.tracker.hostname | string | `"my.host"` | Hostname used for the tracker Ingress/HTTPRoute rule. |
+| matomo.tracker.hostname | string | `"tracker.my.host"` | Hostname used for the tracker Ingress/HTTPRoute rule. |
 | matomo.tracker.ingress.annotations | object | `{"digitalist.cloud/instance":"matomo"}` | Extra annotations for the tracker Ingress. |
 | matomo.tracker.ingressClassName | string | `""` | ingressClassName for the tracker Ingress. |
 | matomo.tracker.loadbalancer | bool | `false` | Create a LoadBalancer Service for the tracker, used as the Ingress/HTTPRoute backend when true. |
