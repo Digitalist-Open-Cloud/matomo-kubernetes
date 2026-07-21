@@ -39,57 +39,102 @@ imagePullSecrets:
       key: {{ .Values.matomo.license.secretKeyRef.key }}
 {{- end -}}
 {{- end -}}
+{{- define "matomo.initContainer" -}}
+- name: matomo-init
+  image: {{.Values.matomo.image}}
+  securityContext:
+    runAsUser: {{.Values.matomo.runAsUser}}
+    privileged: false
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
+  imagePullPolicy: Always
+  env:
+  - name: MATOMO_FIRST_USER_NAME
+    value: {{.Values.matomo.dashboard.firstuser.username}}
+  - name: MATOMO_FIRST_USER_EMAIL
+    value: {{.Values.matomo.dashboard.firstuser.email}}
+  - name: MATOMO_FIRST_USER_PASSWORD
+    value: {{.Values.matomo.dashboard.firstuser.password}}
+  - name: MATOMO_DB_HOST
+    value: {{.Values.db.hostname}}
+  - name: MATOMO_DB_NAME
+    value: {{.Values.db.name}}
+{{- if .Values.db.prefix }}
+  - name: MATOMO_DB_PREFIX
+    value: {{.Values.db.prefix}}
+{{- end }}
+  - name: MATOMO_DB_USERNAME
+    value: {{.Values.db.username}}
+  - name: MATOMO_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ .Values.db.password.secretKeyRef.name }}
+        key: {{ .Values.db.password.secretKeyRef.key }}
+{{- include "matomo.license" . | nindent 2 }}
+  command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
+  resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  volumeMounts:
+    - name: static-data
+      mountPath: /var/www/html
+    - name: matomo-configuration
+      mountPath: /tmp/matomo/
+      readOnly: true
+{{- end -}}
+
 {{- define "matomo.init" -}}
 initContainers:
-  - name: matomo-init
-    image: {{.Values.matomo.image}}
-    securityContext:
-      runAsUser: {{.Values.matomo.runAsUser}}
-      privileged: false
-      allowPrivilegeEscalation: false
-      runAsNonRoot: true
-      capabilities:
-        drop:
-          - ALL
-    imagePullPolicy: Always
-    env:
-    - name: MATOMO_FIRST_USER_NAME
-      value: {{.Values.matomo.dashboard.firstuser.username}}
-    - name: MATOMO_FIRST_USER_EMAIL
-      value: {{.Values.matomo.dashboard.firstuser.email}}
-    - name: MATOMO_FIRST_USER_PASSWORD
-      value: {{.Values.matomo.dashboard.firstuser.password}}
-    - name: MATOMO_DB_HOST
-      value: {{.Values.db.hostname}}
-    - name: MATOMO_DB_NAME
-      value: {{.Values.db.name}}
-{{ if .Values.db.prefix }}
-    - name: MATOMO_DB_PREFIX
-      value: {{.Values.db.prefix}}
-{{- end }}
-    - name: MATOMO_DB_USERNAME
-      value: {{.Values.db.username}}
-    - name: MATOMO_DB_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: {{ .Values.db.password.secretKeyRef.name }}
-          key: {{ .Values.db.password.secretKeyRef.key }}
-{{- include "matomo.license" . | nindent 4 }}
-    command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
-    resources:
-      limits:
-        cpu: 200m
-        memory: 512Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
-    volumeMounts:
-      - name: static-data
-        mountPath: /var/www/html
-      - name: matomo-configuration
-        mountPath: /tmp/matomo/
-        readOnly: true
+  {{- include "matomo.initContainer" . | nindent 2 }}
+{{- end -}}
 
+{{/*
+matomo-init fails fast when the database is unreachable, so a Job would burn
+its backoff retries while a fresh database is still provisioning. Bounded so
+an unreachable database fails the Job instead of hanging it forever.
+*/}}
+{{- define "matomo.waitForDb" -}}
+- name: wait-for-db
+  image: {{.Values.matomo.image}}
+  securityContext:
+    runAsUser: {{.Values.matomo.runAsUser}}
+    privileged: false
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
+  imagePullPolicy: Always
+  command:
+    - bash
+    - -c
+    - |
+      host={{.Values.db.hostname}}
+      port={{.Values.db.port | default 3306}}
+      for i in $(seq 1 180); do
+        if (echo > /dev/tcp/$host/$port) 2>/dev/null; then
+          echo "database $host:$port is reachable"
+          exit 0
+        fi
+        echo "waiting for database $host:$port ($i/180)"
+        sleep 5
+      done
+      echo "database $host:$port not reachable after 15 minutes, giving up"
+      exit 1
+  resources:
+    limits:
+      cpu: 100m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 16Mi
 {{- end -}}
 
 {{/*

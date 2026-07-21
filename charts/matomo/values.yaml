@@ -493,6 +493,8 @@ nginx:
 db:
   # -- Database hostname.
   hostname: matomo-db-mysql
+  # -- Database port.
+  port: 3306
   password:
     secretKeyRef:
       # -- Name of the secret holding the database password.
