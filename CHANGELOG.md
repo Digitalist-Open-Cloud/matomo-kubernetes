@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.5] - 2026-07-21
+
+### Added
+
+- Make post-install and pre-upgrade jobs work without pre-existing matomo-startup-config ConfigMap (#72)
+
 ## [12.0.4] - 2026-07-20
 
 ### Added

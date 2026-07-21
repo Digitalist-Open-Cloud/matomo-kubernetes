@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 12.0.4](https://img.shields.io/badge/Version-12.0.4-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
+![Version: 12.0.5](https://img.shields.io/badge/Version-12.0.5-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
