@@ -12,6 +12,7 @@ A Helm chart for Matomo
 | db.name | string | `"matomo"` | Database name. |
 | db.password.secretKeyRef.key | string | `"mysql-root-password"` | Key within the secret holding the database password. |
 | db.password.secretKeyRef.name | string | `"matomo-db-mysql"` | Name of the secret holding the database password. |
+| db.port | int | `3306` | Database port. |
 | db.prefix | string | `"matomo_"` | Table prefix. |
 | db.username | string | `"root"` | Database username. |
 | extraConfigMaps | object | `{"create":false,"data":{}}` | Extra configMaps |

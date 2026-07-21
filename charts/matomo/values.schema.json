@@ -45,6 +45,12 @@
           "title": "password",
           "type": "object"
         },
+        "port": {
+          "default": "3306",
+          "description": "Database port.",
+          "required": [],
+          "title": "port"
+        },
         "prefix": {
           "default": "matomo_",
           "description": "Table prefix.",

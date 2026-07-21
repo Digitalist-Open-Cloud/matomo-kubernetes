@@ -29,6 +29,14 @@ spec:
           type: RuntimeDefault
       restartPolicy: Never
 {{ include "matomo.images.pullSecrets" ( dict "images" (list .Values.matomo) "global" .Values.global) | nindent 6 }}
+      # Under plain helm this hook runs before release resources are updated, so
+      # it sees the previous release's matomo-configuration and never runs on
+      # install. The init containers make the Job self-sufficient, so it also
+      # works when tools like ArgoCD run it as a sync hook on a fresh namespace
+      # where the database is still provisioning.
+      initContainers:
+{{ include "matomo.waitForDb" . | nindent 8 }}
+{{ include "matomo.initContainer" . | nindent 8 }}
       containers:
       - name: pre-upgrade-matomo
         image: {{.Values.matomo.image}}
@@ -49,41 +57,19 @@ spec:
             drop:
               - ALL
         volumeMounts:
-        - name: matomo-startup-config
-          mountPath: /var/www/html/config/config.ini.php
-          subPath: config.ini.php
+        - name: static-data
+          mountPath: /var/www/html
         - name: matomo-pre-upgrade-additional-config-maps
           mountPath: /var/www/html/config/common.config.ini.php
           subPath: common.config.ini.php
         # To do anything with Matomo, we first need to bootstrap it (curl).
         command:  [ 'bash' , '-c' , 'sleep {{.Values.matomo.preUpgradeSleepTime}}; curl -Il --max-time 10 https://{{.Values.matomo.dashboard.hostname}}; {{.Values.matomo.preUpgradeCommand}}' ]
-        env:
-        - name: MATOMO_FIRST_USER_NAME
-          value: {{.Values.matomo.dashboard.firstuser.username}}
-        - name: MATOMO_FIRST_USER_EMAIL
-          value: {{.Values.matomo.dashboard.firstuser.email}}
-        - name: MATOMO_FIRST_USER_PASSWORD
-          value: {{.Values.matomo.dashboard.firstuser.password}}
-        - name: MATOMO_DB_HOST
-          value: {{.Values.db.hostname}}
-        - name: MATOMO_DB_NAME
-          value: {{.Values.db.name}}
-        {{ if .Values.db.prefix }}
-        - name: MATOMO_DB_PREFIX
-          value: {{.Values.db.prefix}}
-        {{ end }}
-        - name: MATOMO_DB_USERNAME
-          value: {{.Values.db.username}}
-        - name: MATOMO_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Values.db.password.secretKeyRef.name }}
-              key: {{ .Values.db.password.secretKeyRef.key }}
-{{ include "matomo.license" . | nindent 8 }}
       volumes:
-        - name: matomo-startup-config
+        - name: matomo-configuration
           configMap:
-            name: matomo-startup-config
+            name: matomo-configuration
+        - name: static-data
+          emptyDir: {}
 {{ if  .Values.extraConfigMaps.create }}
         - name: matomo-pre-upgrade-additional-config-maps
           configMap:
