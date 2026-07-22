@@ -38,13 +38,10 @@ spec:
       - name: post-install-matomo
         image: {{.Values.matomo.image}}
         imagePullPolicy: Always
+        {{- if .Values.matomo.postInstallResources }}
         resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
+{{ toYaml .Values.matomo.postInstallResources | indent 10 }}
+        {{- end }}
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
           runAsNonRoot: true

@@ -41,6 +41,26 @@ matomo:
       cpu: 1000m
       memory: 768Mi
 
+  # -- Resources for the shared matomo-init init container (runs on every
+  # workload: dashboard, tracker, cli, cronjobs, queuedtracking, pre-upgrade
+  # and post-install Jobs).
+  initResources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  # -- Resources for the wait-for-db init container (pre-upgrade and
+  # post-install Jobs only).
+  waitForDbResources:
+    limits:
+      cpu: 100m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 16Mi
+
   # -- Install command. If already installed, it just creates the needed config.
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   ## Full replacement for the default install.json used by installCommand.
@@ -65,11 +85,27 @@ matomo:
   # -- Command to run in a post-install Job. The Job (and its resources) is
   # only created when this is non-empty.
   postInstallCommand: ""
+  # -- Default resources for the post-install Job container.
+  postInstallResources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
   # -- Seconds the pre-upgrade Job sleeps before running `preUpgradeCommand`.
   preUpgradeSleepTime: 5
   # -- Command to run in a pre-upgrade Job. The Job (and its resources) is
   # only created when this is non-empty.
   preUpgradeCommand: ""
+  # -- Default resources for the pre-upgrade Job container.
+  preUpgradeResources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
   # @schema
   # additionalProperties: true
   # @schema
@@ -296,6 +332,14 @@ matomo:
       email: foo@example.com
     # -- php-fpm_exporter (fpm-metrics) sidecar probes for the dashboard pod.
     exporter:
+      # -- Default resources for the dashboard php-fpm_exporter (fpm-metrics) container.
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 15m
+          memory: 32Mi
       # @schema
       # additionalProperties: true
       # @schema
@@ -360,6 +404,14 @@ matomo:
     enabled: true
     # -- Number of replicas for the queuedtracking-monitor Deployment.
     replicas: 1
+    # -- Default resources for the queuedtracking-monitor container.
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 300m
+      limits:
+        memory: 180Mi
+        cpu: 500m
     # @schema
     # additionalProperties: true
     # @schema
@@ -378,6 +430,14 @@ matomo:
     replicas: 1
     # -- Number of supervisord worker processes for queuedtracking:process per pod.
     numProcs: 1
+    # -- Default resources for the queuedtracking-process container.
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 250m
+      limits:
+        memory: 220Mi
+        cpu: "1"
     # @schema
     # additionalProperties: true
     # @schema
@@ -420,6 +480,14 @@ matomo:
         memory: 768Mi
     # -- php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod.
     exporter:
+      # -- Default resources for the tracker php-fpm_exporter (fpm-metrics) container.
+      resources:
+        limits:
+          cpu: 40m
+          memory: 32Mi
+        requests:
+          cpu: 40m
+          memory: 32Mi
       # @schema
       # additionalProperties: true
       # @schema

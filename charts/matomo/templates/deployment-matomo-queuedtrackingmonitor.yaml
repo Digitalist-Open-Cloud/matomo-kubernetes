@@ -33,13 +33,10 @@ spec:
       containers:
       - name: matomo
         image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.queuedTrackingMonitor.resources }}
         resources:
-          requests:
-            memory: "128Mi"
-            cpu: "300m"
-          limits:
-            memory: "180Mi"
-            cpu: "500m"
+{{ toYaml .Values.matomo.queuedTrackingMonitor.resources | indent 10 }}
+        {{- end }}
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false

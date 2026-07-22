@@ -44,13 +44,10 @@ spec:
         imagePullPolicy: Always
         livenessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.tracker.exporter.livenessProbe "default" (include "matomo.probe.default.exporter.liveness" .)) | nindent 10 }}
         readinessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.tracker.exporter.readinessProbe "default" (include "matomo.probe.default.exporter.readiness" .)) | nindent 10 }}
+        {{- if .Values.matomo.tracker.exporter.resources }}
         resources:
-          limits:
-            cpu: 40m
-            memory: 32Mi
-          requests:
-            cpu: 40m
-            memory: 32Mi
+{{ toYaml .Values.matomo.tracker.exporter.resources | indent 10 }}
+        {{- end }}
       - name: nginx
         image: {{.Values.nginx.image}}
         imagePullPolicy: Always

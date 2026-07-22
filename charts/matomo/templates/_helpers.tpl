@@ -75,13 +75,10 @@ imagePullSecrets:
         key: {{ .Values.db.password.secretKeyRef.key }}
 {{- include "matomo.license" . | nindent 2 }}
   command: [ 'sh' , '-c' , 'rsync -crlOt --no-owner --no-group --no-perms /usr/src/matomo/ /var/www/html/ && {{.Values.matomo.installCommand}}' ]
+  {{- if .Values.matomo.initResources }}
   resources:
-    limits:
-      cpu: 200m
-      memory: 512Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+{{ toYaml .Values.matomo.initResources | indent 4 }}
+  {{- end }}
   volumeMounts:
     - name: static-data
       mountPath: /var/www/html
@@ -128,13 +125,10 @@ an unreachable database fails the Job instead of hanging it forever.
       done
       echo "database $host:$port not reachable after 15 minutes, giving up"
       exit 1
+  {{- if .Values.matomo.waitForDbResources }}
   resources:
-    limits:
-      cpu: 100m
-      memory: 64Mi
-    requests:
-      cpu: 10m
-      memory: 16Mi
+{{ toYaml .Values.matomo.waitForDbResources | indent 4 }}
+  {{- end }}
 {{- end -}}
 
 {{/*

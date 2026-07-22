@@ -50,13 +50,10 @@ spec:
           value: "true"
         livenessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.dashboard.exporter.livenessProbe "default" (include "matomo.probe.default.exporter.liveness" .)) | nindent 10 }}
         readinessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.dashboard.exporter.readinessProbe "default" (include "matomo.probe.default.exporter.readiness" .)) | nindent 10 }}
+        {{- if .Values.matomo.dashboard.exporter.resources }}
         resources:
-          limits:
-            cpu: 100m
-            memory: 128Mi
-          requests:
-            cpu: 15m
-            memory: 32Mi
+{{ toYaml .Values.matomo.dashboard.exporter.resources | indent 10 }}
+        {{- end }}
       - name: nginx
         {{- if .Values.matomo.dashboard.nginx.image }}
         image: {{.Values.matomo.dashboard.nginx.image}}
