@@ -1,5 +1,11 @@
 # Change log
 
+## [Unreleased]
+
+### Added
+
+- Overridable resources for containers whose limits/requests were previously hardcoded in templates: the shared `matomo-init` init container (`matomo.initResources`), the `wait-for-db` init container used by the pre-upgrade/post-install Jobs (`matomo.waitForDbResources`), the pre-upgrade and post-install Job containers (`matomo.preUpgradeResources`, `matomo.postInstallResources`), the queuedtracking-monitor and queuedtracking-process containers (`matomo.queuedTrackingMonitor.resources`, `matomo.queuedTrackingProcess.resources`), and the dashboard/tracker fpm-metrics exporter sidecars (`matomo.dashboard.exporter.resources`, `matomo.tracker.exporter.resources`). Defaults are unchanged.
+
 ## [12.0.5] - 2026-07-21
 
 ### Added

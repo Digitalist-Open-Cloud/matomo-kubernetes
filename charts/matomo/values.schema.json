@@ -516,6 +516,50 @@
                   "description": "Readiness probe for the dashboard php-fpm_exporter (fpm-metrics) container.",
                   "required": [],
                   "title": "readinessProbe"
+                },
+                "resources": {
+                  "additionalProperties": false,
+                  "description": "Default resources for the dashboard php-fpm_exporter (fpm-metrics) container.",
+                  "properties": {
+                    "limits": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cpu": {
+                          "default": "100m",
+                          "title": "cpu",
+                          "type": "string"
+                        },
+                        "memory": {
+                          "default": "128Mi",
+                          "title": "memory",
+                          "type": "string"
+                        }
+                      },
+                      "required": [],
+                      "title": "limits",
+                      "type": "object"
+                    },
+                    "requests": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cpu": {
+                          "default": "15m",
+                          "title": "cpu",
+                          "type": "string"
+                        },
+                        "memory": {
+                          "default": "32Mi",
+                          "title": "memory",
+                          "type": "string"
+                        }
+                      },
+                      "required": [],
+                      "title": "requests",
+                      "type": "object"
+                    }
+                  },
+                  "required": [],
+                  "title": "resources"
                 }
               },
               "required": [],
@@ -754,6 +798,50 @@
           "title": "ingress",
           "type": "object"
         },
+        "initResources": {
+          "additionalProperties": false,
+          "description": "Resources for the shared matomo-init init container (runs on every workload: dashboard, tracker, cli, cronjobs, queuedtracking, pre-upgrade and post-install Jobs).",
+          "properties": {
+            "limits": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "200m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "512Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "initResources"
+        },
         "installCommand": {
           "default": "./console plugin:activate ExtraTools \u0026\u0026 ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db",
           "description": "Install command. If already installed, it just creates the needed config.",
@@ -805,6 +893,50 @@
           "required": [],
           "title": "postInstallCommand"
         },
+        "postInstallResources": {
+          "additionalProperties": false,
+          "description": "Default resources for the post-install Job container.",
+          "properties": {
+            "limits": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "500m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "512Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "postInstallResources"
+        },
         "postInstallSleepTime": {
           "default": "5",
           "description": "Seconds the post-install Job sleeps before running `postInstallCommand` (gives Matomo time to finish bootstrapping).",
@@ -816,6 +948,50 @@
           "description": "Command to run in a pre-upgrade Job. The Job (and its resources) is only created when this is non-empty.",
           "required": [],
           "title": "preUpgradeCommand"
+        },
+        "preUpgradeResources": {
+          "additionalProperties": false,
+          "description": "Default resources for the pre-upgrade Job container.",
+          "properties": {
+            "limits": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "500m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "512Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "preUpgradeResources"
         },
         "preUpgradeSleepTime": {
           "default": "5",
@@ -849,6 +1025,50 @@
               "description": "Number of replicas for the queuedtracking-monitor Deployment.",
               "required": [],
               "title": "replicas"
+            },
+            "resources": {
+              "additionalProperties": false,
+              "description": "Default resources for the queuedtracking-monitor container.",
+              "properties": {
+                "limits": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "default": "500m",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "180Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "limits",
+                  "type": "object"
+                },
+                "requests": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "default": "300m",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "128Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "requests",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "resources"
             }
           },
           "required": [],
@@ -887,6 +1107,50 @@
               "description": "Number of replicas for the queuedtracking-process Deployment.",
               "required": [],
               "title": "replicas"
+            },
+            "resources": {
+              "additionalProperties": false,
+              "description": "Default resources for the queuedtracking-process container.",
+              "properties": {
+                "limits": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "default": "1",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "220Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "limits",
+                  "type": "object"
+                },
+                "requests": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "default": "250m",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "128Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "requests",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "resources"
             }
           },
           "required": [],
@@ -973,6 +1237,50 @@
                   "description": "Readiness probe for the tracker php-fpm_exporter (fpm-metrics) container.",
                   "required": [],
                   "title": "readinessProbe"
+                },
+                "resources": {
+                  "additionalProperties": false,
+                  "description": "Default resources for the tracker php-fpm_exporter (fpm-metrics) container.",
+                  "properties": {
+                    "limits": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cpu": {
+                          "default": "40m",
+                          "title": "cpu",
+                          "type": "string"
+                        },
+                        "memory": {
+                          "default": "32Mi",
+                          "title": "memory",
+                          "type": "string"
+                        }
+                      },
+                      "required": [],
+                      "title": "limits",
+                      "type": "object"
+                    },
+                    "requests": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cpu": {
+                          "default": "40m",
+                          "title": "cpu",
+                          "type": "string"
+                        },
+                        "memory": {
+                          "default": "32Mi",
+                          "title": "memory",
+                          "type": "string"
+                        }
+                      },
+                      "required": [],
+                      "title": "requests",
+                      "type": "object"
+                    }
+                  },
+                  "required": [],
+                  "title": "resources"
                 }
               },
               "required": [],
@@ -1206,6 +1514,50 @@
           "required": [],
           "title": "tracker",
           "type": "object"
+        },
+        "waitForDbResources": {
+          "additionalProperties": false,
+          "description": "Resources for the wait-for-db init container (pre-upgrade and post-install Jobs only).",
+          "properties": {
+            "limits": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "64Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "10m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "16Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "waitForDbResources"
         }
       },
       "required": [],
