@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 12.0.6](https://img.shields.io/badge/Version-12.0.6-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
+![Version: 12.0.7](https://img.shields.io/badge/Version-12.0.7-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -80,7 +80,7 @@ A Helm chart for Matomo
 | matomo.license | string | `nil` | Reference to a secret holding a premium plugin license, if any. |
 | matomo.livenessProbe | object | `{}` | Liveness probe for the Matomo php-fpm containers (dashboard, tracker). |
 | matomo.php | string | `nil` | php.ini overrides for the dashboard and core:archive php-fpm containers. |
-| matomo.phpfpm | string | `nil` | php-fpm pool tuning for the dashboard and core:archive php-fpm containers. |
+| matomo.phpfpm | string | `nil` | php-fpm pool tuning for the dashboard's php-fpm container. |
 | matomo.postInstallCommand | string | `""` | Command to run in a post-install Job. The Job (and its resources) is only created when this is non-empty. |
 | matomo.postInstallResources | object | `{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the post-install Job container. |
 | matomo.postInstallSleepTime | int | `5` | Seconds the post-install Job sleeps before running `postInstallCommand` (gives Matomo time to finish bootstrapping). |
@@ -99,7 +99,7 @@ A Helm chart for Matomo
 | matomo.queuedTrackingProcess.replicas | int | `1` | Number of replicas for the queuedtracking-process Deployment. |
 | matomo.queuedTrackingProcess.resources | object | `{"limits":{"cpu":"1","memory":"220Mi"},"requests":{"cpu":"250m","memory":"128Mi"}}` | Default resources for the queuedtracking-process container. |
 | matomo.readinessProbe | object | `{}` | Readiness probe for the Matomo php-fpm containers (dashboard, tracker). |
-| matomo.resources | object | `{"limits":{"cpu":"1000m","memory":"768Mi"},"requests":{"cpu":"300m","memory":"256Mi"}}` | Default resources for the Matomo php-fpm container (dashboard). |
+| matomo.resources | object | `{"limits":{"cpu":"2000m","memory":"4Gi"},"requests":{"cpu":"500m","memory":"512Mi"}}` | Default resources for the Matomo php-fpm container (dashboard). Sized for matomo.phpfpm's default pm.max_children (32): ~120Mi/worker realistic average plus headroom for the FPM master and occasional heavier requests. If you change pm.max_children, revisit this limit (and vice versa). |
 | matomo.runAsUser | int | `82` | run container as user id. |
 | matomo.tracker.enabled | bool | `true` | Enable the tracker Deployment and Service. |
 | matomo.tracker.exporter | object | `{"livenessProbe":{},"readinessProbe":{},"resources":{"limits":{"cpu":"40m","memory":"32Mi"},"requests":{"cpu":"40m","memory":"32Mi"}}}` | php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod. |

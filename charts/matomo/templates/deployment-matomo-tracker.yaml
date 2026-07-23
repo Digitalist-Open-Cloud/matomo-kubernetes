@@ -48,6 +48,9 @@ spec:
         resources:
 {{ toYaml .Values.matomo.tracker.exporter.resources | indent 10 }}
         {{- end }}
+        ports:
+        - name: metrics
+          containerPort: 9253
       - name: nginx
         image: {{.Values.nginx.image}}
         imagePullPolicy: Always
@@ -175,9 +178,18 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: matomo-tracker
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9253"
+    prometheus.io/path: "/metrics"
 spec:
   ports:
-    - port: 8080
+    - name: http
+      port: 8080
+      protocol: TCP
+    - name: metrics
+      port: 9253
+      targetPort: metrics
       protocol: TCP
   selector:
     app: matomo-tracker

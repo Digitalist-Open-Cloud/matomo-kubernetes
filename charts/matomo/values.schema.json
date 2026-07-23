@@ -879,7 +879,7 @@
         "phpfpm": {
           "additionalProperties": true,
           "default": "",
-          "description": "php-fpm pool tuning for the dashboard and core:archive php-fpm containers.",
+          "description": "php-fpm pool tuning for the dashboard's php-fpm container.",
           "required": [],
           "title": "phpfpm",
           "type": [
@@ -1165,18 +1165,18 @@
         },
         "resources": {
           "additionalProperties": false,
-          "description": "Default resources for the Matomo php-fpm container (dashboard).",
+          "description": "Default resources for the Matomo php-fpm container (dashboard). Sized for matomo.phpfpm's default pm.max_children (32): ~120Mi/worker realistic average plus headroom for the FPM master and occasional heavier requests. If you change pm.max_children, revisit this limit (and vice versa).",
           "properties": {
             "limits": {
               "additionalProperties": false,
               "properties": {
                 "cpu": {
-                  "default": "1000m",
+                  "default": "2000m",
                   "title": "cpu",
                   "type": "string"
                 },
                 "memory": {
-                  "default": "768Mi",
+                  "default": "4Gi",
                   "title": "memory",
                   "type": "string"
                 }
@@ -1189,12 +1189,12 @@
               "additionalProperties": false,
               "properties": {
                 "cpu": {
-                  "default": "300m",
+                  "default": "500m",
                   "title": "cpu",
                   "type": "string"
                 },
                 "memory": {
-                  "default": "256Mi",
+                  "default": "512Mi",
                   "title": "memory",
                   "type": "string"
                 }
