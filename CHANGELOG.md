@@ -1,5 +1,15 @@
 # Change log
 
+## [12.0.11] - 2026-07-24
+
+### Fixed
+
+- Config changes (e.g. editing `matomo.phpfpm`, nginx config, php.ini overrides) previously didn't trigger a pod restart on `helm upgrade`: the only checksum annotation in the chart covered `configmap-matomo.yaml` alone, so updating any of the other ~12 ConfigMaps (php-fpm pool, nginx, supervisor, php.ini) updated the ConfigMap object but left already-running pods on the stale mounted content until they happened to restart for an unrelated reason - which is exactly why the slowlog change earlier didn't take effect until a manual rollout restart. Replaced it with `matomo.configChecksum`, a combined checksum over every ConfigMap template the chart renders, applied via a new shared `matomo.podAnnotations` helper to every Deployment, CronJob, and the pre-upgrade/post-install Jobs.
+
+### Added
+
+- `helm.sh/chart-version` and `app.kubernetes.io/version` pod-template annotations on every workload (via the same `matomo.podAnnotations` helper), so the chart/app version that produced a given pod is visible on the object itself, and bumping the chart version alone forces a rolling restart even if no rendered content changed.
+
 ## [12.0.10] - 2026-07-23
 
 ### Added

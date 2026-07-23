@@ -15,6 +15,9 @@ spec:
     spec:
       activeDeadlineSeconds: {{.Values.matomo.cronJobs.coreArchive.activeDeadlineSeconds}}
       template:
+        metadata:
+          annotations:
+{{ include "matomo.podAnnotations" . | indent 12 }}
         spec:
           automountServiceAccountToken: {{ .Values.matomo.automountServiceAccountToken }}
           securityContext:

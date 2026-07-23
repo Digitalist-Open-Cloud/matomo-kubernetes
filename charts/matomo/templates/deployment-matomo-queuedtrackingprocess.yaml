@@ -23,7 +23,7 @@ spec:
 {{ toYaml .Values.matomo.extralabels | indent 8 }}
 {{- end }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
+{{ include "matomo.podAnnotations" . | indent 8 }}
     spec:
       automountServiceAccountToken: {{ .Values.matomo.automountServiceAccountToken }}
       securityContext:

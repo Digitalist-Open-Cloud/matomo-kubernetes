@@ -22,6 +22,8 @@ spec:
         app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
         app.kubernetes.io/instance: {{ .Release.Name | quote }}
         helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+      annotations:
+{{ include "matomo.podAnnotations" . | indent 8 }}
     spec:
       automountServiceAccountToken: {{ .Values.matomo.automountServiceAccountToken }}
       securityContext:

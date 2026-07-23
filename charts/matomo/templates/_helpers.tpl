@@ -8,6 +8,60 @@
     app.kubernetes.io/managed-by: {{ .managedBy }}
 {{- end }}
 
+{{/*
+Combined checksum of every ConfigMap this chart renders.
+
+Kubernetes only rolls a Deployment/CronJob's pods when the pod template
+itself changes; updating a ConfigMap's content does not by itself trigger
+anything, so without a checksum baked into the pod template, `helm upgrade`
+(or `kubectl apply`) updates the ConfigMap object but already-running pods
+keep using the stale mounted file until they restart for some unrelated
+reason. This is deliberately chart-wide (every ConfigMap template, not just
+the ones a given workload happens to mount today) rather than computed
+per-workload: simpler to keep correct than tracking which of the ~12
+ConfigMap templates each workload mounts - that's exactly how this
+annotation previously only covered configmap-matomo.yaml and silently
+missed every ConfigMap added since (e.g. the php-fpm pool config).
+*/}}
+{{- define "matomo.configChecksum" -}}
+{{- $ctx := . -}}
+{{- $templates := list
+  "configmap-matomo.yaml"
+  "configmap-matomo-phpfpm.yaml"
+  "configmap-matomo-phpfpm-tracker.yaml"
+  "configmap-matomo-dashboard-php.yaml"
+  "configmap-matomo-cronjob-php.yaml"
+  "configmap-matomo-scheduledtasks-php.yaml"
+  "configmap-nginx-matomo-dashboard.yaml"
+  "configmap-nginx-matomo-tracker.yaml"
+  "configmap-supervisor-tracker.yaml"
+  "configmap-supervisor-queuedtrackingmonitor.yaml"
+  "configmap-supervisor-queuedtrackingprocess.yaml"
+  "configmap-pre-upgrade-extras.yaml"
+  "configmaps-extras.yaml"
+-}}
+{{- $rendered := "" -}}
+{{- range $templates -}}
+{{- $rendered = print $rendered (include (print $ctx.Template.BasePath "/" .) $ctx) -}}
+{{- end -}}
+{{- $rendered | sha256sum -}}
+{{- end -}}
+
+{{/*
+Standard pod-template annotations: the combined config checksum above, plus
+the chart version and app version that rendered this pod. Bumping the chart
+version alone (even with no rendered content change) also forces a restart,
+as a second line of defense alongside the checksum. Include under
+`annotations:` at the caller's indent, e.g.:
+  annotations:
+    (include "matomo.podAnnotations" . | indent 8, wrapped in {{ }})
+*/}}
+{{- define "matomo.podAnnotations" -}}
+checksum/config: {{ include "matomo.configChecksum" . }}
+helm.sh/chart-version: {{ .Chart.Version | quote }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end -}}
+
 {{- define "matomo.images.pullSecrets" -}}
   {{- $pullSecrets := list }}
 
