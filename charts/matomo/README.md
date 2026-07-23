@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 12.0.11](https://img.shields.io/badge/Version-12.0.11-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
+![Version: 12.0.12](https://img.shields.io/badge/Version-12.0.12-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -120,6 +120,8 @@ A Helm chart for Matomo
 | matomo.tracker.secretName | string | `""` | Existing TLS secret name for the tracker ingress. |
 | matomo.tracker.tls | bool | `false` | Add a TLS block to the tracker Ingress for `hostname`. |
 | matomo.waitForDbResources | object | `{"limits":{"cpu":"100m","memory":"64Mi"},"requests":{"cpu":"10m","memory":"16Mi"}}` | Resources for the wait-for-db init container (pre-upgrade and post-install Jobs only). |
+| matomo.warmupCommand | string | `"./console core:update --yes --no-interaction && if ./console list --raw 2>/dev/null | grep -q \"^tagmanager:regenerate-released-containers \"; then ./console tagmanager:regenerate-released-containers; fi"` | force` (in installCommand above) doesn't itself fire the plugin install/update events some plugins (e.g. TagManager) hook to regenerate generated assets - normally left to happen lazily on the first web request(s) after a (re)start. Since static-data is an emptyDir, that bookkeeping resets on every fresh pod, so without this, concurrent probes/traffic on every restart each independently race to redo that (expensive) regeneration. Running it once here, synchronously, avoids that. The `tagmanager:regenerate-released-containers` call is guarded by an `./console list` check, since TagManager isn't in the default install.json PluginsInstalled list (see matomo.config above) - on a fresh install (or any site where TagManager has never been activated) the command doesn't exist yet, and this must not fail the init container. |
+| matomo.warmupResources | object | `{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Resources for the matomo-warmup init container (dashboard and tracker). |
 | namespace | string | `"matomo"` | Namespace to install Matomo in, default matomo. |
 | networkPolicy | object | `{"enabled":true,"ingress":[{}]}` | NetworkPolicy for the Matomo workloads. When enabled, one NetworkPolicy per component (dashboard, tracker, cli, queuedtracking monitor/process) is created. The default rule allows all ingress, which changes nothing functionally but makes every pod covered by a policy; tighten by overriding `networkPolicy.ingress` for your environment. |
 | networkPolicy.ingress | list | `[{}]` | Ingress rules applied to every component policy. Default: allow all. |
