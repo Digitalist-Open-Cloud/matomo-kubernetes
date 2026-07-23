@@ -177,10 +177,15 @@ matomo:
   ## This ConfigMap is also mounted into the core:archive CronJob container,
   ## but pm.*/php_admin_value directives are php-fpm-pool-only and have no
   ## effect there since core:archive runs via the php CLI SAPI, not php-fpm.
+  ## Also always enables the php-fpm slowlog (any request running longer than
+  ## `request_slowlog_timeout`, default 10s, gets a full PHP stack trace
+  ## logged to stderr/`kubectl logs`) to help diagnose stuck or hanging
+  ## requests, e.g. a blocked database call.
   ## As:
   ## phpfpm:
   ##   type: dynamic
   ##   max_children: 32
+  ##   request_slowlog_timeout: 10s
   # @schema
   # type: [object, "null"]
   # additionalProperties: true

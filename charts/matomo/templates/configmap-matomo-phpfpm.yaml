@@ -16,6 +16,12 @@ data:
     pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "60s" }}
     php_admin_value[memory_limit] = {{ .Values.matomo.phpfpm.memory_limit | default "1024M" }}
     pm.status_path =  {{ .Values.matomo.phpfpm.status_path | default "/status" }}
+    ; Logs a full PHP stack trace for any request running longer than the
+    ; threshold below, to /proc/self/fd/2 (the container's stderr, so it
+    ; shows up in `kubectl logs`). Helps diagnose stuck/hanging requests
+    ; (e.g. a blocked DB call) without needing to strace a worker live.
+    slowlog = /proc/self/fd/2
+    request_slowlog_timeout = {{ .Values.matomo.phpfpm.request_slowlog_timeout | default "10s" }}
 {{ else }}
 data:
   zz-global.conf: |
@@ -29,4 +35,6 @@ data:
     pm.max_requests =  500
     pm.process_idle_timeout = "60s"
     pm.status_path = "/status"
+    slowlog = /proc/self/fd/2
+    request_slowlog_timeout = "10s"
 {{- end }}
