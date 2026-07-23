@@ -6,6 +6,8 @@
 
 - The dashboard and tracker fpm-metrics (php-fpm_exporter) sidecars had no way to be scraped: the container declared no port and the `matomo-dashboard`/`matomo-tracker` Services only exposed the nginx port (8080). Added a named `metrics` containerPort (9253) to both sidecars, exposed it as a second `metrics` port on both Services (existing port renamed to `http` since Services with more than one port require all ports to be named), and added `prometheus.io/scrape`, `prometheus.io/port`, `prometheus.io/path` annotations to both Services for classic annotation-based Prometheus discovery. Ingress/HTTPRoute backends reference port 8080 by number so this doesn't affect routing.
 
+- The dashboard and tracker nginx readiness probes (`GET /index.php` and `GET /matomo.js` on port 8080) had no explicit `timeoutSeconds`, so they relied on Kubernetes' implicit default of 1 second. `/index.php` in particular is Matomo's full application bootstrap proxied through php-fpm (autoloader, config, session, DB check), not a lightweight ping, and routinely takes longer than 1s to respond. `kube-probe` was disconnecting before php-fpm replied, which nginx logs as HTTP 499 (nginx's own `fastcgi_read_timeout` is 600s, so nginx itself wasn't the one giving up) - with the default single dashboard replica, a probe that fails this consistently means the pod stays `NotReady` and the Service can end up with zero endpoints. Added `timeoutSeconds: 5` to both probes.
+
 ### Changed
 
 - Retuned the dashboard's php-fpm container and pool for a 4Gi memory limit (up from 768Mi):
