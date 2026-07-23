@@ -109,6 +109,36 @@ jobs:
             case "$code" in 200|204) ;; *) echo "unexpected tracking response"; exit 1 ;; esac
             '
 
+      - name: Verify php-fpm_exporter metrics
+        run: |
+          kubectl -n matomo run fpm-metrics-smoke --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 --command -- sh -c '
+            set -e
+            echo "dashboard php-fpm_exporter metrics"
+            dashboard_metrics=$(curl -sSf http://matomo-dashboard:9253/metrics)
+            echo "$dashboard_metrics" | grep -Eq "^phpfpm_up(\{.*\})? 1$" || {
+              echo "dashboard phpfpm_up is not 1 - exporter cannot reach php-fpm"
+              echo "$dashboard_metrics" | grep phpfpm_up || true
+              exit 1
+            }
+            echo "$dashboard_metrics" | grep -Eq "^phpfpm_active_processes(\{.*\})? [0-9]+$" || {
+              echo "dashboard missing phpfpm_active_processes metric"
+              exit 1
+            }
+
+            echo "tracker php-fpm_exporter metrics"
+            tracker_metrics=$(curl -sSf http://matomo-tracker:9253/metrics)
+            echo "$tracker_metrics" | grep -Eq "^phpfpm_up(\{.*\})? 1$" || {
+              echo "tracker phpfpm_up is not 1 - exporter cannot reach php-fpm"
+              echo "$tracker_metrics" | grep phpfpm_up || true
+              exit 1
+            }
+            echo "$tracker_metrics" | grep -Eq "^phpfpm_active_processes(\{.*\})? [0-9]+$" || {
+              echo "tracker missing phpfpm_active_processes metric"
+              exit 1
+            }
+            '
+
       - name: Verify QueuedTracking uses Valkey
         run: |
           connections=$(kubectl -n matomo exec deployment/matomo-valkey -- \
