@@ -75,6 +75,7 @@ sarif
 scgi
 scheduledtasks
 sendfile
+slowlog
 spreadsheetml
 startretries
 stuffit
