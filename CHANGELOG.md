@@ -1,5 +1,6 @@
 # Change log
 
+<<<<<<< HEAD
 ## [12.0.7] - 2026-07-23
 
 ### Fixed
@@ -15,6 +16,22 @@
   - `matomo.phpfpm` pool defaults: `pm.max_children` 100 -> 32 and `pm.max_spare_servers` 75 -> 20 (realistic worker count for the new memory budget; the old `max_children`/container-memory pairing allowed far more workers than the container could ever actually hold), `php_admin_value[memory_limit]` 2048M -> 1024M (still generous per-request, but a single runaway request can no longer claim a quarter of the container's budget). This pool config is also mounted into the core:archive CronJob container, but its `pm.*`/`php_admin_value` directives are FPM-pool-only and have no effect there since core:archive runs via the php CLI SAPI, not php-fpm; its actual memory ceiling comes from `matomo.php.memory_limit` (default `2G`) instead, unaffected by this change.
   - `pm` default switched from `ondemand` to `dynamic`. Under `ondemand`, `pm.start_servers`/`pm.min_spare_servers`/`pm.max_spare_servers` were parsed but never used (only `pm.max_children` and `pm.process_idle_timeout` apply to `ondemand`). `dynamic` makes active use of the already-configured spare-server settings: it keeps `pm.min_spare_servers` (5) workers warm at all times and grows up to `pm.max_children` (32) under load, avoiding fork latency on the next request after an idle period. Trade-off: unlike `ondemand`, `dynamic` never scales down to zero workers, so there's a small constant baseline (~5 idle workers) even with no traffic; `pm.process_idle_timeout` no longer applies (it's `ondemand`-only) and is now the inert one. Verified the existing defaults (`max_children=32`, `start_servers=5`, `min_spare_servers=5`, `max_spare_servers=20`) satisfy php-fpm's `dynamic`-mode startup validation (`min_spare_servers <= start_servers <= max_spare_servers <= max_children`), so no values needed to change to make the switch. The tracker's separate `matomo.tracker.phpfpm` pool is unchanged (still `ondemand`, 600s idle timeout).
 
+||||||| 2d576a7
+=======
+## [12.0.7] - 2026-07-23
+
+### Fixed
+
+- The dashboard and tracker fpm-metrics (php-fpm_exporter) sidecars had no way to be scraped: the container declared no port and the `matomo-dashboard`/`matomo-tracker` Services only exposed the nginx port (8080). Added a named `metrics` containerPort (9253) to both sidecars, exposed it as a second `metrics` port on both Services (existing port renamed to `http` since Services with more than one port require all ports to be named), and added `prometheus.io/scrape`, `prometheus.io/port`, `prometheus.io/path` annotations to both Services for classic annotation-based Prometheus discovery. Ingress/HTTPRoute backends reference port 8080 by number so this doesn't affect routing.
+
+### Changed
+
+- Retuned the dashboard's php-fpm container and pool for a 4Gi memory limit (up from 768Mi):
+  - `matomo.resources` limits raised to 2000m/4Gi (requests 500m/512Mi), sized for `matomo.phpfpm`'s new `pm.max_children` default.
+  - `matomo.phpfpm` pool defaults: `pm.max_children` 100 -> 32 and `pm.max_spare_servers` 75 -> 20 (realistic worker count for the new memory budget; the old `max_children`/container-memory pairing allowed far more workers than the container could ever actually hold), `php_admin_value[memory_limit]` 2048M -> 1024M (still generous per-request, but a single runaway request can no longer claim a quarter of the container's budget). This pool config is also mounted into the core:archive CronJob container, but its `pm.*`/`php_admin_value` directives are FPM-pool-only and have no effect there since core:archive runs via the php CLI SAPI, not php-fpm; its actual memory ceiling comes from `matomo.php.memory_limit` (default `2G`) instead, unaffected by this change.
+  - `pm` default switched from `ondemand` to `dynamic`. Under `ondemand`, `pm.start_servers`/`pm.min_spare_servers`/`pm.max_spare_servers` were parsed but never used (only `pm.max_children` and `pm.process_idle_timeout` apply to `ondemand`). `dynamic` makes active use of the already-configured spare-server settings: it keeps `pm.min_spare_servers` (5) workers warm at all times and grows up to `pm.max_children` (32) under load, avoiding fork latency on the next request after an idle period. Trade-off: unlike `ondemand`, `dynamic` never scales down to zero workers, so there's a small constant baseline (~5 idle workers) even with no traffic; `pm.process_idle_timeout` no longer applies (it's `ondemand`-only) and is now the inert one. Verified the existing defaults (`max_children=32`, `start_servers=5`, `min_spare_servers=5`, `max_spare_servers=20`) satisfy php-fpm's `dynamic`-mode startup validation (`min_spare_servers <= start_servers <= max_spare_servers <= max_children`), so no values needed to change to make the switch. The tracker's separate `matomo.tracker.phpfpm` pool is unchanged (still `ondemand`, 600s idle timeout).
+
+>>>>>>> 1dcf5f39b6b29f6b581137c9d7a087fd6654be45
 ## [12.0.6] - 2026-07-22
 
 ### Added
