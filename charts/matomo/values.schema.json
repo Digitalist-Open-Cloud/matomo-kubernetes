@@ -1558,6 +1558,56 @@
           },
           "required": [],
           "title": "waitForDbResources"
+        },
+        "warmupCommand": {
+          "default": "./console core:update --yes --no-interaction \u0026\u0026 if ./console list --raw 2\u003e/dev/null | grep -q \"^tagmanager:regenerate-released-containers \"; then ./console tagmanager:regenerate-released-containers; fi",
+          "description": "force` (in installCommand above) doesn't itself fire the plugin install/update events some plugins (e.g. TagManager) hook to regenerate generated assets - normally left to happen lazily on the first web request(s) after a (re)start. Since static-data is an emptyDir, that bookkeeping resets on every fresh pod, so without this, concurrent probes/traffic on every restart each independently race to redo that (expensive) regeneration. Running it once here, synchronously, avoids that. The `tagmanager:regenerate-released-containers` call is guarded by an `./console list` check, since TagManager isn't in the default install.json PluginsInstalled list (see matomo.config above) - on a fresh install (or any site where TagManager has never been activated) the command doesn't exist yet, and this must not fail the init container.",
+          "required": [],
+          "title": "warmupCommand"
+        },
+        "warmupResources": {
+          "additionalProperties": false,
+          "description": "Resources for the matomo-warmup init container (dashboard and tracker).",
+          "properties": {
+            "limits": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "500m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "512Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "warmupResources"
         }
       },
       "required": [],

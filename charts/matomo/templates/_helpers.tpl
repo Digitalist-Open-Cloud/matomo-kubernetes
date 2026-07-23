@@ -147,6 +147,66 @@ initContainers:
 {{- end -}}
 
 {{/*
+Runs once after matomo-init (rsync + matomo:install), before php-fpm/nginx
+start. `matomo:install --force` reconciles the DB schema/admin user/
+install.json but does not itself fire the plugin-installed/update events
+Matomo's own plugins (e.g. TagManager) hook to regenerate their generated
+assets - those are normally left to fire lazily on the first web request(s)
+after a (re)start. Since `static-data` is an emptyDir, that plugin-installed
+bookkeeping is reset on every fresh pod, so without this step, concurrent
+probes/traffic on every pod (re)start each independently pay for and race
+that expensive regeneration (observed as repeated multi-second stalls in the
+php-fpm slowlog, all bottoming out in TagManager::regenerateReleasedContainers()).
+Running `core:update`/`tagmanager:regenerate-released-containers` here instead
+does that work once, synchronously, gated behind pod readiness.
+*/}}
+{{- define "matomo.warmupContainer" -}}
+- name: matomo-warmup
+  image: {{.Values.matomo.image}}
+  securityContext:
+    runAsUser: {{.Values.matomo.runAsUser}}
+    privileged: false
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
+  imagePullPolicy: Always
+  env:
+  - name: MATOMO_DB_HOST
+    value: {{.Values.db.hostname}}
+  - name: MATOMO_DB_NAME
+    value: {{.Values.db.name}}
+{{- if .Values.db.prefix }}
+  - name: MATOMO_DB_PREFIX
+    value: {{.Values.db.prefix}}
+{{- end }}
+  - name: MATOMO_DB_USERNAME
+    value: {{.Values.db.username}}
+  - name: MATOMO_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ .Values.db.password.secretKeyRef.name }}
+        key: {{ .Values.db.password.secretKeyRef.key }}
+{{- include "matomo.license" . | nindent 2 }}
+  command: [ 'sh' , '-c' , '{{.Values.matomo.warmupCommand}}' ]
+  {{- if .Values.matomo.warmupResources }}
+  resources:
+{{ toYaml .Values.matomo.warmupResources | indent 4 }}
+  {{- end }}
+  volumeMounts:
+    - name: static-data
+      mountPath: /var/www/html
+{{- end -}}
+
+{{/* initContainers for the dashboard and tracker: matomo-init, then matomo-warmup. */}}
+{{- define "matomo.initWithWarmup" -}}
+initContainers:
+  {{- include "matomo.initContainer" . | nindent 2 }}
+  {{- include "matomo.warmupContainer" . | nindent 2 }}
+{{- end -}}
+
+{{/*
 matomo-init fails fast when the database is unreachable, so a Job would burn
 its backoff retries while a fresh database is still provisioning. Bounded so
 an unreachable database fails the Job instead of hanging it forever.

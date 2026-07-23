@@ -64,6 +64,33 @@ matomo:
       cpu: 10m
       memory: 16Mi
 
+  # -- Command run by the matomo-warmup init container (dashboard and tracker
+  # only), after matomo-init and before php-fpm/nginx start. `matomo:install
+  # --force` (in installCommand above) doesn't itself fire the plugin
+  # install/update events some plugins (e.g. TagManager) hook to regenerate
+  # generated assets - normally left to happen lazily on the first web
+  # request(s) after a (re)start. Since static-data is an emptyDir, that
+  # bookkeeping resets on every fresh pod, so without this, concurrent
+  # probes/traffic on every restart each independently race to redo that
+  # (expensive) regeneration. Running it once here, synchronously, avoids that.
+  # The `tagmanager:regenerate-released-containers` call is guarded by an
+  # `./console list` check, since TagManager isn't in the default
+  # install.json PluginsInstalled list (see matomo.config above) - on a fresh
+  # install (or any site where TagManager has never been activated) the
+  # command doesn't exist yet, and this must not fail the init container.
+  warmupCommand: >-
+    ./console core:update --yes --no-interaction &&
+    if ./console list --raw 2>/dev/null | grep -q "^tagmanager:regenerate-released-containers ";
+    then ./console tagmanager:regenerate-released-containers; fi
+  # -- Resources for the matomo-warmup init container (dashboard and tracker).
+  warmupResources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
   # -- Install command. If already installed, it just creates the needed config.
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db
   ## Full replacement for the default install.json used by installCommand.

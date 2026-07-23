@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.12] - 2026-07-24
+
+### Added
+
+- A `matomo-warmup` init container (dashboard and tracker), running after `matomo-init`.
+
 ## [12.0.11] - 2026-07-24
 
 ### Fixed

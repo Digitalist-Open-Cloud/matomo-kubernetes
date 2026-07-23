@@ -29,7 +29,7 @@ spec:
       securityContext:
         seccompProfile:
           type: RuntimeDefault
-{{ include "matomo.init" . | nindent 6 }}
+{{ include "matomo.initWithWarmup" . | nindent 6 }}
       containers:
       - name: fpm-metrics
         securityContext:
