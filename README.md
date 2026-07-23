@@ -129,3 +129,4 @@ Generate helm schema:
 
 ```shell
 helm-schema --chart-search-root charts/matomo --helm-docs-compatibility-mode --no-dependencies --skip-auto-generation required
+```

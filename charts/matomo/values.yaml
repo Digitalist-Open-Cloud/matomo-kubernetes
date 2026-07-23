@@ -32,14 +32,17 @@ matomo:
   # -- Mount the service account token into Matomo pods. No workload in this
   # chart uses the Kubernetes API; enable only if a custom sidecar needs it.
   automountServiceAccountToken: false
-  # -- Default resources for the Matomo php-fpm container (dashboard).
+  # -- Default resources for the Matomo php-fpm container (dashboard). Sized
+  # for matomo.phpfpm's default pm.max_children (32): ~120Mi/worker realistic
+  # average plus headroom for the FPM master and occasional heavier requests.
+  # If you change pm.max_children, revisit this limit (and vice versa).
   resources:
     requests:
-      cpu: 300m
-      memory: 256Mi
+      cpu: 500m
+      memory: 512Mi
     limits:
-      cpu: 1000m
-      memory: 768Mi
+      cpu: 2000m
+      memory: 4Gi
 
   # -- Resources for the shared matomo-init init container (runs on every
   # workload: dashboard, tracker, cli, cronjobs, queuedtracking, pre-upgrade
@@ -165,18 +168,25 @@ matomo:
   # -- php.ini overrides for the dashboard and core:archive php-fpm containers.
   php:
   ## php-fpm pool tuning (pm, max_children, spare servers, status_path, ...)
-  ## shared by the dashboard and core:archive cronjob php-fpm containers.
-  ## Only rendered (as a ConfigMap) when set; otherwise the chart's built-in
-  ## defaults are used. As:
+  ## for the dashboard's php-fpm container. Only rendered (as a ConfigMap)
+  ## when set; otherwise the chart's built-in defaults are used. Default
+  ## `pm` is `dynamic`, keeping `min_spare_servers` warm workers resident at
+  ## all times to avoid fork latency on the next request; switch to
+  ## `ondemand` if you'd rather scale workers to zero when idle (then
+  ## `process_idle_timeout` applies instead of the spare-server settings).
+  ## This ConfigMap is also mounted into the core:archive CronJob container,
+  ## but pm.*/php_admin_value directives are php-fpm-pool-only and have no
+  ## effect there since core:archive runs via the php CLI SAPI, not php-fpm.
+  ## As:
   ## phpfpm:
-  ##   type: ondemand
-  ##   max_children: 100
+  ##   type: dynamic
+  ##   max_children: 32
   # @schema
   # type: [object, "null"]
   # additionalProperties: true
   # required: false
   # @schema
-  # -- php-fpm pool tuning for the dashboard and core:archive php-fpm containers.
+  # -- php-fpm pool tuning for the dashboard's php-fpm container.
   phpfpm:
 
   ingress:

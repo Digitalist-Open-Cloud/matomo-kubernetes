@@ -54,6 +54,9 @@ spec:
         resources:
 {{ toYaml .Values.matomo.dashboard.exporter.resources | indent 10 }}
         {{- end }}
+        ports:
+        - name: metrics
+          containerPort: 9253
       - name: nginx
         {{- if .Values.matomo.dashboard.nginx.image }}
         image: {{.Values.matomo.dashboard.nginx.image}}
@@ -196,9 +199,18 @@ metadata:
 {{- if .Values.matomo.extralabels }}
 {{ toYaml .Values.matomo.extralabels | indent 4 }}
 {{- end }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9253"
+    prometheus.io/path: "/metrics"
 spec:
   ports:
-    - port: 8080
+    - name: http
+      port: 8080
+      protocol: TCP
+    - name: metrics
+      port: 9253
+      targetPort: metrics
       protocol: TCP
   selector:
     app: matomo-dashboard

@@ -7,26 +7,26 @@ metadata:
 data:
   zz-global.conf: |
     [www]
-    pm = {{ .Values.matomo.phpfpm.type | default "ondemand" }}
-    pm.max_children = {{ .Values.matomo.phpfpm.max_children | default 100 }}
+    pm = {{ .Values.matomo.phpfpm.type | default "dynamic" }}
+    pm.max_children = {{ .Values.matomo.phpfpm.max_children | default 32 }}
     pm.start_servers =  {{ .Values.matomo.phpfpm.start_servers | default 5 }}
     pm.min_spare_servers =  {{ .Values.matomo.phpfpm.min_spare_servers | default 5 }}
-    pm.max_spare_servers =  {{ .Values.matomo.phpfpm.max_spare_servers | default 75 }}
+    pm.max_spare_servers =  {{ .Values.matomo.phpfpm.max_spare_servers | default 20 }}
     pm.max_requests =  {{ .Values.matomo.phpfpm.max_requests | default 500 }}
-    pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "480s" }}
-    php_admin_value[memory_limit] = {{ .Values.matomo.phpfpm.memory_limit | default "2048M" }}
+    pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "60s" }}
+    php_admin_value[memory_limit] = {{ .Values.matomo.phpfpm.memory_limit | default "1024M" }}
     pm.status_path =  {{ .Values.matomo.phpfpm.status_path | default "/status" }}
 {{ else }}
 data:
   zz-global.conf: |
     [www]
-    php_admin_value[memory_limit] = "2048M"
-    pm ="ondemand"
-    pm.max_children = 100
+    php_admin_value[memory_limit] = "1024M"
+    pm ="dynamic"
+    pm.max_children = 32
     pm.start_servers = 5
     pm.min_spare_servers = 5
-    pm.max_spare_servers = 75
+    pm.max_spare_servers = 20
     pm.max_requests =  500
-    pm.process_idle_timeout = "480s"
+    pm.process_idle_timeout = "60s"
     pm.status_path = "/status"
 {{- end }}
