@@ -186,6 +186,7 @@ exec:
   - "ps -A | grep supervisord"
 initialDelaySeconds: 10
 periodSeconds: 10
+timeoutSeconds: 5
 {{- end -}}
 
 {{/* Default nginx probes. Liveness is shared; readiness differs per service. */}}
@@ -196,7 +197,8 @@ exec:
   - -c
   - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
 initialDelaySeconds: 10
-periodSeconds: 5
+periodSeconds: 10
+timeoutSeconds: 5
 {{- end -}}
 {{- define "matomo.probe.default.nginx.dashboard.readiness" -}}
 httpGet:
@@ -204,14 +206,7 @@ httpGet:
   path: /index.php
   port: 8080
 initialDelaySeconds: 10
-periodSeconds: 5
-# /index.php is Matomo's full bootstrap (autoloader, config, session, DB
-# check) proxied through php-fpm, not a lightweight ping. Kubernetes'
-# implicit default timeoutSeconds (1s) is routinely too short for it and
-# causes kube-probe to disconnect before php-fpm responds, logged by nginx
-# as "499" even though nginx itself is still happily waiting (its
-# fastcgi_read_timeout is 600s). Keep this comfortably above realistic
-# bootstrap time.
+periodSeconds: 10
 timeoutSeconds: 5
 {{- end -}}
 {{- define "matomo.probe.default.nginx.tracker.readiness" -}}
@@ -220,7 +215,7 @@ httpGet:
   path: /matomo.js
   port: 8080
 initialDelaySeconds: 10
-periodSeconds: 5
+periodSeconds: 10
 timeoutSeconds: 5
 {{- end -}}
 

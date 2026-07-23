@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.8] - 2026-07-23
+
+### Fixed
+
+- A missed timeout check for nginx is fixed
+
 ## [12.0.7] - 2026-07-23
 
 ### Fixed
