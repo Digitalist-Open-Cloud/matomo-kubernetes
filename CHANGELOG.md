@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.10] - 2026-07-23
+
+### Added
+
+- E2E test step verifying the php-fpm_exporter (fpm-metrics) sidecar: fetches `/metrics` from the dashboard and tracker Services on the `metrics` port (9253) and checks `phpfpm_up` is `1` and `phpfpm_active_processes` is present, confirming the exporter can actually reach php-fpm through the Service port added for it.
+
 ## [12.0.9] - 2026-07-23
 
 ### Added
