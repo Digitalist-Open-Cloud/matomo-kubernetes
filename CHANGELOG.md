@@ -1,5 +1,17 @@
 # Change log
 
+## [12.0.9] - 2026-07-23
+
+### Added
+
+- Enabled the php-fpm slowlog for the dashboard's pool (`matomo.phpfpm`): any request running longer than `request_slowlog_timeout` (default `10s`, new override) gets a full PHP stack trace logged to stderr (`/proc/self/fd/2`, picked up by `kubectl logs`). Diagnoses stuck/hanging requests (e.g. a blocked database call).
+
+## [12.0.8] - 2026-07-23
+
+### Fixed
+
+- A missed timeout check for nginx is fixed
+
 ## [12.0.7] - 2026-07-23
 
 ### Fixed
