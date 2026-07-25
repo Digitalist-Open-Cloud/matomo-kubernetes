@@ -45,7 +45,9 @@ A Helm chart for Matomo
 | matomo.cronJobs.scheduledTasks.resources | object | `{"limits":{"cpu":"1000m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the scheduled-tasks cronjob. |
 | matomo.cronJobs.scheduledTasks.schedule | string | `"*/60 * * * *"` | Cron schedule for scheduled-tasks:run. |
 | matomo.dashboard.enabled | bool | `true` | Enable the dashboard Deployment and Service. |
-| matomo.dashboard.exporter | object | `{"livenessProbe":{},"readinessProbe":{},"resources":{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"15m","memory":"32Mi"}}}` | php-fpm_exporter (fpm-metrics) sidecar probes for the dashboard pod. |
+| matomo.dashboard.exporter | object | `{"enabled":true,"image":"","livenessProbe":{},"readinessProbe":{},"resources":{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"15m","memory":"32Mi"}}}` | php-fpm_exporter (fpm-metrics) sidecar for the dashboard pod. |
+| matomo.dashboard.exporter.enabled | bool | `true` | Enable the dashboard php-fpm_exporter (fpm-metrics) sidecar and its `metrics` port on the matomo-dashboard Service. |
+| matomo.dashboard.exporter.image | string | `""` | Override the php-fpm_exporter image used for the dashboard (falls back to `matomo.exporterImage` when empty). |
 | matomo.dashboard.exporter.livenessProbe | object | `{}` | Liveness probe for the dashboard php-fpm_exporter (fpm-metrics) container. |
 | matomo.dashboard.exporter.readinessProbe | object | `{}` | Readiness probe for the dashboard php-fpm_exporter (fpm-metrics) container. |
 | matomo.dashboard.exporter.resources | object | `{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"15m","memory":"32Mi"}}` | Default resources for the dashboard php-fpm_exporter (fpm-metrics) container. |
@@ -65,6 +67,7 @@ A Helm chart for Matomo
 | matomo.dashboard.tls | bool | `false` | Add a TLS block to the dashboard Ingress for `hostname`. |
 | matomo.dashboard.whitelist | list | `[]` | List of CIDRs allowed to reach the dashboard Ingress (nginx.ingress.kubernetes.io/whitelist-source-range). Empty disables the restriction. |
 | matomo.env | list | `[]` | Env variables to inject, if any. |
+| matomo.exporterImage | string | `"hipages/php-fpm_exporter:2.2.0"` | Image for the php-fpm_exporter (fpm-metrics) sidecar shared by the dashboard and tracker pods. Override per-workload via `matomo.dashboard.exporter.image` / `matomo.tracker.exporter.image`. |
 | matomo.extralabels | object | `{}` | Extra labels applied to Matomo pods (dashboard, tracker, cli, cronjobs, queuedtracking). |
 | matomo.gatewayApi | object | `{"enabled":false,"extralabels":{},"parentRefs":[]}` | Gateway API support. When enabled, HTTPRoutes are created for the dashboard and tracker (using their `hostname` values) instead of - or alongside - the Ingress resources. Requires the Gateway API CRDs and a Gateway; TLS is terminated on the Gateway listener, not in the chart. |
 | matomo.gatewayApi.extralabels | object | `{}` | Extra labels for the HTTPRoutes. |
@@ -104,13 +107,16 @@ A Helm chart for Matomo
 | matomo.tagManagerRegenerate.activeDeadlineSeconds | int | `300` | activeDeadlineSeconds for the regenerate-tagmanager Job. |
 | matomo.tagManagerRegenerate.concurrencyPolicy | string | `"Forbid"` | concurrencyPolicy for the regenerate-tagmanager CronJob. |
 | matomo.tagManagerRegenerate.enabled | bool | `false` | Enable the regenerate-tagmanager CronJob and the shared ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the dashboard and tracker pods. |
+| matomo.tagManagerRegenerate.fsGroup | string | `nil` | fsGroup applied to the dashboard, tracker, and regenerate-tagmanager pods when this feature is enabled. nginx (nginx.runAsUser) and matomo (matomo.runAsUser) run as different UIDs but both need access to the shared PVC; fsGroup is pod-wide, unlike runAsUser, so it's what lets them actually share it. Defaults to matomo.runAsUser. Note this has no effect on hostPath-backed volumes (e.g. the kind e2e test fixture) - only on real volume plugins/CSI drivers (NFS, CephFS, etc). |
 | matomo.tagManagerRegenerate.resources | object | `{"limits":{"cpu":"1000m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the regenerate-tagmanager CronJob container. |
 | matomo.tagManagerRegenerate.schedule | string | `"*/2 * * * *"` | Cron schedule for the regenerate-tagmanager CronJob. |
 | matomo.tagManagerRegenerate.seedResources | object | `{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resources for the dashboard/tracker matomo-seed-tagmanager-js init container that seeds the shared volume on its first-ever mount. |
 | matomo.tagManagerRegenerate.volume.size | string | `"1Gi"` | Size of the shared TagManager JS PersistentVolumeClaim. |
 | matomo.tagManagerRegenerate.volume.storageClassName | string | `""` | storageClassName for the shared TagManager JS PersistentVolumeClaim. Must support the ReadWriteMany access mode. Empty uses the cluster's default StorageClass (only suitable if that default supports RWX). |
 | matomo.tracker.enabled | bool | `true` | Enable the tracker Deployment and Service. |
-| matomo.tracker.exporter | object | `{"livenessProbe":{},"readinessProbe":{},"resources":{"limits":{"cpu":"40m","memory":"32Mi"},"requests":{"cpu":"40m","memory":"32Mi"}}}` | php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod. |
+| matomo.tracker.exporter | object | `{"enabled":true,"image":"","livenessProbe":{},"readinessProbe":{},"resources":{"limits":{"cpu":"40m","memory":"32Mi"},"requests":{"cpu":"40m","memory":"32Mi"}}}` | php-fpm_exporter (fpm-metrics) sidecar for the tracker pod. |
+| matomo.tracker.exporter.enabled | bool | `true` | Enable the tracker php-fpm_exporter (fpm-metrics) sidecar and its `metrics` port on the matomo-tracker Service. |
+| matomo.tracker.exporter.image | string | `""` | Override the php-fpm_exporter image used for the tracker (falls back to `matomo.exporterImage` when empty). |
 | matomo.tracker.exporter.livenessProbe | object | `{}` | Liveness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
 | matomo.tracker.exporter.readinessProbe | object | `{}` | Readiness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
 | matomo.tracker.exporter.resources | object | `{"limits":{"cpu":"40m","memory":"32Mi"},"requests":{"cpu":"40m","memory":"32Mi"}}` | Default resources for the tracker php-fpm_exporter (fpm-metrics) container. |

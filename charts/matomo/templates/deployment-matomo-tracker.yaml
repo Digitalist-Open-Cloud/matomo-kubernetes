@@ -39,6 +39,7 @@ spec:
         {{- end }}
 {{ include "matomo.initWithWarmup" . | nindent 6 }}
       containers:
+      {{- if .Values.matomo.tracker.exporter.enabled }}
       - name: fpm-metrics
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
@@ -48,7 +49,11 @@ spec:
           capabilities:
             drop:
               - ALL
-        image: hipages/php-fpm_exporter:2.2.0
+        {{- if .Values.matomo.tracker.exporter.image }}
+        image: {{.Values.matomo.tracker.exporter.image}}
+        {{- else }}
+        image: {{.Values.matomo.exporterImage}}
+        {{- end }}
         imagePullPolicy: Always
         livenessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.tracker.exporter.livenessProbe "default" (include "matomo.probe.default.exporter.liveness" .)) | nindent 10 }}
         readinessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.tracker.exporter.readinessProbe "default" (include "matomo.probe.default.exporter.readiness" .)) | nindent 10 }}
@@ -59,6 +64,7 @@ spec:
         ports:
         - name: metrics
           containerPort: 9253
+      {{- end }}
       - name: nginx
         image: {{.Values.nginx.image}}
         imagePullPolicy: Always
@@ -207,19 +213,23 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: matomo-tracker
+  {{- if .Values.matomo.tracker.exporter.enabled }}
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9253"
     prometheus.io/path: "/metrics"
+  {{- end }}
 spec:
   ports:
     - name: http
       port: 8080
       protocol: TCP
+    {{- if .Values.matomo.tracker.exporter.enabled }}
     - name: metrics
       port: 9253
       targetPort: metrics
       protocol: TCP
+    {{- end }}
   selector:
     app: matomo-tracker
 {{- end -}}
