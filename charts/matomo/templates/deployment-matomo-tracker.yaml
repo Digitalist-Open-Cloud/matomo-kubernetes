@@ -29,6 +29,14 @@ spec:
       securityContext:
         seccompProfile:
           type: RuntimeDefault
+        {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+        # nginx (uid {{ .Values.nginx.runAsUser }}) and matomo (uid {{ .Values.matomo.runAsUser }})
+        # are different UIDs both needing access to the shared TagManager JS
+        # PVC; fsGroup is pod-wide (unlike runAsUser, which is per-container)
+        # so it's what lets both actually share it. Doesn't apply to hostPath
+        # volumes, only to real volume plugins/CSI drivers.
+        fsGroup: {{ .Values.matomo.tagManagerRegenerate.fsGroup | default .Values.matomo.runAsUser }}
+        {{- end }}
 {{ include "matomo.initWithWarmup" . | nindent 6 }}
       containers:
       - name: fpm-metrics

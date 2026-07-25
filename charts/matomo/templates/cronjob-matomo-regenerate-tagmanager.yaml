@@ -41,6 +41,10 @@ spec:
           securityContext:
             seccompProfile:
               type: RuntimeDefault
+            # Matches the fsGroup applied to the dashboard/tracker pods when
+            # this feature is enabled, so this Job's writes to the shared PVC
+            # are readable by them regardless of their own container UIDs.
+            fsGroup: {{ .Values.matomo.tagManagerRegenerate.fsGroup | default .Values.matomo.runAsUser }}
 {{ include "matomo.init" . | nindent 10 }}
           containers:
           - name: matomo-jobs-regenerate-tagmanager

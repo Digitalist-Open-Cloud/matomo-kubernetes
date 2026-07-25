@@ -101,6 +101,18 @@ matomo:
     # ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the
     # dashboard and tracker pods.
     enabled: false
+    # @schema
+    # type: [integer, "null"]
+    # required: false
+    # @schema
+    # -- fsGroup applied to the dashboard, tracker, and regenerate-tagmanager
+    # pods when this feature is enabled. nginx (nginx.runAsUser) and matomo
+    # (matomo.runAsUser) run as different UIDs but both need access to the
+    # shared PVC; fsGroup is pod-wide, unlike runAsUser, so it's what lets
+    # them actually share it. Defaults to matomo.runAsUser. Note this has no
+    # effect on hostPath-backed volumes (e.g. the kind e2e test fixture) -
+    # only on real volume plugins/CSI drivers (NFS, CephFS, etc).
+    fsGroup:
     # -- Cron schedule for the regenerate-tagmanager CronJob.
     schedule: "*/2 * * * *"
     # -- concurrencyPolicy for the regenerate-tagmanager CronJob.
