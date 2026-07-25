@@ -1236,10 +1236,14 @@
               "title": "enabled"
             },
             "fsGroup": {
+              "default": "",
               "description": "fsGroup applied to the dashboard, tracker, and regenerate-tagmanager pods when this feature is enabled. nginx (nginx.runAsUser) and matomo (matomo.runAsUser) run as different UIDs but both need access to the shared PVC; fsGroup is pod-wide, unlike runAsUser, so it's what lets them actually share it. Defaults to matomo.runAsUser. Note this has no effect on hostPath-backed volumes (e.g. the kind e2e test fixture) - only on real volume plugins/CSI drivers (NFS, CephFS, etc).",
               "required": [],
               "title": "fsGroup",
-              "type": ["integer", "null"]
+              "type": [
+                "integer",
+                "null"
+              ]
             },
             "resources": {
               "additionalProperties": false,
