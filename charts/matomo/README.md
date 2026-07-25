@@ -72,7 +72,7 @@ A Helm chart for Matomo
 | matomo.gatewayApi | object | `{"enabled":false,"extralabels":{},"parentRefs":[]}` | Gateway API support. When enabled, HTTPRoutes are created for the dashboard and tracker (using their `hostname` values) instead of - or alongside - the Ingress resources. Requires the Gateway API CRDs and a Gateway; TLS is terminated on the Gateway listener, not in the chart. |
 | matomo.gatewayApi.extralabels | object | `{}` | Extra labels for the HTTPRoutes. |
 | matomo.gatewayApi.parentRefs | list | `[]` | parentRefs applied to all HTTPRoutes, e.g.: parentRefs:   - name: my-gateway     namespace: my-namespace     sectionName: http |
-| matomo.image | string | `"digitalist/matomo:5.7.1"` | Which image to use for Matomo deployment. |
+| matomo.image | string | `"digitalist/matomo:5.12.0"` | Which image to use for Matomo deployment. |
 | matomo.imagePullSecrets | list | `[]` | Image pull secrets for Matomo. |
 | matomo.imageRegistry | string | `""` | Image registry to use. |
 | matomo.ingress.annotations | object | `{}` | Extra annotations applied to both the dashboard and tracker Ingress resources. |
@@ -111,8 +111,10 @@ A Helm chart for Matomo
 | matomo.tagManagerRegenerate.resources | object | `{"limits":{"cpu":"1000m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the regenerate-tagmanager CronJob container. |
 | matomo.tagManagerRegenerate.schedule | string | `"*/2 * * * *"` | Cron schedule for the regenerate-tagmanager CronJob. |
 | matomo.tagManagerRegenerate.seedResources | object | `{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resources for the dashboard/tracker matomo-seed-tagmanager-js init container that seeds the shared volume on its first-ever mount. |
-| matomo.tagManagerRegenerate.volume.size | string | `"1Gi"` | Size of the shared TagManager JS PersistentVolumeClaim. |
-| matomo.tagManagerRegenerate.volume.storageClassName | string | `""` | storageClassName for the shared TagManager JS PersistentVolumeClaim. Must support the ReadWriteMany access mode. Empty uses the cluster's default StorageClass (only suitable if that default supports RWX). |
+| matomo.tagManagerRegenerate.volume.create | bool | `true` | Whether this chart creates the shared TagManager JS PersistentVolumeClaim (matomo-tagmanager-js). Set to false and provide existingClaim to use a PVC you've already created instead (e.g. one provisioned/managed outside this chart, or shared with other releases). storageClassName and size below only apply when this is true. |
+| matomo.tagManagerRegenerate.volume.existingClaim | string | `""` | Name of a pre-existing PersistentVolumeClaim to use instead of the one this chart creates. Only used when create is false; must already exist in this release's namespace and support the ReadWriteMany access mode. |
+| matomo.tagManagerRegenerate.volume.size | string | `"1Gi"` | Size of the shared TagManager JS PersistentVolumeClaim created by this chart (only used when create is true). |
+| matomo.tagManagerRegenerate.volume.storageClassName | string | `""` | storageClassName for the shared TagManager JS PersistentVolumeClaim created by this chart (only used when create is true). Must support the ReadWriteMany access mode. Empty uses the cluster's default StorageClass (only suitable if that default supports RWX). |
 | matomo.tracker.enabled | bool | `true` | Enable the tracker Deployment and Service. |
 | matomo.tracker.exporter | object | `{"enabled":true,"image":"","livenessProbe":{},"readinessProbe":{},"resources":{"limits":{"cpu":"40m","memory":"32Mi"},"requests":{"cpu":"40m","memory":"32Mi"}}}` | php-fpm_exporter (fpm-metrics) sidecar for the tracker pod. |
 | matomo.tracker.exporter.enabled | bool | `true` | Enable the tracker php-fpm_exporter (fpm-metrics) sidecar and its `metrics` port on the matomo-tracker Service. |

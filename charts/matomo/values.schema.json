@@ -861,7 +861,7 @@
           "title": "initResources"
         },
         "installCommand": {
-          "default": "./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db",
+          "default": "./console plugin:activate ExtraTools \u0026\u0026 ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db",
           "description": "Install command. If already installed, it just creates the needed config.",
           "required": [],
           "title": "installCommand"
