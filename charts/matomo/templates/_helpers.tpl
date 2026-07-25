@@ -269,7 +269,13 @@ all.
       drop:
         - ALL
   imagePullPolicy: Always
-  command: [ 'sh' , '-c' , 'cp -a {{ .Values.matomo.tagManagerRegenerate.seedSourcePath }}/. /shared-js/; echo "baseline JS assets from {{ .Values.matomo.tagManagerRegenerate.seedSourcePath }} refreshed in shared TagManager JS volume"' ]
+  # -R (not -a/-p): this container runs as a non-root, non-owning uid, so it
+  # can't preserve the source's ownership/permissions/timestamps on the
+  # destination anyway (busybox cp errors on exactly that with -a) - we only
+  # need the content there, not matching metadata. `&&` (not `;`) so a
+  # genuine copy failure actually fails the init container instead of being
+  # masked by the trailing echo.
+  command: [ 'sh' , '-c' , 'cp -R {{ .Values.matomo.tagManagerRegenerate.seedSourcePath }}/. /shared-js/ && echo "baseline JS assets from {{ .Values.matomo.tagManagerRegenerate.seedSourcePath }} refreshed in shared TagManager JS volume"' ]
   {{- if .Values.matomo.tagManagerRegenerate.seedResources }}
   resources:
 {{ toYaml .Values.matomo.tagManagerRegenerate.seedResources | indent 4 }}

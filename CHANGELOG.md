@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.15] - 2026-07-25
+
+### Fixed
+
+- Fixed so we don't get permissions warnings when copying the files to the js folder.
+
 ## [12.0.14] - 2026-07-25
 
 ### Fixed
