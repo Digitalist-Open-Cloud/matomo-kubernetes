@@ -157,7 +157,7 @@ spec:
           {{- if .Values.matomo.tagManagerRegenerate.enabled }}
           - name: tagmanager-js
             mountPath: /var/www/html/js
-            readOnly: true
+            readOnly: false
           {{- end }}
 {{- if .Values.extraVolumeMounts }}
 {{ toYaml .Values.extraVolumeMounts | indent 10 }}
