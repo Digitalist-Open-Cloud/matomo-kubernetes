@@ -78,6 +78,11 @@ jobs:
             }
           echo "✅ Gateway programed"
 
+      # ── RWX-capable storage for matomo.tagManagerRegenerate ────────────
+      - name: Create manual RWX PersistentVolume for TagManager JS
+        run: |
+          kubectl apply -f tests/kind/tagmanager-js-pv.yaml
+
       # ── Install Matomo chart (ingress + gatewayApi) ────────────────────
       - name: Install Matomo chart
         run: |
@@ -92,6 +97,66 @@ jobs:
             kubectl -n matomo rollout status "deployment/$d" --timeout=600s
             echo "::endgroup::"
           done
+
+      - name: Verify shared TagManager JS volume
+        run: |
+          set -euo pipefail
+          echo "PVC status:"
+          kubectl -n matomo get pvc matomo-tagmanager-js
+          phase=$(kubectl -n matomo get pvc matomo-tagmanager-js -o jsonpath='{.status.phase}')
+          if [ "$phase" != "Bound" ]; then
+            echo "::error::matomo-tagmanager-js PVC is not Bound (phase=$phase)"
+            kubectl -n matomo describe pvc matomo-tagmanager-js
+            exit 1
+          fi
+
+          marker="e2e-marker-$(date +%s)"
+          echo "writing $marker via a throwaway pod mounting the shared PVC"
+          cat <<EOF | kubectl -n matomo apply -f -
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: tagmanager-js-writer
+          spec:
+            restartPolicy: Never
+            containers:
+            - name: writer
+              image: busybox:1.36
+              command: ["sh", "-c", "echo $marker > /js/e2e-marker.txt"]
+              volumeMounts:
+              - name: js
+                mountPath: /js
+            volumes:
+            - name: js
+              persistentVolumeClaim:
+                claimName: matomo-tagmanager-js
+          EOF
+          kubectl -n matomo wait --for=condition=Ready pod/tagmanager-js-writer --timeout=60s || true
+          kubectl -n matomo wait --for=jsonpath='{.status.phase}'=Succeeded pod/tagmanager-js-writer --timeout=60s
+          kubectl -n matomo delete pod tagmanager-js-writer --wait=true
+
+          echo "reading it back from the dashboard's matomo container"
+          dashboard_seen=$(kubectl -n matomo exec deployment/matomo-dashboard -c matomo -- cat /var/www/html/js/e2e-marker.txt)
+          echo "reading it back from the tracker's matomo container"
+          tracker_seen=$(kubectl -n matomo exec deployment/matomo-tracker -c matomo -- cat /var/www/html/js/e2e-marker.txt)
+
+          if [ "$dashboard_seen" != "$marker" ] || [ "$tracker_seen" != "$marker" ]; then
+            echo "::error::marker mismatch - dashboard saw '$dashboard_seen', tracker saw '$tracker_seen', expected '$marker'"
+            exit 1
+          fi
+          echo "dashboard and tracker both see the shared TagManager JS volume correctly"
+
+      - name: Test regenerate-tagmanager CronJob
+        run: |
+          kubectl -n matomo create job e2e-matomo-jobs-regenerate-tagmanager \
+            --from=cronjob/matomo-jobs-regenerate-tagmanager
+          if ! kubectl -n matomo wait --for=condition=complete \
+            job/e2e-matomo-jobs-regenerate-tagmanager --timeout=300s; then
+            echo "::error::regenerate-tagmanager did not complete"
+            kubectl -n matomo logs job/e2e-matomo-jobs-regenerate-tagmanager --all-containers --tail=100 || true
+            exit 1
+          fi
+          kubectl -n matomo logs job/e2e-matomo-jobs-regenerate-tagmanager --all-containers --tail=50
 
       # ── Smoke tests ────────────────────────────────────────────────────
       - name: Smoke test dashboard and tracker (in-cluster)

@@ -72,16 +72,13 @@ matomo:
   # request(s) after a (re)start. Since static-data is an emptyDir, that
   # bookkeeping resets on every fresh pod, so without this, concurrent
   # probes/traffic on every restart each independently race to redo that
-  # (expensive) regeneration. Running it once here, synchronously, avoids that.
-  # The `tagmanager:regenerate-released-containers` call is guarded by an
-  # `./console list` check, since TagManager isn't in the default
-  # install.json PluginsInstalled list (see matomo.config above) - on a fresh
-  # install (or any site where TagManager has never been activated) the
-  # command doesn't exist yet, and this must not fail the init container.
-  warmupCommand: >-
-    ./console core:update --yes --no-interaction &&
-    if ./console list --raw 2>/dev/null | grep -q "^tagmanager:regenerate-released-containers ";
-    then ./console tagmanager:regenerate-released-containers; fi
+  # (expensive) regeneration. Running it once here, synchronously, avoids
+  # that. Unless matomo.tagManagerRegenerate.enabled is true, this is also
+  # followed by a guarded `tagmanager:regenerate-released-containers` call
+  # (see matomo.tagManagerRegenerateGuarded in _helpers.tpl); when that
+  # feature is enabled, the regenerate-tagmanager CronJob owns that work
+  # instead, so it's skipped here.
+  warmupCommand: ./console core:update --yes --no-interaction
   # -- Resources for the matomo-warmup init container (dashboard and tracker).
   warmupResources:
     limits:
@@ -90,6 +87,50 @@ matomo:
     requests:
       cpu: 100m
       memory: 128Mi
+
+  ## Moves TagManager's generated container JS (/var/www/html/js) out of each
+  ## pod's own ephemeral static-data and onto a single ReadWriteMany
+  ## PersistentVolumeClaim, kept fresh by a dedicated CronJob instead of by
+  ## the dashboard/tracker pods themselves. Disabled by default because it
+  ## requires a StorageClass that supports ReadWriteMany; when enabled, the
+  ## dashboard and tracker no longer regenerate TagManager containers at
+  ## all (see matomo.warmupCommand above) - they just read the shared
+  ## volume, which the CronJob refreshes on its own schedule.
+  tagManagerRegenerate:
+    # -- Enable the regenerate-tagmanager CronJob and the shared
+    # ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the
+    # dashboard and tracker pods.
+    enabled: false
+    # -- Cron schedule for the regenerate-tagmanager CronJob.
+    schedule: "*/2 * * * *"
+    # -- concurrencyPolicy for the regenerate-tagmanager CronJob.
+    concurrencyPolicy: Forbid
+    # -- activeDeadlineSeconds for the regenerate-tagmanager Job.
+    activeDeadlineSeconds: 300
+    # -- Default resources for the regenerate-tagmanager CronJob container.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    # -- Resources for the dashboard/tracker matomo-seed-tagmanager-js init
+    # container that seeds the shared volume on its first-ever mount.
+    seedResources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    volume:
+      # -- storageClassName for the shared TagManager JS PersistentVolumeClaim.
+      # Must support the ReadWriteMany access mode. Empty uses the cluster's
+      # default StorageClass (only suitable if that default supports RWX).
+      storageClassName: ""
+      # -- Size of the shared TagManager JS PersistentVolumeClaim.
+      size: 1Gi
 
   # -- Install command. If already installed, it just creates the needed config.
   installCommand: ./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db

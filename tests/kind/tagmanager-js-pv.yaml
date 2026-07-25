@@ -1,0 +1,19 @@
+# kind's default StorageClass (rancher.io/local-path) only supports
+# ReadWriteOnce, but matomo.tagManagerRegenerate needs ReadWriteMany. kind's
+# e2e cluster is single-node, so a hostPath-backed PV can safely stand in for
+# a real RWX-capable backend: every pod lands on the same node, so they all
+# see the same host directory. This is only suitable for this single-node
+# test; production RWX needs a real ReadWriteMany StorageClass (NFS,
+# CephFS, etc).
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: matomo-tagmanager-js-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: manual
+  hostPath:
+    path: /tmp/matomo-tagmanager-js

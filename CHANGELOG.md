@@ -1,5 +1,12 @@
 # Change log
 
+## [Unreleased]
+
+### Added
+
+- A `regenerate-tagmanager` CronJob (`matomo.tagManagerRegenerate`, disabled by default) and a shared ReadWriteMany PersistentVolumeClaim (`matomo-tagmanager-js`) mounted at `/var/www/html/js` on the dashboard and tracker pods. When enabled, TagManager's generated container JS is regenerated once, centrally, on a schedule (`*/2 * * * *` by default) instead of by each dashboard/tracker pod itself - the `matomo-warmup` init container's `tagmanager:regenerate-released-containers` call is skipped in this mode (see `matomo.warmupCommand`). A new `matomo-seed-tagmanager-js` init container seeds the shared volume from the pod's own copy on its first-ever mount (a no-op once the CronJob has populated it). Requires a StorageClass supporting ReadWriteMany. New values: `matomo.tagManagerRegenerate.{enabled,schedule,concurrencyPolicy,activeDeadlineSeconds,resources,seedResources,volume.storageClassName,volume.size}`.
+- E2E coverage for the above: a hostPath-backed manual PV (`tests/kind/tagmanager-js-pv.yaml`) stands in for a ReadWriteMany StorageClass in the single-node kind cluster; the test enables the feature, verifies the PVC binds, writes a marker file through a throwaway pod and reads it back from both the dashboard and tracker pods to confirm the shared mount works, and runs the CronJob once via `kubectl create job --from=cronjob/...`.
+
 ## [12.0.12] - 2026-07-24
 
 ### Added

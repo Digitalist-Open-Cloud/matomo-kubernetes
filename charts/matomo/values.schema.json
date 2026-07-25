@@ -1213,6 +1213,146 @@
           "required": [],
           "title": "runAsUser"
         },
+        "tagManagerRegenerate": {
+          "additionalProperties": false,
+          "description": " # pod's own ephemeral static-data and onto a single ReadWriteMany # PersistentVolumeClaim, kept fresh by a dedicated CronJob instead of by # the dashboard/tracker pods themselves. Disabled by default because it # requires a StorageClass that supports ReadWriteMany; when enabled, the # dashboard and tracker no longer regenerate TagManager containers at # all (see matomo.warmupCommand above) - they just read the shared # volume, which the CronJob refreshes on its own schedule.",
+          "properties": {
+            "activeDeadlineSeconds": {
+              "default": "300",
+              "description": "activeDeadlineSeconds for the regenerate-tagmanager Job.",
+              "required": [],
+              "title": "activeDeadlineSeconds"
+            },
+            "concurrencyPolicy": {
+              "default": "Forbid",
+              "description": "concurrencyPolicy for the regenerate-tagmanager CronJob.",
+              "required": [],
+              "title": "concurrencyPolicy"
+            },
+            "enabled": {
+              "default": "false",
+              "description": "Enable the regenerate-tagmanager CronJob and the shared ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the dashboard and tracker pods.",
+              "required": [],
+              "title": "enabled"
+            },
+            "resources": {
+              "additionalProperties": false,
+              "description": "Default resources for the regenerate-tagmanager CronJob container.",
+              "properties": {
+                "limits": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "default": "1000m",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "1Gi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "limits",
+                  "type": "object"
+                },
+                "requests": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "default": "100m",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "128Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "requests",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "resources"
+            },
+            "schedule": {
+              "default": "*/2 * * * *",
+              "description": "Cron schedule for the regenerate-tagmanager CronJob.",
+              "required": [],
+              "title": "schedule"
+            },
+            "seedResources": {
+              "additionalProperties": false,
+              "description": "Resources for the dashboard/tracker matomo-seed-tagmanager-js init container that seeds the shared volume on its first-ever mount.",
+              "properties": {
+                "limits": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "default": "500m",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "256Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "limits",
+                  "type": "object"
+                },
+                "requests": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "default": "50m",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "32Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "requests",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "seedResources"
+            },
+            "volume": {
+              "additionalProperties": false,
+              "properties": {
+                "size": {
+                  "default": "1Gi",
+                  "description": "Size of the shared TagManager JS PersistentVolumeClaim.",
+                  "required": [],
+                  "title": "size"
+                },
+                "storageClassName": {
+                  "default": "",
+                  "description": "storageClassName for the shared TagManager JS PersistentVolumeClaim. Must support the ReadWriteMany access mode. Empty uses the cluster's default StorageClass (only suitable if that default supports RWX).",
+                  "required": [],
+                  "title": "storageClassName"
+                }
+              },
+              "required": [],
+              "title": "volume",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "tagManagerRegenerate"
+        },
         "tracker": {
           "additionalProperties": false,
           "properties": {
@@ -1560,8 +1700,8 @@
           "title": "waitForDbResources"
         },
         "warmupCommand": {
-          "default": "./console core:update --yes --no-interaction \u0026\u0026 if ./console list --raw 2\u003e/dev/null | grep -q \"^tagmanager:regenerate-released-containers \"; then ./console tagmanager:regenerate-released-containers; fi",
-          "description": "force` (in installCommand above) doesn't itself fire the plugin install/update events some plugins (e.g. TagManager) hook to regenerate generated assets - normally left to happen lazily on the first web request(s) after a (re)start. Since static-data is an emptyDir, that bookkeeping resets on every fresh pod, so without this, concurrent probes/traffic on every restart each independently race to redo that (expensive) regeneration. Running it once here, synchronously, avoids that. The `tagmanager:regenerate-released-containers` call is guarded by an `./console list` check, since TagManager isn't in the default install.json PluginsInstalled list (see matomo.config above) - on a fresh install (or any site where TagManager has never been activated) the command doesn't exist yet, and this must not fail the init container.",
+          "default": "./console core:update --yes --no-interaction",
+          "description": "force` (in installCommand above) doesn't itself fire the plugin install/update events some plugins (e.g. TagManager) hook to regenerate generated assets - normally left to happen lazily on the first web request(s) after a (re)start. Since static-data is an emptyDir, that bookkeeping resets on every fresh pod, so without this, concurrent probes/traffic on every restart each independently race to redo that (expensive) regeneration. Running it once here, synchronously, avoids that. Unless matomo.tagManagerRegenerate.enabled is true, this is also followed by a guarded `tagmanager:regenerate-released-containers` call (see matomo.tagManagerRegenerateGuarded in _helpers.tpl); when that feature is enabled, the regenerate-tagmanager CronJob owns that work instead, so it's skipped here.",
           "required": [],
           "title": "warmupCommand"
         },

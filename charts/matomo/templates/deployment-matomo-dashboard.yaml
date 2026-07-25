@@ -94,6 +94,11 @@ spec:
           - name: static-data
             mountPath: /var/www/html
             readOnly: true
+          {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+          - name: tagmanager-js
+            mountPath: /var/www/html/js
+            readOnly: true
+          {{- end }}
         ports:
         - containerPort: 8080
       - name: matomo
@@ -141,6 +146,11 @@ spec:
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
+          {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+          - name: tagmanager-js
+            mountPath: /var/www/html/js
+            readOnly: true
+          {{- end }}
 {{- if .Values.extraVolumeMounts }}
 {{ toYaml .Values.extraVolumeMounts | indent 10 }}
 {{- end }}
@@ -185,6 +195,11 @@ spec:
           name: matomo-dashboard-php
       - name: static-data
         emptyDir: {}
+      {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+      - name: tagmanager-js
+        persistentVolumeClaim:
+          claimName: matomo-tagmanager-js
+      {{- end }}
 {{- if .Values.extraVolumes }}
 {{ toYaml .Values.extraVolumes | indent 6 }}
 {{- end }}
