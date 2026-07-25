@@ -398,11 +398,10 @@ timeoutSeconds: 5
 
 {{/* Default nginx probes. Liveness is shared; readiness differs per service. */}}
 {{- define "matomo.probe.default.nginx.liveness" -}}
-exec:
-  command:
-  - /bin/sh
-  - -c
-  - "[ -f /tmp/nginx.pid ] && ps -A | grep nginx"
+httpGet:
+  scheme: HTTP
+  path: /health
+  port: 8080
 initialDelaySeconds: 10
 periodSeconds: 10
 timeoutSeconds: 5
