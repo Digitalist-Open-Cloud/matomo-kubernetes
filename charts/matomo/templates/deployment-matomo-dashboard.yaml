@@ -42,6 +42,7 @@ spec:
         {{- if .Values.matomo.dashboard.sidecars }}
 {{ toYaml .Values.matomo.dashboard.sidecars | indent 6 }}
         {{- end }}
+      {{- if .Values.matomo.dashboard.exporter.enabled }}
       - name: fpm-metrics
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
@@ -51,7 +52,11 @@ spec:
           capabilities:
             drop:
               - ALL
-        image: hipages/php-fpm_exporter:2.2.0
+        {{- if .Values.matomo.dashboard.exporter.image }}
+        image: {{.Values.matomo.dashboard.exporter.image}}
+        {{- else }}
+        image: {{.Values.matomo.exporterImage}}
+        {{- end }}
         imagePullPolicy: Always
         env:
         - name: PHP_FPM_FIX_PROCESS_COUNT
@@ -65,6 +70,7 @@ spec:
         ports:
         - name: metrics
           containerPort: 9253
+      {{- end }}
       - name: nginx
         {{- if .Values.matomo.dashboard.nginx.image }}
         image: {{.Values.matomo.dashboard.nginx.image}}
@@ -222,19 +228,23 @@ metadata:
 {{- if .Values.matomo.extralabels }}
 {{ toYaml .Values.matomo.extralabels | indent 4 }}
 {{- end }}
+  {{- if .Values.matomo.dashboard.exporter.enabled }}
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9253"
     prometheus.io/path: "/metrics"
+  {{- end }}
 spec:
   ports:
     - name: http
       port: 8080
       protocol: TCP
+    {{- if .Values.matomo.dashboard.exporter.enabled }}
     - name: metrics
       port: 9253
       targetPort: metrics
       protocol: TCP
+    {{- end }}
   selector:
     app: matomo-dashboard
 {{- end -}}

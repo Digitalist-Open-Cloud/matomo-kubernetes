@@ -26,7 +26,11 @@ matomo:
   # -- Image pull secrets for Matomo.
   imagePullSecrets: []
   # -- Which image to use for Matomo deployment.
-  image: digitalist/matomo:5.7.1
+  image: digitalist/matomo:5.12.0
+  # -- Image for the php-fpm_exporter (fpm-metrics) sidecar shared by the
+  # dashboard and tracker pods. Override per-workload via
+  # `matomo.dashboard.exporter.image` / `matomo.tracker.exporter.image`.
+  exporterImage: hipages/php-fpm_exporter:2.2.0
   # -- run container as user id.
   runAsUser: 82
   # -- Mount the service account token into Matomo pods. No workload in this
@@ -425,8 +429,14 @@ matomo:
       username: admin
       password: admin123
       email: foo@example.com
-    # -- php-fpm_exporter (fpm-metrics) sidecar probes for the dashboard pod.
+    # -- php-fpm_exporter (fpm-metrics) sidecar for the dashboard pod.
     exporter:
+      # -- Enable the dashboard php-fpm_exporter (fpm-metrics) sidecar and
+      # its `metrics` port on the matomo-dashboard Service.
+      enabled: true
+      # -- Override the php-fpm_exporter image used for the dashboard
+      # (falls back to `matomo.exporterImage` when empty).
+      image: ''
       # -- Default resources for the dashboard php-fpm_exporter (fpm-metrics) container.
       resources:
         limits:
@@ -573,8 +583,14 @@ matomo:
       limits:
         cpu: 1000m
         memory: 768Mi
-    # -- php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod.
+    # -- php-fpm_exporter (fpm-metrics) sidecar for the tracker pod.
     exporter:
+      # -- Enable the tracker php-fpm_exporter (fpm-metrics) sidecar and its
+      # `metrics` port on the matomo-tracker Service.
+      enabled: true
+      # -- Override the php-fpm_exporter image used for the tracker (falls
+      # back to `matomo.exporterImage` when empty).
+      image: ''
       # -- Default resources for the tracker php-fpm_exporter (fpm-metrics) container.
       resources:
         limits:
