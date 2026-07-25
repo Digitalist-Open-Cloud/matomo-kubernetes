@@ -771,7 +771,7 @@
           "title": "gatewayApi"
         },
         "image": {
-          "default": "digitalist/matomo:5.7.1",
+          "default": "digitalist/matomo:5.12.0",
           "description": "Which image to use for Matomo deployment.",
           "required": [],
           "title": "image"
