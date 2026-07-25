@@ -147,6 +147,20 @@ initContainers:
 {{- end -}}
 
 {{/*
+Name of the PVC mounted at /var/www/html/js on the dashboard, tracker, and
+regenerate-tagmanager pods. Either the one this chart creates
+(matomo.tagManagerRegenerate.volume.create, the default) or a pre-existing
+PVC supplied via matomo.tagManagerRegenerate.volume.existingClaim.
+*/}}
+{{- define "matomo.tagManagerJsClaimName" -}}
+{{- if .Values.matomo.tagManagerRegenerate.volume.create -}}
+matomo-tagmanager-js
+{{- else -}}
+{{- .Values.matomo.tagManagerRegenerate.volume.existingClaim -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Guarded `tagmanager:regenerate-released-containers` invocation. TagManager
 isn't in the chart's default install.json PluginsInstalled list (see
 matomo.config), so on any site that's never activated it, this console

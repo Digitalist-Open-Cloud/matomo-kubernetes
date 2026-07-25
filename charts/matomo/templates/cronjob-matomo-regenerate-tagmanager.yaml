@@ -1,5 +1,9 @@
 ---
 {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+{{- if and (not .Values.matomo.tagManagerRegenerate.volume.create) (not .Values.matomo.tagManagerRegenerate.volume.existingClaim) }}
+{{- fail "matomo.tagManagerRegenerate.volume.existingClaim must be set when matomo.tagManagerRegenerate.volume.create is false" }}
+{{- end }}
+{{- if .Values.matomo.tagManagerRegenerate.volume.create }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -17,6 +21,7 @@ spec:
     requests:
       storage: {{ .Values.matomo.tagManagerRegenerate.volume.size }}
 ---
+{{- end }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -97,5 +102,5 @@ spec:
             emptyDir: {}
           - name: tagmanager-js
             persistentVolumeClaim:
-              claimName: matomo-tagmanager-js
+              claimName: {{ include "matomo.tagManagerJsClaimName" . }}
 {{- end -}}
