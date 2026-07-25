@@ -229,14 +229,33 @@ dashboard/tracker containers, so redoing it here per-pod would be redundant.
 {{- end -}}
 
 {{/*
-Seeds the shared TagManager JS PersistentVolumeClaim (mounted at
+Ensures the baseline JS assets bundled in the Matomo image itself
+(matomo.tagManagerRegenerate.seedSourcePath, e.g. piwik.js/piwik.min.js/
+tracker.php/index.php - general tracker files, nothing TagManager-specific)
+are present in the shared TagManager JS PersistentVolumeClaim (mounted at
 /var/www/html/js on the dashboard/tracker main containers when
-matomo.tagManagerRegenerate.enabled) from this pod's own freshly
-rsynced/regenerated copy - but only if the shared volume is still empty,
-i.e. only on the very first pod that ever mounts it, before the
-regenerate-tagmanager CronJob has had a chance to run. On every subsequent
-pod (re)start the shared volume is already populated (kept fresh by the
-CronJob on its own schedule), so this is a fast no-op.
+matomo.tagManagerRegenerate.enabled). TagManager's own generated container
+files land in the same directory (via the regenerate-tagmanager CronJob),
+but regenerating containers never restores these baseline files - only this
+step does.
+
+Deliberately NOT gated on "only if the shared volume is empty": the CronJob
+and dashboard/tracker pods start independently, so if the CronJob happens to
+write its first container file before any pod has ever run this step, the
+volume is no longer empty, but the baseline files still wouldn't be there.
+Instead this always runs on every pod start.
+
+Also deliberately NOT a non-clobbering copy: seedSourcePath only ever
+contains this fixed, image-shipped set of baseline files, never
+TagManager's own generated container files (different names, same
+directory) - so an unconditional overwrite can't touch TagManager's output,
+and it's what makes a Matomo version upgrade actually take effect (a
+no-clobber copy would leave a stale piwik.js/tracker.php/etc from whatever
+version first happened to seed the volume in place forever).
+
+Sources from the image directly (rather than this pod's own rsynced copy
+under static-data) so this container doesn't need static-data mounted at
+all.
 */}}
 {{- define "matomo.seedTagManagerJsContainer" -}}
 - name: matomo-seed-tagmanager-js
@@ -250,15 +269,12 @@ CronJob on its own schedule), so this is a fast no-op.
       drop:
         - ALL
   imagePullPolicy: Always
-  command: [ 'sh' , '-c' , 'if [ -z "$(ls -A /shared-js 2>/dev/null)" ]; then echo "shared TagManager JS volume is empty, seeding from local copy"; cp -a /var/www/html/js/. /shared-js/; else echo "shared TagManager JS volume already populated, skipping seed"; fi' ]
+  command: [ 'sh' , '-c' , 'cp -a {{ .Values.matomo.tagManagerRegenerate.seedSourcePath }}/. /shared-js/; echo "baseline JS assets from {{ .Values.matomo.tagManagerRegenerate.seedSourcePath }} refreshed in shared TagManager JS volume"' ]
   {{- if .Values.matomo.tagManagerRegenerate.seedResources }}
   resources:
 {{ toYaml .Values.matomo.tagManagerRegenerate.seedResources | indent 4 }}
   {{- end }}
   volumeMounts:
-    - name: static-data
-      mountPath: /var/www/html
-      readOnly: true
     - name: tagmanager-js
       mountPath: /shared-js
 {{- end -}}

@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 12.0.13](https://img.shields.io/badge/Version-12.0.13-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
+![Version: 12.0.14](https://img.shields.io/badge/Version-12.0.14-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -111,6 +111,7 @@ A Helm chart for Matomo
 | matomo.tagManagerRegenerate.resources | object | `{"limits":{"cpu":"1000m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the regenerate-tagmanager CronJob container. |
 | matomo.tagManagerRegenerate.schedule | string | `"*/2 * * * *"` | Cron schedule for the regenerate-tagmanager CronJob. |
 | matomo.tagManagerRegenerate.seedResources | object | `{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resources for the dashboard/tracker matomo-seed-tagmanager-js init container that seeds the shared volume on its first-ever mount. |
+| matomo.tagManagerRegenerate.seedSourcePath | string | `"/usr/src/matomo/js"` | Path inside the matomo image the matomo-seed-tagmanager-js init container copies from when seeding the shared volume on its first-ever mount. Defaults to the default JS assets bundled in the image, alongside the rest of Matomo's source under /usr/src/matomo. |
 | matomo.tagManagerRegenerate.volume.create | bool | `true` | Whether this chart creates the shared TagManager JS PersistentVolumeClaim (matomo-tagmanager-js). Set to false and provide existingClaim to use a PVC you've already created instead (e.g. one provisioned/managed outside this chart, or shared with other releases). storageClassName and size below only apply when this is true. |
 | matomo.tagManagerRegenerate.volume.existingClaim | string | `""` | Name of a pre-existing PersistentVolumeClaim to use instead of the one this chart creates. Only used when create is false; must already exist in this release's namespace and support the ReadWriteMany access mode. |
 | matomo.tagManagerRegenerate.volume.size | string | `"1Gi"` | Size of the shared TagManager JS PersistentVolumeClaim created by this chart (only used when create is true). |

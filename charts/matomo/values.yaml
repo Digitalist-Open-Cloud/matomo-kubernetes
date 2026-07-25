@@ -131,6 +131,11 @@ matomo:
       limits:
         cpu: 1000m
         memory: 1Gi
+    # -- Path inside the matomo image the matomo-seed-tagmanager-js init
+    # container copies from when seeding the shared volume on its
+    # first-ever mount. Defaults to the default JS assets bundled in the
+    # image, alongside the rest of Matomo's source under /usr/src/matomo.
+    seedSourcePath: /usr/src/matomo/js
     # -- Resources for the dashboard/tracker matomo-seed-tagmanager-js init
     # container that seeds the shared volume on its first-ever mount.
     seedResources:

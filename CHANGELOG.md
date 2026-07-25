@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.14] - 2026-07-25
+
+### Fixed
+
+- Copy needed file for tag manager to work.
+
 ## [12.0.13] - 2026-07-25
 
 ### Fixed

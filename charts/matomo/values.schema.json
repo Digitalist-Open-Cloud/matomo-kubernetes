@@ -1357,6 +1357,12 @@
               "required": [],
               "title": "seedResources"
             },
+            "seedSourcePath": {
+              "default": "/usr/src/matomo/js",
+              "description": "Path inside the matomo image the matomo-seed-tagmanager-js init container copies from when seeding the shared volume on its first-ever mount. Defaults to the default JS assets bundled in the image, alongside the rest of Matomo's source under /usr/src/matomo.",
+              "required": [],
+              "title": "seedSourcePath"
+            },
             "volume": {
               "additionalProperties": false,
               "properties": {
