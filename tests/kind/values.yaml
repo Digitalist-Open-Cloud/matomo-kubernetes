@@ -18,14 +18,6 @@ matomo:
   # needs it to consume the queued tracking hit from Valkey
   queuedTrackingProcess:
     enabled: true
-  # exercises the regenerate-tagmanager CronJob and the shared TagManager JS
-  # volume end-to-end; storageClassName "manual" binds to the hostPath PV in
-  # tests/kind/tagmanager-js-pv.yaml, since kind's default StorageClass
-  # doesn't support ReadWriteMany.
-  tagManagerRegenerate:
-    enabled: true
-    volume:
-      storageClassName: manual
   resources:
     requests:
       cpu: 100m

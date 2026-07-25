@@ -1,0 +1,16 @@
+# Overlay for the kind e2e test's second install phase (see
+# .github/workflows/kind-e2e.yaml), layered on top of tests/kind/values.yaml
+# via `helm install ... --values tests/kind/values.yaml --values
+# tests/kind/values-tagmanager.yaml`. Kept separate from the base values so
+# phase 1 (the existing, well-established test suite) installs the chart
+# with matomo.tagManagerRegenerate at its normal default (disabled),
+# unaffected by this newer, riskier feature.
+#
+# storageClassName "manual" binds to the hostPath PV created just before
+# phase 2 (tests/kind/tagmanager-js-pv.yaml) - kind's default StorageClass
+# doesn't support ReadWriteMany.
+matomo:
+  tagManagerRegenerate:
+    enabled: true
+    volume:
+      storageClassName: manual
