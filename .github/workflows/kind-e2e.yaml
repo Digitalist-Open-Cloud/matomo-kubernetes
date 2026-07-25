@@ -14,7 +14,7 @@ jobs:
   e2e:
     name: Install chart on kind
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
@@ -79,6 +79,10 @@ jobs:
           echo "✅ Gateway programed"
 
       # ── Install Matomo chart (ingress + gatewayApi) ────────────────────
+      # Phase 1: baseline install, matomo.tagManagerRegenerate at its normal
+      # default (disabled). Exercises everything unrelated to that newer,
+      # riskier feature first, so a problem with it can't block/hang the
+      # well-established parts of this suite.
       - name: Install Matomo chart
         run: |
           helm install matomo charts/matomo --namespace matomo \
@@ -92,6 +96,14 @@ jobs:
             kubectl -n matomo rollout status "deployment/$d" --timeout=600s
             echo "::endgroup::"
           done
+
+      - name: Verify tagManagerRegenerate is off by default
+        run: |
+          if kubectl -n matomo get pvc matomo-tagmanager-js >/dev/null 2>&1; then
+            echo "::error::matomo-tagmanager-js PVC exists even though tagManagerRegenerate wasn't enabled"
+            exit 1
+          fi
+          echo "matomo-tagmanager-js PVC correctly absent (feature is off by default)"
 
       # ── Smoke tests ────────────────────────────────────────────────────
       - name: Smoke test dashboard and tracker (in-cluster)
@@ -225,6 +237,127 @@ jobs:
             echo "::endgroup::"
           done
           exit $fail
+
+      # ── Phase 2: matomo.tagManagerRegenerate ───────────────────────────
+      # Uninstall everything from phase 1 and reinstall from scratch with
+      # the feature enabled, so it's exercised as a genuine fresh install
+      # (including the matomo-seed-tagmanager-js cold-start path) rather
+      # than an in-place upgrade, and so a hang/failure here is isolated
+      # from - and doesn't block a clear read on - the phase 1 results above.
+      - name: Uninstall Matomo, MariaDB, and Valkey
+        run: |
+          helm uninstall matomo --namespace matomo --wait --timeout=180s
+          kubectl delete -f tests/kind/mariadb.yaml -f tests/kind/valkey.yaml --wait=true --timeout=120s
+
+      - name: Reinstall MariaDB and Valkey
+        run: |
+          kubectl apply -f tests/kind/mariadb.yaml -f tests/kind/valkey.yaml
+          kubectl -n matomo rollout status deployment/matomo-db-mysql --timeout=300s
+          kubectl -n matomo rollout status deployment/matomo-valkey --timeout=300s
+
+      # kind's default StorageClass (rancher.io/local-path) only supports
+      # ReadWriteOnce; matomo.tagManagerRegenerate needs ReadWriteMany. A
+      # hostPath-backed PV stands in for a real RWX backend on this
+      # single-node cluster. hostPath directories are root-owned by default
+      # when kubelet creates them, but this chart's containers run as
+      # non-root (matomo: uid 82, nginx: uid 100) - without opening up the
+      # directory's permissions first, the matomo-seed-tagmanager-js init
+      # container (and the regenerate-tagmanager CronJob) fail to write to
+      # it, leaving the affected pods stuck and the rollout wait below
+      # hanging until it times out. This is a kind/test-fixture-only
+      # concern: a real RWX StorageClass (NFS, CephFS, etc.) handles this
+      # through its own CSI driver / export options instead.
+      - name: Prepare hostPath directory and PV for TagManager JS
+        run: |
+          docker exec chart-testing-control-plane mkdir -p /tmp/matomo-tagmanager-js
+          docker exec chart-testing-control-plane chmod 0777 /tmp/matomo-tagmanager-js
+          kubectl apply -f tests/kind/tagmanager-js-pv.yaml
+
+      - name: Reinstall Matomo chart with tagManagerRegenerate enabled
+        run: |
+          helm install matomo charts/matomo --namespace matomo \
+            --values tests/kind/values.yaml \
+            --values tests/kind/values-tagmanager.yaml
+
+      - name: Wait for Matomo workloads (phase 2)
+        run: |
+          for d in matomo-dashboard matomo-tracker matomo-cli \
+                   matomo-queuedtracking-monitor matomo-queuedtracking-process; do
+            echo "::group::rollout $d"
+            kubectl -n matomo rollout status "deployment/$d" --timeout=600s
+            echo "::endgroup::"
+          done
+
+      - name: Smoke test dashboard and tracker after reinstall
+        run: |
+          kubectl -n matomo run smoke-phase2 --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 --command -- sh -c '
+            set -e
+            echo "dashboard /index.php"
+            curl -sSf -o /dev/null http://matomo-dashboard:8080/index.php
+            echo "tracker /matomo.js"
+            curl -sSf -o /dev/null http://matomo-tracker:8080/matomo.js
+            '
+
+      - name: Verify shared TagManager JS volume
+        run: |
+          set -euo pipefail
+          echo "PVC status:"
+          kubectl -n matomo get pvc matomo-tagmanager-js
+          phase=$(kubectl -n matomo get pvc matomo-tagmanager-js -o jsonpath='{.status.phase}')
+          if [ "$phase" != "Bound" ]; then
+            echo "::error::matomo-tagmanager-js PVC is not Bound (phase=$phase)"
+            kubectl -n matomo describe pvc matomo-tagmanager-js
+            exit 1
+          fi
+
+          marker="e2e-marker-$(date +%s)"
+          echo "writing $marker via a throwaway pod mounting the shared PVC"
+          cat <<EOF | kubectl -n matomo apply -f -
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: tagmanager-js-writer
+          spec:
+            restartPolicy: Never
+            containers:
+            - name: writer
+              image: busybox:1.36
+              command: ["sh", "-c", "echo $marker > /js/e2e-marker.txt"]
+              volumeMounts:
+              - name: js
+                mountPath: /js
+            volumes:
+            - name: js
+              persistentVolumeClaim:
+                claimName: matomo-tagmanager-js
+          EOF
+          kubectl -n matomo wait --for=condition=Ready pod/tagmanager-js-writer --timeout=60s || true
+          kubectl -n matomo wait --for=jsonpath='{.status.phase}'=Succeeded pod/tagmanager-js-writer --timeout=60s
+          kubectl -n matomo delete pod tagmanager-js-writer --wait=true
+
+          echo "reading it back from the dashboard's matomo container"
+          dashboard_seen=$(kubectl -n matomo exec deployment/matomo-dashboard -c matomo -- cat /var/www/html/js/e2e-marker.txt)
+          echo "reading it back from the tracker's matomo container"
+          tracker_seen=$(kubectl -n matomo exec deployment/matomo-tracker -c matomo -- cat /var/www/html/js/e2e-marker.txt)
+
+          if [ "$dashboard_seen" != "$marker" ] || [ "$tracker_seen" != "$marker" ]; then
+            echo "::error::marker mismatch - dashboard saw '$dashboard_seen', tracker saw '$tracker_seen', expected '$marker'"
+            exit 1
+          fi
+          echo "dashboard and tracker both see the shared TagManager JS volume correctly"
+
+      - name: Test regenerate-tagmanager CronJob
+        run: |
+          kubectl -n matomo create job e2e-matomo-jobs-regenerate-tagmanager \
+            --from=cronjob/matomo-jobs-regenerate-tagmanager
+          if ! kubectl -n matomo wait --for=condition=complete \
+            job/e2e-matomo-jobs-regenerate-tagmanager --timeout=300s; then
+            echo "::error::regenerate-tagmanager did not complete"
+            kubectl -n matomo logs job/e2e-matomo-jobs-regenerate-tagmanager --all-containers --tail=100 || true
+            exit 1
+          fi
+          kubectl -n matomo logs job/e2e-matomo-jobs-regenerate-tagmanager --all-containers --tail=50
 
       - name: Diagnostics on failure
         if: failure()

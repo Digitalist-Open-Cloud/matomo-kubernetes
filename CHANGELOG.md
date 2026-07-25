@@ -1,5 +1,17 @@
 # Change log
 
+## [Unreleased]
+
+### Fixed
+
+- The kind e2e test for `matomo.tagManagerRegenerate` could hang: the hostPath-backed manual PV standing in for a ReadWriteMany StorageClass is root-owned by default when kubelet creates it, but the chart's containers run as non-root (uid 82/100) - the `matomo-seed-tagmanager-js` init container (and the regenerate-tagmanager CronJob) failed to write to it, leaving pods stuck and the rollout-status wait running until its own timeout. Fixed by `chmod`-ing the hostPath directory on the kind node before it's ever mounted. Also restructured the workflow into two install phases: phase 1 installs the chart with `tagManagerRegenerate` at its normal default (disabled) and runs the full existing test suite unaffected by this newer feature (plus a new check that the PVC is correctly absent when the feature is off); phase 2 uninstalls Matomo/MariaDB/Valkey and reinstalls everything from scratch with the feature enabled, so it's exercised as a genuine fresh install (including the cold-start seeding path) and isolated from the rest of the suite if it fails. New `tests/kind/values-tagmanager.yaml` overlay carries the phase 2-only values.
+
+### Added
+
+- `matomo.tagManagerRegenerate.fsGroup` (defaults to `matomo.runAsUser`): applied as a pod-level `fsGroup` on the dashboard, tracker, and regenerate-tagmanager pods when the feature is enabled. nginx and matomo run as different container UIDs but both need access to the shared TagManager JS PVC - `fsGroup` is pod-wide (unlike `runAsUser`, which is per-container), so it's what actually lets them share it regardless of the backing storage's default ownership. Doesn't apply to hostPath-backed volumes (the kind e2e fixture still needs its own `chmod` workaround for that reason) - only to real volume plugins/CSI drivers (NFS, CephFS, etc).
+- A `regenerate-tagmanager` CronJob (`matomo.tagManagerRegenerate`, disabled by default) and a shared ReadWriteMany PersistentVolumeClaim (`matomo-tagmanager-js`) mounted at `/var/www/html/js` on the dashboard and tracker pods. When enabled, TagManager's generated container JS is regenerated once, centrally, on a schedule (`*/2 * * * *` by default) instead of by each dashboard/tracker pod itself - the `matomo-warmup` init container's `tagmanager:regenerate-released-containers` call is skipped in this mode (see `matomo.warmupCommand`). A new `matomo-seed-tagmanager-js` init container seeds the shared volume from the pod's own copy on its first-ever mount (a no-op once the CronJob has populated it). Requires a StorageClass supporting ReadWriteMany. New values: `matomo.tagManagerRegenerate.{enabled,schedule,concurrencyPolicy,activeDeadlineSeconds,resources,seedResources,volume.storageClassName,volume.size}`.
+- E2E coverage for the above: a hostPath-backed manual PV (`tests/kind/tagmanager-js-pv.yaml`) stands in for a ReadWriteMany StorageClass in the single-node kind cluster; the test enables the feature, verifies the PVC binds, writes a marker file through a throwaway pod and reads it back from both the dashboard and tracker pods to confirm the shared mount works, and runs the CronJob once via `kubectl create job --from=cronjob/...`.
+
 ## [12.0.12] - 2026-07-24
 
 ### Added

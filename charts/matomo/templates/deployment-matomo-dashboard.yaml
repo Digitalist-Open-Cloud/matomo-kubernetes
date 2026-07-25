@@ -29,6 +29,14 @@ spec:
       securityContext:
         seccompProfile:
           type: RuntimeDefault
+        {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+        # nginx (uid {{ .Values.nginx.runAsUser }}) and matomo (uid {{ .Values.matomo.runAsUser }})
+        # are different UIDs both needing access to the shared TagManager JS
+        # PVC; fsGroup is pod-wide (unlike runAsUser, which is per-container)
+        # so it's what lets both actually share it. Doesn't apply to hostPath
+        # volumes, only to real volume plugins/CSI drivers.
+        fsGroup: {{ .Values.matomo.tagManagerRegenerate.fsGroup | default .Values.matomo.runAsUser }}
+        {{- end }}
 {{ include "matomo.initWithWarmup" . | nindent 6 }}
       containers:
         {{- if .Values.matomo.dashboard.sidecars }}
@@ -94,6 +102,11 @@ spec:
           - name: static-data
             mountPath: /var/www/html
             readOnly: true
+          {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+          - name: tagmanager-js
+            mountPath: /var/www/html/js
+            readOnly: true
+          {{- end }}
         ports:
         - containerPort: 8080
       - name: matomo
@@ -141,6 +154,11 @@ spec:
           - name: matomo-dashboard-php
             mountPath: /usr/local/etc/php/conf.d/zz-global.ini
             subPath: zz-global.ini
+          {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+          - name: tagmanager-js
+            mountPath: /var/www/html/js
+            readOnly: false
+          {{- end }}
 {{- if .Values.extraVolumeMounts }}
 {{ toYaml .Values.extraVolumeMounts | indent 10 }}
 {{- end }}
@@ -185,6 +203,11 @@ spec:
           name: matomo-dashboard-php
       - name: static-data
         emptyDir: {}
+      {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+      - name: tagmanager-js
+        persistentVolumeClaim:
+          claimName: matomo-tagmanager-js
+      {{- end }}
 {{- if .Values.extraVolumes }}
 {{ toYaml .Values.extraVolumes | indent 6 }}
 {{- end }}

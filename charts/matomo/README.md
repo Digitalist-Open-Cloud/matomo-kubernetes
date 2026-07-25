@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 12.0.12](https://img.shields.io/badge/Version-12.0.12-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
+![Version: 12.0.13](https://img.shields.io/badge/Version-12.0.13-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -101,6 +101,14 @@ A Helm chart for Matomo
 | matomo.readinessProbe | object | `{}` | Readiness probe for the Matomo php-fpm containers (dashboard, tracker). |
 | matomo.resources | object | `{"limits":{"cpu":"2000m","memory":"4Gi"},"requests":{"cpu":"500m","memory":"512Mi"}}` | Default resources for the Matomo php-fpm container (dashboard). Sized for matomo.phpfpm's default pm.max_children (32): ~120Mi/worker realistic average plus headroom for the FPM master and occasional heavier requests. If you change pm.max_children, revisit this limit (and vice versa). |
 | matomo.runAsUser | int | `82` | run container as user id. |
+| matomo.tagManagerRegenerate.activeDeadlineSeconds | int | `300` | activeDeadlineSeconds for the regenerate-tagmanager Job. |
+| matomo.tagManagerRegenerate.concurrencyPolicy | string | `"Forbid"` | concurrencyPolicy for the regenerate-tagmanager CronJob. |
+| matomo.tagManagerRegenerate.enabled | bool | `false` | Enable the regenerate-tagmanager CronJob and the shared ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the dashboard and tracker pods. |
+| matomo.tagManagerRegenerate.resources | object | `{"limits":{"cpu":"1000m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Default resources for the regenerate-tagmanager CronJob container. |
+| matomo.tagManagerRegenerate.schedule | string | `"*/2 * * * *"` | Cron schedule for the regenerate-tagmanager CronJob. |
+| matomo.tagManagerRegenerate.seedResources | object | `{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resources for the dashboard/tracker matomo-seed-tagmanager-js init container that seeds the shared volume on its first-ever mount. |
+| matomo.tagManagerRegenerate.volume.size | string | `"1Gi"` | Size of the shared TagManager JS PersistentVolumeClaim. |
+| matomo.tagManagerRegenerate.volume.storageClassName | string | `""` | storageClassName for the shared TagManager JS PersistentVolumeClaim. Must support the ReadWriteMany access mode. Empty uses the cluster's default StorageClass (only suitable if that default supports RWX). |
 | matomo.tracker.enabled | bool | `true` | Enable the tracker Deployment and Service. |
 | matomo.tracker.exporter | object | `{"livenessProbe":{},"readinessProbe":{},"resources":{"limits":{"cpu":"40m","memory":"32Mi"},"requests":{"cpu":"40m","memory":"32Mi"}}}` | php-fpm_exporter (fpm-metrics) sidecar probes for the tracker pod. |
 | matomo.tracker.exporter.livenessProbe | object | `{}` | Liveness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
@@ -120,7 +128,7 @@ A Helm chart for Matomo
 | matomo.tracker.secretName | string | `""` | Existing TLS secret name for the tracker ingress. |
 | matomo.tracker.tls | bool | `false` | Add a TLS block to the tracker Ingress for `hostname`. |
 | matomo.waitForDbResources | object | `{"limits":{"cpu":"100m","memory":"64Mi"},"requests":{"cpu":"10m","memory":"16Mi"}}` | Resources for the wait-for-db init container (pre-upgrade and post-install Jobs only). |
-| matomo.warmupCommand | string | `"./console core:update --yes --no-interaction && if ./console list --raw 2>/dev/null | grep -q \"^tagmanager:regenerate-released-containers \"; then ./console tagmanager:regenerate-released-containers; fi"` | force` (in installCommand above) doesn't itself fire the plugin install/update events some plugins (e.g. TagManager) hook to regenerate generated assets - normally left to happen lazily on the first web request(s) after a (re)start. Since static-data is an emptyDir, that bookkeeping resets on every fresh pod, so without this, concurrent probes/traffic on every restart each independently race to redo that (expensive) regeneration. Running it once here, synchronously, avoids that. The `tagmanager:regenerate-released-containers` call is guarded by an `./console list` check, since TagManager isn't in the default install.json PluginsInstalled list (see matomo.config above) - on a fresh install (or any site where TagManager has never been activated) the command doesn't exist yet, and this must not fail the init container. |
+| matomo.warmupCommand | string | `"./console core:update --yes --no-interaction"` | force` (in installCommand above) doesn't itself fire the plugin install/update events some plugins (e.g. TagManager) hook to regenerate generated assets - normally left to happen lazily on the first web request(s) after a (re)start. Since static-data is an emptyDir, that bookkeeping resets on every fresh pod, so without this, concurrent probes/traffic on every restart each independently race to redo that (expensive) regeneration. Running it once here, synchronously, avoids that. Unless matomo.tagManagerRegenerate.enabled is true, this is also followed by a guarded `tagmanager:regenerate-released-containers` call (see matomo.tagManagerRegenerateGuarded in _helpers.tpl); when that feature is enabled, the regenerate-tagmanager CronJob owns that work instead, so it's skipped here. |
 | matomo.warmupResources | object | `{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}` | Resources for the matomo-warmup init container (dashboard and tracker). |
 | namespace | string | `"matomo"` | Namespace to install Matomo in, default matomo. |
 | networkPolicy | object | `{"enabled":true,"ingress":[{}]}` | NetworkPolicy for the Matomo workloads. When enabled, one NetworkPolicy per component (dashboard, tracker, cli, queuedtracking monitor/process) is created. The default rule allows all ingress, which changes nothing functionally but makes every pod covered by a policy; tighten by overriding `networkPolicy.ingress` for your environment. |

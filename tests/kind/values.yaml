@@ -101,6 +101,7 @@ matomo:
     - ProfessionalServices
     - UserConsole
     - QueuedTracking
+    - TagManager
     Site:
       name: Localhost
       url: https://localhost

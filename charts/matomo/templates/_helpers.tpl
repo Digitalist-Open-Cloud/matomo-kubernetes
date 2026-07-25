@@ -147,6 +147,17 @@ initContainers:
 {{- end -}}
 
 {{/*
+Guarded `tagmanager:regenerate-released-containers` invocation. TagManager
+isn't in the chart's default install.json PluginsInstalled list (see
+matomo.config), so on any site that's never activated it, this console
+command doesn't exist yet - this must be a no-op rather than fail the
+caller. Shared by matomo-warmup and the regenerate-tagmanager CronJob.
+*/}}
+{{- define "matomo.tagManagerRegenerateGuarded" -}}
+if ./console list --raw 2>/dev/null | grep -q "^tagmanager:regenerate-released-containers "; then ./console tagmanager:regenerate-released-containers; fi
+{{- end -}}
+
+{{/*
 Runs once after matomo-init (rsync + matomo:install), before php-fpm/nginx
 start. `matomo:install --force` reconciles the DB schema/admin user/
 install.json but does not itself fire the plugin-installed/update events
@@ -157,8 +168,12 @@ bookkeeping is reset on every fresh pod, so without this step, concurrent
 probes/traffic on every pod (re)start each independently pay for and race
 that expensive regeneration (observed as repeated multi-second stalls in the
 php-fpm slowlog, all bottoming out in TagManager::regenerateReleasedContainers()).
-Running `core:update`/`tagmanager:regenerate-released-containers` here instead
-does that work once, synchronously, gated behind pod readiness.
+Running `core:update` here instead does that work once, synchronously, gated
+behind pod readiness. The (also guarded) tagmanager regeneration itself is
+only run here when matomo.tagManagerRegenerate is disabled; when it's
+enabled, the regenerate-tagmanager CronJob owns that work instead, writing
+into the shared PersistentVolumeClaim mounted at /var/www/html/js on the
+dashboard/tracker containers, so redoing it here per-pod would be redundant.
 */}}
 {{- define "matomo.warmupContainer" -}}
 - name: matomo-warmup
@@ -189,7 +204,7 @@ does that work once, synchronously, gated behind pod readiness.
         name: {{ .Values.db.password.secretKeyRef.name }}
         key: {{ .Values.db.password.secretKeyRef.key }}
 {{- include "matomo.license" . | nindent 2 }}
-  command: [ 'sh' , '-c' , '{{.Values.matomo.warmupCommand}}' ]
+  command: [ 'sh' , '-c' , '{{.Values.matomo.warmupCommand}}{{ if not .Values.matomo.tagManagerRegenerate.enabled }} && {{ include "matomo.tagManagerRegenerateGuarded" . }}{{ end }}' ]
   {{- if .Values.matomo.warmupResources }}
   resources:
 {{ toYaml .Values.matomo.warmupResources | indent 4 }}
@@ -199,11 +214,53 @@ does that work once, synchronously, gated behind pod readiness.
       mountPath: /var/www/html
 {{- end -}}
 
-{{/* initContainers for the dashboard and tracker: matomo-init, then matomo-warmup. */}}
+{{/*
+Seeds the shared TagManager JS PersistentVolumeClaim (mounted at
+/var/www/html/js on the dashboard/tracker main containers when
+matomo.tagManagerRegenerate.enabled) from this pod's own freshly
+rsynced/regenerated copy - but only if the shared volume is still empty,
+i.e. only on the very first pod that ever mounts it, before the
+regenerate-tagmanager CronJob has had a chance to run. On every subsequent
+pod (re)start the shared volume is already populated (kept fresh by the
+CronJob on its own schedule), so this is a fast no-op.
+*/}}
+{{- define "matomo.seedTagManagerJsContainer" -}}
+- name: matomo-seed-tagmanager-js
+  image: {{.Values.matomo.image}}
+  securityContext:
+    runAsUser: {{.Values.matomo.runAsUser}}
+    privileged: false
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
+  imagePullPolicy: Always
+  command: [ 'sh' , '-c' , 'if [ -z "$(ls -A /shared-js 2>/dev/null)" ]; then echo "shared TagManager JS volume is empty, seeding from local copy"; cp -a /var/www/html/js/. /shared-js/; else echo "shared TagManager JS volume already populated, skipping seed"; fi' ]
+  {{- if .Values.matomo.tagManagerRegenerate.seedResources }}
+  resources:
+{{ toYaml .Values.matomo.tagManagerRegenerate.seedResources | indent 4 }}
+  {{- end }}
+  volumeMounts:
+    - name: static-data
+      mountPath: /var/www/html
+      readOnly: true
+    - name: tagmanager-js
+      mountPath: /shared-js
+{{- end -}}
+
+{{/*
+initContainers for the dashboard and tracker: matomo-init, then
+matomo-warmup, then (only when matomo.tagManagerRegenerate.enabled) the
+one-time seed of the shared TagManager JS volume.
+*/}}
 {{- define "matomo.initWithWarmup" -}}
 initContainers:
   {{- include "matomo.initContainer" . | nindent 2 }}
   {{- include "matomo.warmupContainer" . | nindent 2 }}
+  {{- if .Values.matomo.tagManagerRegenerate.enabled }}
+  {{- include "matomo.seedTagManagerJsContainer" . | nindent 2 }}
+  {{- end }}
 {{- end -}}
 
 {{/*
