@@ -200,7 +200,7 @@ spec:
       {{- if .Values.matomo.tagManagerRegenerate.enabled }}
       - name: tagmanager-js
         persistentVolumeClaim:
-          claimName: matomo-tagmanager-js
+          claimName: {{ include "matomo.tagManagerJsClaimName" . }}
       {{- end }}
 {{- if .Values.extraVolumes }}
 {{ toYaml .Values.extraVolumes | indent 6 }}

@@ -861,7 +861,7 @@
           "title": "initResources"
         },
         "installCommand": {
-          "default": "./console plugin:activate ExtraTools \u0026\u0026 ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db",
+          "default": "./console plugin:activate ExtraTools && ./console matomo:install --install-file=/tmp/matomo/install.json --force --do-not-drop-db",
           "description": "Install command. If already installed, it just creates the needed config.",
           "required": [],
           "title": "installCommand"
@@ -1360,15 +1360,27 @@
             "volume": {
               "additionalProperties": false,
               "properties": {
+                "create": {
+                  "default": "true",
+                  "description": "Whether this chart creates the shared TagManager JS PersistentVolumeClaim (matomo-tagmanager-js). Set to false and provide existingClaim to use a PVC you've already created instead (e.g. one provisioned/managed outside this chart, or shared with other releases). storageClassName and size below only apply when this is true.",
+                  "required": [],
+                  "title": "create"
+                },
+                "existingClaim": {
+                  "default": "",
+                  "description": "Name of a pre-existing PersistentVolumeClaim to use instead of the one this chart creates. Only used when create is false; must already exist in this release's namespace and support the ReadWriteMany access mode.",
+                  "required": [],
+                  "title": "existingClaim"
+                },
                 "size": {
                   "default": "1Gi",
-                  "description": "Size of the shared TagManager JS PersistentVolumeClaim.",
+                  "description": "Size of the shared TagManager JS PersistentVolumeClaim created by this chart (only used when create is true).",
                   "required": [],
                   "title": "size"
                 },
                 "storageClassName": {
                   "default": "",
-                  "description": "storageClassName for the shared TagManager JS PersistentVolumeClaim. Must support the ReadWriteMany access mode. Empty uses the cluster's default StorageClass (only suitable if that default supports RWX).",
+                  "description": "storageClassName for the shared TagManager JS PersistentVolumeClaim created by this chart (only used when create is true). Must support the ReadWriteMany access mode. Empty uses the cluster's default StorageClass (only suitable if that default supports RWX).",
                   "required": [],
                   "title": "storageClassName"
                 }
