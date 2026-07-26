@@ -413,7 +413,7 @@ httpGet:
   port: 8080
 initialDelaySeconds: 10
 periodSeconds: 10
-timeoutSeconds: 5
+timeoutSeconds: 20
 {{- end -}}
 {{- define "matomo.probe.default.nginx.tracker.readiness" -}}
 httpGet:
