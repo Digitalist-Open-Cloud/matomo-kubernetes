@@ -21,7 +21,7 @@ data:
     ; shows up in `kubectl logs`). Helps diagnose stuck/hanging requests
     ; (e.g. a blocked DB call) without needing to strace a worker live.
     slowlog = /proc/self/fd/2
-    request_slowlog_timeout = {{ .Values.matomo.phpfpm.request_slowlog_timeout | default "10s" }}
+    request_slowlog_timeout = {{ .Values.matomo.phpfpm.request_slowlog_timeout | default "120s" }}
 {{ else }}
 data:
   zz-global.conf: |
@@ -36,5 +36,5 @@ data:
     pm.process_idle_timeout = "60s"
     pm.status_path = "/status"
     slowlog = /proc/self/fd/2
-    request_slowlog_timeout = "10s"
+    request_slowlog_timeout = "120s"
 {{- end }}
