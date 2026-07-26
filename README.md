@@ -49,7 +49,7 @@ Generate helm schema:
 helm-schema --chart-search-root charts/matomo --helm-docs-compatibility-mode --no-dependencies --skip-auto-generation required
 ```
 
-Genarate helm docs:
+Generate helm docs:
 
 ```shell
 cd charts/matomo
