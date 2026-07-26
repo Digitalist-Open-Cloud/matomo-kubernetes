@@ -46,6 +46,9 @@ data:
         server_name _;
         root /var/www/html;
         index index.php;
+        location /health {
+          return 200 'no content';
+        }
         error_page 404 /404.html;
         location = 404.html {
           root /usr/share/nginx/html;

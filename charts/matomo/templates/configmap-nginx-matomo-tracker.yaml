@@ -58,6 +58,9 @@ data:
         server_name _;
         root /var/www/html;
         index matomo.php;
+        location /health {
+          return 200 'no content';
+        }
         add_header Referrer-Policy origin always; # make sure outgoing links don't show the URL to the Matomo instance
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-XSS-Protection "1; mode=block" always;

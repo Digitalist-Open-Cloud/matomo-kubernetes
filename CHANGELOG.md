@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.16] - 2026-07-25
+
+### Fixed
+
+- Liveness and readiness for nginx should check itself, not matomo container.
+
 ## [12.0.15] - 2026-07-25
 
 ### Fixed
