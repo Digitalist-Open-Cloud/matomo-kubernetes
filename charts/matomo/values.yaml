@@ -100,24 +100,6 @@ matomo:
   ## dashboard and tracker no longer regenerate TagManager containers at
   ## all (see matomo.warmupCommand above) - they just read the shared
   ## volume, which the CronJob refreshes on its own schedule.
-  ##
-  ## IMPORTANT: this only actually stops the dashboard/tracker from
-  ## regenerating containers themselves if TagManager is listed in
-  ## matomo.config's `PluginsInstalled` array. Matomo checks whether a
-  ## plugin is installed purely by reading `[PluginsInstalled]` in
-  ## config/config.ini.php (which matomo-init rewrites from matomo.config's
-  ## install.json on every pod start, since config.ini.php itself lives on
-  ## the ephemeral static-data volume). If TagManager isn't in that array -
-  ## e.g. it was instead activated via a separate `./console plugin:activate
-  ## TagManager` step in a custom installCommand - every pod's first web
-  ## request (including the readiness probe hitting /index.php) will find
-  ## TagManager "not yet installed" and trigger a full regeneration anyway,
-  ## via a completely different code path than the one this feature
-  ## replaces. Note this isn't specific to TagManager: activating,
-  ## deactivating, or uninstalling *any* plugin that isn't reflected in
-  ## `PluginsInstalled` triggers the same TagManager regeneration as a side
-  ## effect, since TagManager listens for every plugin's install/activate
-  ## event, not just its own.
   tagManagerRegenerate:
     # -- Enable the regenerate-tagmanager CronJob and the shared
     # ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the
