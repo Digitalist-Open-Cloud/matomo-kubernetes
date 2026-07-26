@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.17] - 2026-07-26
+
+### Fixed
+
+- Nginx readiness timeout to default to 20 seconds, there are edge cases that could take a long time.
+
 ## [12.0.16] - 2026-07-25
 
 ### Fixed
