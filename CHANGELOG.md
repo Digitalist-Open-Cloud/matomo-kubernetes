@@ -4,7 +4,7 @@
 
 ### Added
 
-- Possibility to add custom labels for the PVC for tagmager.
+- Possibility to add custom labels for the PVC for Tagmanager.
 
 ## [12.0.18] - 2026-07-26
 
