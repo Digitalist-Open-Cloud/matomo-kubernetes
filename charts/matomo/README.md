@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 12.0.18](https://img.shields.io/badge/Version-12.0.18-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
+![Version: 12.0.19](https://img.shields.io/badge/Version-12.0.19-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -114,6 +114,7 @@ A Helm chart for Matomo
 | matomo.tagManagerRegenerate.seedSourcePath | string | `"/usr/src/matomo/js"` | Path inside the matomo image the matomo-seed-tagmanager-js init container copies from when seeding the shared volume on its first-ever mount. Defaults to the default JS assets bundled in the image, alongside the rest of Matomo's source under /usr/src/matomo. |
 | matomo.tagManagerRegenerate.volume.create | bool | `true` | Whether this chart creates the shared TagManager JS PersistentVolumeClaim (matomo-tagmanager-js). Set to false and provide existingClaim to use a PVC you've already created instead (e.g. one provisioned/managed outside this chart, or shared with other releases). storageClassName and size below only apply when this is true. |
 | matomo.tagManagerRegenerate.volume.existingClaim | string | `""` | Name of a pre-existing PersistentVolumeClaim to use instead of the one this chart creates. Only used when create is false; must already exist in this release's namespace and support the ReadWriteMany access mode. |
+| matomo.tagManagerRegenerate.volume.labels | object | `{}` | Extra labels for the tagmanager JS PersistentVolumeClaim. Labels set here will override or add to the default label (app: matomo-jobs-regenerate-tagmanager). |
 | matomo.tagManagerRegenerate.volume.size | string | `"1Gi"` | Size of the shared TagManager JS PersistentVolumeClaim created by this chart (only used when create is true). |
 | matomo.tagManagerRegenerate.volume.storageClassName | string | `""` | storageClassName for the shared TagManager JS PersistentVolumeClaim created by this chart (only used when create is true). Must support the ReadWriteMany access mode. Empty uses the cluster's default StorageClass (only suitable if that default supports RWX). |
 | matomo.tracker.enabled | bool | `true` | Enable the tracker Deployment and Service. |

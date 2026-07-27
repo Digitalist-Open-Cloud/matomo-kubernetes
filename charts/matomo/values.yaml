@@ -163,6 +163,11 @@ matomo:
       # the ReadWriteMany access mode. Empty uses the cluster's default
       # StorageClass (only suitable if that default supports RWX).
       storageClassName: ""
+      # -- Extra labels for the tagmanager JS PersistentVolumeClaim.
+      # Labels set here will override or add to the default label
+      # (app: matomo-jobs-regenerate-tagmanager).
+      labels:
+        {}
       # -- Size of the shared TagManager JS PersistentVolumeClaim created by
       # this chart (only used when create is true).
       size: 1Gi
