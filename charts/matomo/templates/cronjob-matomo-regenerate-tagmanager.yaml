@@ -9,7 +9,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: matomo-tagmanager-js
   namespace: {{ .Values.namespace }}
-  {{- with merge (dict "app" "matomo-jobs-regenerate-tagmanager") .Values.matomo.tagManagerRegenerate.volume.labels }}
+  {{- with merge .Values.matomo.tagManagerRegenerate.volume.labels (dict "app" "matomo-jobs-regenerate-tagmanager") }}
   labels:
     {{- range $key, $value := . }}
     {{ $key }}: {{ $value | quote }}

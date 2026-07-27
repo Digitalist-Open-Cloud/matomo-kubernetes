@@ -166,6 +166,9 @@ matomo:
       # -- Extra labels for the tagmanager JS PersistentVolumeClaim.
       # Labels set here will override or add to the default label
       # (app: matomo-jobs-regenerate-tagmanager).
+      # @schema
+      # additionalProperties: true
+      # @schema
       labels:
         {}
       # -- Size of the shared TagManager JS PersistentVolumeClaim created by
