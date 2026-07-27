@@ -14,3 +14,7 @@ matomo:
     enabled: true
     volume:
       storageClassName: manual
+      # Custom label for the PVC so we can verify labels are passed through.
+      labels:
+        e2e-test-label: "true"
+

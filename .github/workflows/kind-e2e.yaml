@@ -347,6 +347,22 @@ jobs:
           fi
           echo "dashboard and tracker both see the shared TagManager JS volume correctly"
 
+      - name: Verify PVC labels
+        run: |
+          set -euo pipefail
+          pvc_labels=$(kubectl -n matomo get pvc matomo-tagmanager-js -o jsonpath='{.metadata.labels}')
+          echo "$pvc_labels" | grep -q 'app.*matomo-jobs-regenerate-tagmanager' || {
+            echo "::error::default PVC label (app=matomo-jobs-regenerate-tagmanager) is missing"
+            exit 1
+          }
+          echo "default label verified"
+          echo "$pvc_labels" | grep -q 'e2e-test-label.*true' || {
+            echo "::error::custom PVC label (e2e-test-label=true) is missing"
+            kubectl -n matomo get pvc matomo-tagmanager-js -o jsonpath='{.metadata.labels}'
+            exit 1
+          }
+          echo "custom labels verified correctly on the PVC"
+
       - name: Test regenerate-tagmanager CronJob
         run: |
           kubectl -n matomo create job e2e-matomo-jobs-regenerate-tagmanager \
