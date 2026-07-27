@@ -1378,6 +1378,12 @@
                   "required": [],
                   "title": "existingClaim"
                 },
+                "labels": {
+                  "additionalProperties": true,
+                  "description": "Extra labels for the tagmanager JS PersistentVolumeClaim. Labels set here will override or add to the default label (app: matomo-jobs-regenerate-tagmanager). @schema additionalProperties: true @schema",
+                  "required": [],
+                  "title": "labels"
+                },
                 "size": {
                   "default": "1Gi",
                   "description": "Size of the shared TagManager JS PersistentVolumeClaim created by this chart (only used when create is true).",
