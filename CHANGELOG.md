@@ -1,5 +1,17 @@
 # Change log
 
+## [12.0.19] - 2026-07-27
+
+### Added
+
+- Possibility to add custom labels for the PVC for Tagmanager.
+
+## [12.0.18] - 2026-07-26
+
+### Changed
+
+- Change/php fpm slow log time defaults to 120s, to only catch real long requests by default.
+
 ## [12.0.17] - 2026-07-26
 
 ### Fixed
