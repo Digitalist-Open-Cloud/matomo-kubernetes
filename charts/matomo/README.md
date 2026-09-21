@@ -143,11 +143,11 @@ A Helm chart for Matomo
 | namespace | string | `"matomo"` | Namespace to install Matomo in, default matomo. |
 | networkPolicy | object | `{"enabled":true,"ingress":[{}]}` | NetworkPolicy for the Matomo workloads. When enabled, one NetworkPolicy per component (dashboard, tracker, cli, queuedtracking monitor/process) is created. The default rule allows all ingress, which changes nothing functionally but makes every pod covered by a policy; tighten by overriding `networkPolicy.ingress` for your environment. |
 | networkPolicy.ingress | list | `[{}]` | Ingress rules applied to every component policy. Default: allow all. |
-| nginx | object | `{"image":"digitalist/nginx:1.31.6","imagePullSecrets":[],"resources":{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}},"runAsUser":100}` | Default nginx image and settings shared by the dashboard (unless `matomo.dashboard.nginx.image` is set) and the tracker. |
+| nginx | object | `{"image":"digitalist/nginx:1.31.6","imagePullSecrets":[],"resources":{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}},"runAsUser":65532}` | Default nginx image and settings shared by the dashboard (unless `matomo.dashboard.nginx.image` is set) and the tracker. |
 | nginx.image | string | `"digitalist/nginx:1.31.6"` | nginx image used for the dashboard and tracker. |
 | nginx.imagePullSecrets | list | `[]` | Image pull secrets for the nginx image. |
 | nginx.resources | object | `{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}` | Default resources for the dashboard nginx container. |
-| nginx.runAsUser | int | `100` | run the nginx container as this user id. |
+| nginx.runAsUser | int | `65532` | run the nginx container as this user id. digitalist/nginx (Wolfi-based) only grants write access to its "nonroot" user, uid 65532 - /var/lib/nginx/logs and /var/lib/nginx/tmp are owned by it with no group/other write bit, so this must match that uid or nginx can't open even its default error log. |
 | nodeSelector | object | `{}` | Node labels for pod assignment. |
 | tolerations | list | `[]` | Tolerations for pod assignment |
 

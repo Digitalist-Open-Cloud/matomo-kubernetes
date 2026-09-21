@@ -1910,8 +1910,8 @@
           "title": "resources"
         },
         "runAsUser": {
-          "default": "100",
-          "description": "run the nginx container as this user id.",
+          "default": "65532",
+          "description": "run the nginx container as this user id. digitalist/nginx (Wolfi-based) only grants write access to its \"nonroot\" user, uid 65532 - /var/lib/nginx/logs and /var/lib/nginx/tmp are owned by it with no group/other write bit, so this must match that uid or nginx can't open even its default error log.",
           "required": [],
           "title": "runAsUser"
         }

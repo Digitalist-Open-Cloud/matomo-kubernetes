@@ -260,7 +260,7 @@ jobs:
       # hostPath-backed PV stands in for a real RWX backend on this
       # single-node cluster. hostPath directories are root-owned by default
       # when kubelet creates them, but this chart's containers run as
-      # non-root (matomo: uid 82, nginx: uid 100) - without opening up the
+      # non-root (matomo: uid 82, nginx: uid 65532) - without opening up the
       # directory's permissions first, the matomo-seed-tagmanager-js init
       # container (and the regenerate-tagmanager CronJob) fail to write to
       # it, leaving the affected pods stuck and the rollout wait below

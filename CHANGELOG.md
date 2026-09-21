@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.21] - 2026-09-21
+
+### Changed
+
+- Default nginx image updated, and changed `nginx.conf` because of that, most important, `runAsUser` to `65532`.
+
 ## [12.0.20] - 2026-09-02
 
 ### Changed
