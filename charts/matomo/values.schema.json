@@ -645,7 +645,7 @@
                 "conf": {
                   "additionalProperties": true,
                   "default": "",
-                  "description": "Override the full dashboard nginx configuration (nginx.conf, fastcgi_params, mime.types). As: conf:   nginx.conf: |     worker_processes 5;     load_module modules/ngx_http_geoip2_module.so;     ...   fastcgi_params: |     fastcgi_param   COUNTRY_CODE            $geoip2_data_country_code;     fastcgi_param   QUERY_STRING            $query_string;     fastcgi_param   REQUEST_METHOD          $request_method;     ...   mime.types: |     types {       text/html                                        html htm shtml;       text/css                                         css;       text/xml                                         xml;       ...",
+                  "description": "Override the full dashboard nginx configuration (nginx.conf, fastcgi_params, mime.types). As: conf:   nginx.conf: |     worker_processes 5;     load_module /usr/lib/nginx/modules/ngx_http_geoip2_module.so;     ...   fastcgi_params: |     fastcgi_param   COUNTRY_CODE            $geoip2_data_country_code;     fastcgi_param   QUERY_STRING            $query_string;     fastcgi_param   REQUEST_METHOD          $request_method;     ...   mime.types: |     types {       text/html                                        html htm shtml;       text/css                                         css;       text/xml                                         xml;       ...",
                   "required": [],
                   "title": "conf",
                   "type": [
@@ -1852,7 +1852,7 @@
       "description": "Default nginx image and settings shared by the dashboard (unless `matomo.dashboard.nginx.image` is set) and the tracker.",
       "properties": {
         "image": {
-          "default": "digitalist/nginx:1.21.6",
+          "default": "digitalist/nginx:1.31.6",
           "description": "nginx image used for the dashboard and tracker.",
           "required": [],
           "title": "image"
@@ -1910,8 +1910,8 @@
           "title": "resources"
         },
         "runAsUser": {
-          "default": "100",
-          "description": "run the nginx container as this user id.",
+          "default": "65532",
+          "description": "run the nginx container as this user id. digitalist/nginx (Wolfi-based) only grants write access to its \"nonroot\" user, uid 65532 - /var/lib/nginx/logs and /var/lib/nginx/tmp are owned by it with no group/other write bit, so this must match that uid or nginx can't open even its default error log.",
           "required": [],
           "title": "runAsUser"
         }
