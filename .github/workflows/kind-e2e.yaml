@@ -388,9 +388,18 @@ jobs:
           kubectl -n ingress-nginx logs deployment/ingress-nginx-controller --tail=50 || true
           kubectl get gatewayclass -o wide || true
           echo "::endgroup::"
+          echo "::group::pod status overview"
+          kubectl -n matomo get pods -o wide || true
+          echo "::endgroup::"
           for p in $(kubectl -n matomo get pods -o name); do
             echo "::group::$p"
-            kubectl -n matomo describe "$p" | tail -n 40 || true
-            kubectl -n matomo logs "$p" --all-containers --tail=100 || true
+            kubectl -n matomo describe "$p" | tail -n 60 || true
+            echo "--- current logs ---"
+            kubectl -n matomo logs "$p" --all-containers --tail=200 || true
+            # A crash-looping container is "Waiting" by the time this runs, so the
+            # current-logs call above returns nothing (swallowed by `|| true`) and
+            # the real startup error only lives in the previous container instance.
+            echo "--- previous logs (last container instance, in case of crash loop) ---"
+            kubectl -n matomo logs "$p" --all-containers --previous --tail=200 2>/dev/null || true
             echo "::endgroup::"
           done
