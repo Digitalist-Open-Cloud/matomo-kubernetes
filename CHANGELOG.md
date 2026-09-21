@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.20] - 2026-09-02
+
+### Changed
+
+- Guard tagmanager:regenerate on tagManagerRegenerate.enabled for trackers
+
 ## [12.0.19] - 2026-07-27
 
 ### Added
