@@ -25,9 +25,9 @@ geoip
 healthcheck
 heatmapsessionsrecording
 hipages
+http_referer
 httproute
 httproutes
-http_referer
 infile
 innodb
 jardiff
@@ -40,8 +40,8 @@ letsencrypt
 loadbalancers
 makeself
 mathml
-MATOMO
 matomo
+MATOMO
 maxbytes
 metallb
 mmdb
@@ -52,6 +52,7 @@ msword
 mynamespace
 mysqli
 nindent
+nonroot
 nosniff
 numProcs
 officedocument
@@ -71,8 +72,8 @@ quicktime
 realaudio
 rsynced
 SAPI
-SARIF
 sarif
+SARIF
 scgi
 scheduledtasks
 sendfile
@@ -91,6 +92,7 @@ webfonts
 webp
 Widgetize
 wmlc
+Wolfi
 wordprocessingml
 xpinstall
 xspf
