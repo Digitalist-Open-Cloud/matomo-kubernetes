@@ -495,7 +495,7 @@ matomo:
       # conf:
       #   nginx.conf: |
       #     worker_processes 5;
-      #     load_module modules/ngx_http_geoip2_module.so;
+      #     load_module /usr/lib/nginx/modules/ngx_http_geoip2_module.so;
       #     ...
       #   fastcgi_params: |
       #     fastcgi_param   COUNTRY_CODE            $geoip2_data_country_code;
@@ -682,7 +682,7 @@ matomo:
 # `matomo.dashboard.nginx.image` is set) and the tracker.
 nginx:
   # -- nginx image used for the dashboard and tracker.
-  image: digitalist/nginx:1.21.6
+  image: digitalist/nginx:1.31.6
   # -- Image pull secrets for the nginx image.
   imagePullSecrets: []
   # -- run the nginx container as this user id.
