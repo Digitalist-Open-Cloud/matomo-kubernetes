@@ -44,6 +44,7 @@ data:
                             '"$http_user_agent" "$http_x_forwarded_for" '
                             '$geoip2_data_country_code';
       access_log  /var/log/nginx/access.log  main_geo;
+      error_log   /var/log/nginx/error.log notice;
       sendfile        on;
       keepalive_timeout 0;
 
