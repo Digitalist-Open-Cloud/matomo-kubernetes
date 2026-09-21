@@ -260,7 +260,7 @@ jobs:
       # hostPath-backed PV stands in for a real RWX backend on this
       # single-node cluster. hostPath directories are root-owned by default
       # when kubelet creates them, but this chart's containers run as
-      # non-root (matomo: uid 82, nginx: uid 100) - without opening up the
+      # non-root (matomo: uid 82, nginx: uid 65532) - without opening up the
       # directory's permissions first, the matomo-seed-tagmanager-js init
       # container (and the regenerate-tagmanager CronJob) fail to write to
       # it, leaving the affected pods stuck and the rollout wait below
@@ -388,9 +388,18 @@ jobs:
           kubectl -n ingress-nginx logs deployment/ingress-nginx-controller --tail=50 || true
           kubectl get gatewayclass -o wide || true
           echo "::endgroup::"
+          echo "::group::pod status overview"
+          kubectl -n matomo get pods -o wide || true
+          echo "::endgroup::"
           for p in $(kubectl -n matomo get pods -o name); do
             echo "::group::$p"
-            kubectl -n matomo describe "$p" | tail -n 40 || true
-            kubectl -n matomo logs "$p" --all-containers --tail=100 || true
+            kubectl -n matomo describe "$p" | tail -n 60 || true
+            echo "--- current logs ---"
+            kubectl -n matomo logs "$p" --all-containers --tail=200 || true
+            # A crash-looping container is "Waiting" by the time this runs, so the
+            # current-logs call above returns nothing (swallowed by `|| true`) and
+            # the real startup error only lives in the previous container instance.
+            echo "--- previous logs (last container instance, in case of crash loop) ---"
+            kubectl -n matomo logs "$p" --all-containers --previous --tail=200 2>/dev/null || true
             echo "::endgroup::"
           done

@@ -9,8 +9,9 @@ skip-check:
   # overrides; hard-coded digests would break registry mirroring and make every
   # image bump a multi-line change.
   - CKV_K8S_43
-  # High UID (>= 10000): uid 82 (www-data) and 100 (nginx) are baked into the
-  # image file ownership; raising runAsUser breaks file permissions at runtime.
+  # High UID (>= 10000): uid 82 (www-data) is baked into the matomo image's file
+  # ownership; raising runAsUser breaks file permissions at runtime. nginx already
+  # runs at uid 65532 (the digitalist/nginx image's own "nonroot" user).
   - CKV_K8S_40
   # Read-only root filesystem: php-fpm and nginx write to /tmp, pid files and
   # cache directories. Needs per-image writable-path mapping to emptyDir mounts.
