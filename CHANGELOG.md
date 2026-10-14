@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.22] - 2026-10-14
+
+### Changed
+
+- Default nginx image updated (`digitalist/nginx:1.31.6-5`).
+
 ## [12.0.21] - 2026-09-21
 
 ### Changed
