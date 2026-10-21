@@ -7,6 +7,7 @@ metadata:
 data:
   zz-global.ini: |
     expose_php={{ .Values.matomo.cronJobs.scheduledTasks.php.expose_php | default "Off" }}
+    session.upload_progress.enabled=Off
     opcache.memory_consumption={{ .Values.matomo.cronJobs.scheduledTasks.php.opcache_memory_consumption | default "512" }}
     opcache.jit_buffer_size={{ .Values.matomo.cronJobs.scheduledTasks.php.opcache_jit_buffer_size | default "256M" }}
     opcache.jit={{ .Values.matomo.cronJobs.scheduledTasks.php.opcache_jit | default "1235" }}
@@ -26,6 +27,7 @@ data:
 data:
   zz-global.ini: |
     expose_php=Off
+    session.upload_progress.enabled=Off
     opcache.memory_consumption=512
     opcache.jit_buffer_size=256M
     opcache.jit=1235
