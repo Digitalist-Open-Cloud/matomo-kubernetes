@@ -18,7 +18,7 @@ data:
       geoip2 /usr/share/geoip/GeoLite2-Country.mmdb {
         $geoip2_data_country_code default=SE source=$http_x_forwarded_for country iso_code;
       }
-      client_max_body_size  200M;
+      client_max_body_size  32M;
       server_tokens         off;
       client_body_timeout   600s;
       client_header_timeout 600s;
@@ -108,8 +108,6 @@ data:
           fastcgi_pass 127.0.0.1:9000;
           fastcgi_index index.php;
           fastcgi_param PHP_VALUE "max_execution_time=3600
-          post_max_size=1500M
-          upload_max_filesize=32M
           max_input_time=3600
           max_file_uploads=300";
           include fastcgi_params;

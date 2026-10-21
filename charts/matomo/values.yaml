@@ -666,7 +666,6 @@ matomo:
       start_servers: 5
       min_spare_servers: 5
       max_spare_servers: 75
-      memory_limit: 2048M
       status_path: /status
     # -- ingressClassName for the tracker Ingress.
     ingressClassName: ""

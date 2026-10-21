@@ -1,5 +1,15 @@
 # Change log
 
+## [12.0.26] - 2026-10-21
+
+### Security
+
+- Mitigation for CVE-2026-109618: dashboard and tracker FPM pools enforce `memory_limit=-1` and low `post_max_size`/`upload_max_filesize` (32M/16M dashboard, 8M/4M tracker) via `php_admin_value`, so they can't be overridden. The dashboard nginx no longer raises `post_max_size`/`upload_max_filesize` per request, and `client_max_body_size` is lowered to 32M (dashboard) and 8M (tracker).
+
+### Removed
+
+- `matomo.tracker.phpfpm.memory_limit`, the memory limit is now fixed at `-1`.
+
 ## [12.0.24] - 2026-10-21
 
 ## Changed
