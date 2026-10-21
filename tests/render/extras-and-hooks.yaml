@@ -1,0 +1,51 @@
+# Render combination: extra secrets/configmaps/services/volumes and the
+# pre-upgrade + post-install hook jobs (commands set).
+matomo:
+  preUpgradeCommand: ./console core:version
+  postInstallCommand: ./console core:version
+extraSecrets:
+  create: true
+  data:
+    # base64 encoded
+    api-token: Zm9vCg==
+    other-secret: YmFyCg==
+extraConfigMaps:
+  create: true
+  data:
+    my.ini: |
+      extension=foo.so
+      foo.socket=tcp://bar:9309
+    common.config.ini.php: |
+      ; extra matomo config
+extraServices:
+  - name: fpm-metrics
+    type: ClusterIP
+    protocol: TCP
+    containerPort: 9253
+    port: 9253
+    selector:
+      app: matomo-dashboard
+  - name: tracker-nodeport
+    type: NodePort
+    protocol: TCP
+    containerPort: 8080
+    port: 8080
+    nodePort: 30080
+    selector:
+      app: matomo-tracker
+extraVolumes:
+  - name: extra-secret-volume
+    secret:
+      secretName: matomo-extra-secrets
+  - name: my.ini
+    configMap:
+      name: matomo-additional-config-maps
+      items:
+        - key: my.ini
+          path: my.ini
+extraVolumeMounts:
+  - name: extra-secret-volume
+    mountPath: /foo/secrets/
+  - name: my.ini
+    mountPath: /usr/local/etc/php/conf.d/my.ini
+    subPath: my.ini

@@ -1,0 +1,41 @@
+# Render combination: env vars (plain and from secret), premium license,
+# dashboard sidecar + nginx image override, scheduling controls, extralabels.
+matomo:
+  extralabels:
+    team: analytics
+    env: test
+  env:
+    - name: PLAIN_VALUE
+      value: some-value
+    - name: FROM_SECRET
+      valueFromSecret:
+        secretName: my-secret
+        key: my-key
+  license:
+    secretKeyRef:
+      name: matomo-license
+      key: matomo-license
+  dashboard:
+    sidecars:
+      - name: extra-sidecar
+        image: busybox:1.36
+        imagePullPolicy: IfNotPresent
+        command:
+          - sleep
+          - infinity
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+    nginx:
+      image: my-registry.example.com/custom-nginx:1.27
+nodeSelector:
+  kubernetes.io/os: linux
+tolerations:
+  - key: dedicated
+    operator: Equal
+    value: analytics
+    effect: NoSchedule

@@ -1,0 +1,67 @@
+# Valkey (Redis-compatible) fixture for the kind-based e2e test.
+# The Matomo QueuedTracking plugin is pointed at this service via
+# tests/kind/values.yaml (redis_host: matomo-valkey).
+# CI fixture only - not for production use.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo-valkey
+  namespace: matomo
+  labels:
+    app: matomo-valkey
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matomo-valkey
+  template:
+    metadata:
+      labels:
+        app: matomo-valkey
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: valkey
+          image: valkey/valkey:8.1-alpine
+          args:
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            exec:
+              command:
+                - valkey-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      volumes: []
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo-valkey
+  namespace: matomo
+  labels:
+    app: matomo-valkey
+spec:
+  ports:
+    - port: 6379
+      protocol: TCP
+  selector:
+    app: matomo-valkey

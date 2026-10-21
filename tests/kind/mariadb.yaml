@@ -1,0 +1,85 @@
+# MariaDB fixture for the kind-based e2e test.
+# Names match the chart's db.* defaults: service matomo-db-mysql,
+# secret matomo-db-mysql with key mysql-root-password.
+# CI fixture only - not for production use.
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: matomo-db-mysql
+  namespace: matomo
+type: Opaque
+stringData:
+  mysql-root-password: matomo-ci-password
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo-db-mysql
+  namespace: matomo
+  labels:
+    app: matomo-db-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matomo-db-mysql
+  template:
+    metadata:
+      labels:
+        app: matomo-db-mysql
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: mariadb
+          image: mariadb:11.4
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: matomo-db-mysql
+                  key: mysql-root-password
+            - name: MARIADB_DATABASE
+              value: matomo
+          ports:
+            - containerPort: 3306
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          readinessProbe:
+            exec:
+              command:
+                - healthcheck.sh
+                - --connect
+                - --innodb_initialized
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo-db-mysql
+  namespace: matomo
+  labels:
+    app: matomo-db-mysql
+spec:
+  ports:
+    - port: 3306
+      protocol: TCP
+  selector:
+    app: matomo-db-mysql

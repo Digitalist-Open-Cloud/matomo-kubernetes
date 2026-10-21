@@ -1,0 +1,24 @@
+# Gateway API fixture for the kind-based e2e test.
+# cloud-provider-kind automatically creates a GatewayClass named
+# `cloud-provider-kind`, so we don't define one here.
+# CI fixture only - not for production use.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: matomo
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: matomo-gateway
+  namespace: matomo
+spec:
+  gatewayClassName: cloud-provider-kind
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Same

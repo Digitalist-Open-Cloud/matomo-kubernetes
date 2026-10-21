@@ -23,24 +23,31 @@ spec:
 {{ toYaml .Values.matomo.extralabels | indent 8 }}
 {{- end }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap-matomo.yaml") . | sha256sum }}
+{{ include "matomo.podAnnotations" . | indent 8 }}
     spec:
+      automountServiceAccountToken: {{ .Values.matomo.automountServiceAccountToken }}
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
 {{ include "matomo.init" . | nindent 6 }}
       containers:
       - name: matomo
         image: {{.Values.matomo.image}}
+        {{- if .Values.matomo.queuedTrackingMonitor.resources }}
         resources:
-          requests:
-            memory: "128Mi"
-            cpu: "300m"
-          limits:
-            memory: "180Mi"
-            cpu: "500m"
+{{ toYaml .Values.matomo.queuedTrackingMonitor.resources | indent 10 }}
+        {{- end }}
         securityContext:
           runAsUser: {{.Values.matomo.runAsUser}}
           privileged: false
           allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         imagePullPolicy: Always
+        livenessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.queuedTrackingMonitor.livenessProbe "default" (include "matomo.probe.default.supervisord.liveness" .)) | nindent 10 }}
+        readinessProbe: {{- include "matomo.probe" (dict "override" .Values.matomo.queuedTrackingMonitor.readinessProbe "default" (include "matomo.probe.default.supervisord.readiness" .)) | nindent 10 }}
         env:
         - name: MATOMO_DB_PASSWORD
           valueFrom:

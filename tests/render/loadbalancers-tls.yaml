@@ -1,0 +1,23 @@
+# Render combination: loadbalancer services, TLS ingress with class,
+# whitelist and ingress annotations/labels.
+matomo:
+  ingress:
+    extralabels:
+      team: analytics
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: matomo.example.com
+  dashboard:
+    loadbalancer: true
+    tls: true
+    secretName: matomo-dashboard-tls
+    whitelist: 10.0.0.0/8
+    ingressClassName: nginx
+    hostname: matomo.example.com
+    ingress:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+  tracker:
+    loadbalancer: true
+    tls: true
+    ingressClassName: nginx
+    hostname: tracker.example.com

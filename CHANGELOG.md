@@ -1,10 +1,226 @@
 # Change log
 
-## [11.0.65] - 2026-10-21
+## [12.0.26] - 2026-10-21
 
 ### Security
 
-- Mitigations for CVE-2026-109618 and CVE-2026-109619: FPM pools enforce `memory_limit=-1`, low `post_max_size`/`upload_max_filesize` and `session.upload_progress.enabled=0` via `php_admin_*`. nginx `client_max_body_size` lowered to 32M (dashboard) and 8M (tracker).
+- Mitigation for CVE-2026-109618: dashboard and tracker FPM pools enforce `memory_limit=-1` and low `post_max_size`/`upload_max_filesize` (32M/16M dashboard, 8M/4M tracker) via `php_admin_value`, so they can't be overridden. The dashboard nginx no longer raises `post_max_size`/`upload_max_filesize` per request, and `client_max_body_size` is lowered to 32M (dashboard) and 8M (tracker).
+
+### Removed
+
+- `matomo.tracker.phpfpm.memory_limit`, the memory limit is now fixed at `-1`.
+
+## [12.0.24] - 2026-10-21
+
+## Changed
+
+Disabled session upload progress in all places.
+
+## [12.0.23] - 2026-10-21
+
+## Changed
+
+Disabled session upload progress in PHP by default.
+
+## [12.0.22] - 2026-10-14
+
+### Changed
+
+- Default nginx image updated (`digitalist/nginx:1.31.6-5`).
+
+## [12.0.21] - 2026-09-21
+
+### Changed
+
+- Default nginx image updated, and changed `nginx.conf` because of that, most important, `runAsUser` to `65532`.
+
+## [12.0.20] - 2026-09-02
+
+### Changed
+
+- Guard tagmanager:regenerate on tagManagerRegenerate.enabled for trackers
+
+## [12.0.19] - 2026-07-27
+
+### Added
+
+- Possibility to add custom labels for the PVC for Tagmanager.
+
+## [12.0.18] - 2026-07-26
+
+### Changed
+
+- Change/php fpm slow log time defaults to 120s, to only catch real long requests by default.
+
+## [12.0.17] - 2026-07-26
+
+### Fixed
+
+- Nginx readiness timeout to default to 20 seconds, there are edge cases that could take a long time.
+
+## [12.0.16] - 2026-07-25
+
+### Fixed
+
+- Liveness and readiness for nginx should check itself, not matomo container.
+
+## [12.0.15] - 2026-07-25
+
+### Fixed
+
+- Fixed so we don't get permissions warnings when copying the files to the js folder.
+
+## [12.0.14] - 2026-07-25
+
+### Fixed
+
+- Copy needed file for tag manager to work.
+
+## [12.0.13] - 2026-07-25
+
+### Fixed
+
+- The kind e2e test for `matomo.tagManagerRegenerate` could hang: the hostPath-backed manual PV standing in for a ReadWriteMany StorageClass is root-owned by default when kubelet creates it, but the chart's containers run as non-root (uid 82/100) - the `matomo-seed-tagmanager-js` init container (and the regenerate-tagmanager CronJob) failed to write to it, leaving pods stuck and the rollout-status wait running until its own timeout. Fixed by `chmod`-ing the hostPath directory on the kind node before it's ever mounted. Also restructured the workflow into two install phases: phase 1 installs the chart with `tagManagerRegenerate` at its normal default (disabled) and runs the full existing test suite unaffected by this newer feature (plus a new check that the PVC is correctly absent when the feature is off); phase 2 uninstalls Matomo/MariaDB/Valkey and reinstalls everything from scratch with the feature enabled, so it's exercised as a genuine fresh install (including the cold-start seeding path) and isolated from the rest of the suite if it fails. New `tests/kind/values-tagmanager.yaml` overlay carries the phase 2-only values.
+
+### Added
+
+- `matomo.tagManagerRegenerate.volume.create` (default `true`) and `.existingClaim`: lets you point the dashboard, tracker, and regenerate-tagmanager pods at a pre-existing PersistentVolumeClaim instead of having the chart create `matomo-tagmanager-js` itself. Set `create: false` and `existingClaim: <name>` to use one you've already provisioned (e.g. shared across releases, or managed by other tooling); `storageClassName`/`size` only apply when `create` is `true`. Fails the render with a clear error if `create` is `false` and `existingClaim` is left empty.
+- `matomo.exporterImage` (default `hipages/php-fpm_exporter:2.2.0`): shared default image for the fpm-metrics sidecar, overridable per-workload via `matomo.dashboard.exporter.image` / `matomo.tracker.exporter.image` (falls back to the shared value when empty), matching the existing `nginx.image` / `matomo.dashboard.nginx.image` pattern.
+- `matomo.dashboard.exporter.enabled` / `matomo.tracker.exporter.enabled` (default `true`): turn off the fpm-metrics sidecar entirely, per-workload. When disabled, the container, its `containerPort`, and the corresponding Service's `metrics` port and `prometheus.io/*` annotations are all omitted.
+- `matomo.tagManagerRegenerate.fsGroup` (defaults to `matomo.runAsUser`): applied as a pod-level `fsGroup` on the dashboard, tracker, and regenerate-tagmanager pods when the feature is enabled. nginx and matomo run as different container UIDs but both need access to the shared TagManager JS PVC - `fsGroup` is pod-wide (unlike `runAsUser`, which is per-container), so it's what actually lets them share it regardless of the backing storage's default ownership. Doesn't apply to hostPath-backed volumes (the kind e2e fixture still needs its own `chmod` workaround for that reason) - only to real volume plugins/CSI drivers (NFS, CephFS, etc).
+- A `regenerate-tagmanager` CronJob (`matomo.tagManagerRegenerate`, disabled by default) and a shared ReadWriteMany PersistentVolumeClaim (`matomo-tagmanager-js`) mounted at `/var/www/html/js` on the dashboard and tracker pods. When enabled, TagManager's generated container JS is regenerated once, centrally, on a schedule (`*/2 * * * *` by default) instead of by each dashboard/tracker pod itself - the `matomo-warmup` init container's `tagmanager:regenerate-released-containers` call is skipped in this mode (see `matomo.warmupCommand`). A new `matomo-seed-tagmanager-js` init container seeds the shared volume from the pod's own copy on its first-ever mount (a no-op once the CronJob has populated it). Requires a StorageClass supporting ReadWriteMany. New values: `matomo.tagManagerRegenerate.{enabled,schedule,concurrencyPolicy,activeDeadlineSeconds,resources,seedResources,volume.storageClassName,volume.size}`.
+- E2E coverage for the above: a hostPath-backed manual PV (`tests/kind/tagmanager-js-pv.yaml`) stands in for a ReadWriteMany StorageClass in the single-node kind cluster; the test enables the feature, verifies the PVC binds, writes a marker file through a throwaway pod and reads it back from both the dashboard and tracker pods to confirm the shared mount works, and runs the CronJob once via `kubectl create job --from=cronjob/...`.
+
+## [12.0.12] - 2026-07-24
+
+### Added
+
+- A `matomo-warmup` init container (dashboard and tracker), running after `matomo-init`.
+
+## [12.0.11] - 2026-07-24
+
+### Fixed
+
+- Config changes (e.g. editing `matomo.phpfpm`, nginx config, php.ini overrides) previously didn't trigger a pod restart on `helm upgrade`: the only checksum annotation in the chart covered `configmap-matomo.yaml` alone, so updating any of the other ~12 ConfigMaps (php-fpm pool, nginx, supervisor, php.ini) updated the ConfigMap object but left already-running pods on the stale mounted content until they happened to restart for an unrelated reason - which is exactly why the slowlog change earlier didn't take effect until a manual rollout restart. Replaced it with `matomo.configChecksum`, a combined checksum over every ConfigMap template the chart renders, applied via a new shared `matomo.podAnnotations` helper to every Deployment, CronJob, and the pre-upgrade/post-install Jobs.
+
+### Added
+
+- `helm.sh/chart-version` and `app.kubernetes.io/version` pod-template annotations on every workload (via the same `matomo.podAnnotations` helper), so the chart/app version that produced a given pod is visible on the object itself, and bumping the chart version alone forces a rolling restart even if no rendered content changed.
+
+## [12.0.10] - 2026-07-23
+
+### Added
+
+- E2E test step verifying the php-fpm_exporter (fpm-metrics) sidecar: fetches `/metrics` from the dashboard and tracker Services on the `metrics` port (9253) and checks `phpfpm_up` is `1` and `phpfpm_active_processes` is present, confirming the exporter can actually reach php-fpm through the Service port added for it.
+
+## [12.0.9] - 2026-07-23
+
+### Added
+
+- Enabled the php-fpm slowlog for the dashboard's pool (`matomo.phpfpm`): any request running longer than `request_slowlog_timeout` (default `10s`, new override) gets a full PHP stack trace logged to stderr (`/proc/self/fd/2`, picked up by `kubectl logs`). Diagnoses stuck/hanging requests (e.g. a blocked database call).
+
+## [12.0.8] - 2026-07-23
+
+### Fixed
+
+- A missed timeout check for nginx is fixed
+
+## [12.0.7] - 2026-07-23
+
+### Fixed
+
+- The dashboard and tracker fpm-metrics (php-fpm_exporter) sidecars had no way to be scraped: the container declared no port and the `matomo-dashboard`/`matomo-tracker` Services only exposed the nginx port (8080). Added a named `metrics` containerPort (9253) to both sidecars, exposed it as a second `metrics` port on both Services (existing port renamed to `http` since Services with more than one port require all ports to be named), and added `prometheus.io/scrape`, `prometheus.io/port`, `prometheus.io/path` annotations to both Services for classic annotation-based Prometheus discovery. Ingress/HTTPRoute backends reference port 8080 by number so this doesn't affect routing.
+
+- The dashboard and tracker nginx readiness probes (`GET /index.php` and `GET /matomo.js` on port 8080) had no explicit `timeoutSeconds`, so they relied on Kubernetes' implicit default of 1 second. `/index.php` in particular is Matomo's full application bootstrap proxied through php-fpm (autoloader, config, session, DB check), not a lightweight ping, and routinely takes longer than 1s to respond. `kube-probe` was disconnecting before php-fpm replied, which nginx logs as HTTP 499 (nginx's own `fastcgi_read_timeout` is 600s, so nginx itself wasn't the one giving up) - with the default single dashboard replica, a probe that fails this consistently means the pod stays `NotReady` and the Service can end up with zero endpoints. Added `timeoutSeconds: 5` to both probes.
+
+### Changed
+
+- Retuned the dashboard's php-fpm container and pool for a 4Gi memory limit (up from 768Mi):
+  - `matomo.resources` limits raised to 2000m/4Gi (requests 500m/512Mi), sized for `matomo.phpfpm`'s new `pm.max_children` default.
+  - `matomo.phpfpm` pool defaults: `pm.max_children` 100 -> 32 and `pm.max_spare_servers` 75 -> 20 (realistic worker count for the new memory budget; the old `max_children`/container-memory pairing allowed far more workers than the container could ever actually hold), `php_admin_value[memory_limit]` 2048M -> 1024M (still generous per-request, but a single runaway request can no longer claim a quarter of the container's budget). This pool config is also mounted into the core:archive CronJob container, but its `pm.*`/`php_admin_value` directives are FPM-pool-only and have no effect there since core:archive runs via the php CLI SAPI, not php-fpm; its actual memory ceiling comes from `matomo.php.memory_limit` (default `2G`) instead, unaffected by this change.
+  - `pm` default switched from `ondemand` to `dynamic`. Under `ondemand`, `pm.start_servers`/`pm.min_spare_servers`/`pm.max_spare_servers` were parsed but never used (only `pm.max_children` and `pm.process_idle_timeout` apply to `ondemand`). `dynamic` makes active use of the already-configured spare-server settings: it keeps `pm.min_spare_servers` (5) workers warm at all times and grows up to `pm.max_children` (32) under load, avoiding fork latency on the next request after an idle period. Trade-off: unlike `ondemand`, `dynamic` never scales down to zero workers, so there's a small constant baseline (~5 idle workers) even with no traffic; `pm.process_idle_timeout` no longer applies (it's `ondemand`-only) and is now the inert one. Verified the existing defaults (`max_children=32`, `start_servers=5`, `min_spare_servers=5`, `max_spare_servers=20`) satisfy php-fpm's `dynamic`-mode startup validation (`min_spare_servers <= start_servers <= max_spare_servers <= max_children`), so no values needed to change to make the switch. The tracker's separate `matomo.tracker.phpfpm` pool is unchanged (still `ondemand`, 600s idle timeout).
+
+## [12.0.6] - 2026-07-22
+
+### Added
+
+- Overridable resources for containers whose limits/requests were previously hardcoded in templates: the shared `matomo-init` init container (`matomo.initResources`), the `wait-for-db` init container used by the pre-upgrade/post-install Jobs (`matomo.waitForDbResources`), the pre-upgrade and post-install Job containers (`matomo.preUpgradeResources`, `matomo.postInstallResources`), the queuedtracking-monitor and queuedtracking-process containers (`matomo.queuedTrackingMonitor.resources`, `matomo.queuedTrackingProcess.resources`), and the dashboard/tracker fpm-metrics exporter sidecars (`matomo.dashboard.exporter.resources`, `matomo.tracker.exporter.resources`). Defaults are unchanged.
+
+## [12.0.5] - 2026-07-21
+
+### Added
+
+- Make post-install and pre-upgrade jobs work without pre-existing matomo-startup-config ConfigMap (#72)
+
+## [12.0.4] - 2026-07-20
+
+### Added
+
+- Example for queued tracking process liveness probe.
+
+## [12.0.3] - 2026-07-17
+
+### Added
+
+- The php-fpm_exporter (fpm-metrics) sidecar liveness and readiness probes are now overridable via new values `matomo.dashboard.exporter.livenessProbe`/`readinessProbe` and `matomo.tracker.exporter.livenessProbe`/`readinessProbe`.
+
+### Changed
+
+- All container probes now use **replace** semantics instead of merge. Setting any `livenessProbe`/`readinessProbe` value (matomo php-fpm, cli, nginx, queuedtracking, exporter) fully replaces the built-in default rather than deep-merging with it. This lets you switch handler type (e.g. `tcpSocket` → `exec`) without hitting `may not specify more than 1 handler type`. The defaults themselves are unchanged; each probe value now defaults to `{}` in `values.yaml` and the effective default is applied by the template when the value is empty.
+
+## [12.0.2] - 2026-07-17
+
+### Changed
+
+- Changelog and chart README, missed in 12.0.1
+
+## [12.0.1] - 2026-07-17
+
+### Changed
+
+- Matomo to 5.12.0
+
+## [12.0.0] - 2026-07-17
+
+### Added
+
+- Checkov security scanning in CI (GitHub Actions): blocking on failed checks, SARIF results uploaded to the GitHub Security tab.
+- Security hardening (Checkov remediation phase 1):
+  - `automountServiceAccountToken: false` on all pods, overridable via new value `matomo.automountServiceAccountToken`.
+  - Pod-level `seccompProfile: RuntimeDefault` on all workloads.
+  - `runAsNonRoot: true` and `capabilities: drop: [ALL]` on all containers, including the init container.
+  - securityContext (runAsUser 82, non-root, no capabilities) for the pre-upgrade and post-install job containers, which previously had none.
+- Default resources (Checkov remediation phase 2), all overridable in values:
+  - Matomo php-fpm containers (dashboard `matomo.resources`, tracker `matomo.tracker.resources`): 300m/256Mi requests, 1000m/768Mi limits.
+  - nginx containers (`nginx.resources`, `matomo.tracker.nginx.resources`): 50m/64Mi requests, 500m/256Mi limits.
+  - cli (`matomo.cli.resources`): 100m/128Mi requests, 500m/512Mi limits.
+  - CronJobs (`matomo.cronJobs.*.resources`): 100m/128Mi requests, 1000m/1Gi limits. NOTE: core:archive was previously unlimited; raise these on large installations.
+  - Pre-upgrade and post-install job containers: 100m/128Mi requests, 500m/512Mi limits.
+  - CPU limit for the dashboard fpm-metrics sidecar (previously memory only).
+- Default probes (Checkov remediation phase 2), all overridable in values:
+  - Matomo php-fpm containers: tcpSocket on port 9000 (`matomo.livenessProbe`/`matomo.readinessProbe`, previously empty).
+  - cli, queuedTrackingMonitor and queuedTrackingProcess: exec probe checking supervisord (new values under `matomo.cli`, `matomo.queuedTrackingMonitor`, `matomo.queuedTrackingProcess`).
+  - fpm-metrics sidecars (dashboard, tracker): tcpSocket on exporter port 9253.
+- Explicit `imagePullPolicy: Always` on the nginx containers (dashboard, tracker) and the pre-upgrade/post-install job containers.
+- NetworkPolicy per component (Checkov remediation phase 3), enabled by default via `networkPolicy.enabled`. The default rule allows all ingress, so behavior is unchanged; tighten via `networkPolicy.ingress`.
+- `.checkov.yaml` with documented skips for the checks that require image changes to fix (CKV_K8S_35 secrets as env vars, CKV_K8S_40 high UID, CKV_K8S_43 image digests) and CKV_K8S_22 (read-only root filesystem, pending writable-path mapping). Wired into the CI workflow via `config_file`.
+- E2E test in CI (GitHub Actions): installs the chart on a kind cluster together with MariaDB and Valkey (`tests/kind/`), waits for all workloads, smoke tests the dashboard and tracker over HTTP, sends a tracking hit, verifies the QueuedTracking plugin talks to Valkey, and triggers both CronJobs (core:archive, scheduled-tasks) requiring them to complete.
+- Render matrix in CI (GitHub Actions): `helm lint` + `helm template` + kubeconform schema validation over values combinations in `tests/render/` (defaults, all components disabled, loadbalancers/TLS ingress, extra secrets/configmaps/services/volumes with hook jobs, env/license/sidecars, scaled workers with restrictive NetworkPolicy) plus the kind e2e values.
+- Gateway API support: HTTPRoutes for the dashboard and tracker via `matomo.gatewayApi.enabled` and `matomo.gatewayApi.parentRefs`, mirroring the tracker Ingress path list and reusing the `hostname` values. TLS is terminated on the Gateway listener. Can be used instead of, or alongside, Ingress.
+- E2E routing coverage: the kind workflow installs ingress-nginx and uses `cloud-provider-kind` (which provides the Gateway API CRDs and GatewayClass) to program the chart's Gateway/HTTPRoutes, then verifies the dashboard, tracker and a tracking hit through both an Ingress and an HTTPRoute.
+- `gateway-api` combination in the render matrix; kubeconform now also validates CRD-backed resources (HTTPRoute) via the CRDs-catalog schemas.
+- Documented previously-undocumented but template-referenced override points: `matomo.config` (full install.json replacement), `matomo.php`/`matomo.phpfpm` (shared php.ini/php-fpm pool tuning for dashboard + core:archive), `matomo.dashboard.whitelist`, `matomo.queuedTrackingMonitor.replicas`, `matomo.queuedTrackingProcess.numProcs`, and the remaining `matomo.tracker.phpfpm` pool settings.
+- `# @schema` annotations on open-ended fields (`matomo.env`, `matomo.license`, `matomo.php`, `matomo.phpfpm`, `matomo.cronJobs.scheduledTasks.php`, `matomo.config`, `matomo.dashboard.nginx.conf`, `extraSecrets.data`, `extraConfigMaps.data`, `extraServices`, `extraVolumes`, `extraVolumeMounts`, `networkPolicy.ingress`) so a generated `values.schema.json` can be strict (`additionalProperties: false`) everywhere else without rejecting legitimate overrides. Also extended to every label map (`matomo.extralabels`, `matomo.ingress.extralabels`, `matomo.gatewayApi.extralabels`), every ingress annotations map (`matomo.ingress.annotations`, `matomo.dashboard.ingress.annotations`, `matomo.tracker.ingress.annotations`), `nodeSelector`, and every liveness/readiness probe (dashboard/tracker php-fpm, cli, nginx, queuedtracking monitor/process) since probes are polymorphic (`exec`/`httpGet`/`tcpSocket`) and label/annotation maps are inherently arbitrary-key.
+- CI workflow (`schema.yaml`) that regenerates `values.schema.json` with `helm-schema` (`--helm-docs-compatibility-mode --no-dependencies --skip-auto-generation required`) and fails if the committed file is missing or out of date. `helm lint`/`helm template` (already run in the render matrix) validate against it automatically once generated.
+
+### Changed
+
+- Checkov workflow pinned to current checkov-action master (checkov 3.3.8) instead of the stale v12.1347.0 release.
+
+### Fixed
+
+- `matomo-tracker` Service, both loadbalancer Services and extra services were missing `namespace` and were installed into the current context namespace instead of `.Values.namespace`.
+- `matomo.queuedTrackingProcess.enabled` was required by the template but undefined in values; now documented explicitly (default `false`). Its NetworkPolicy is only created when the deployment is enabled.
 
 ## [11.0.60] - 2026-02-16
 

@@ -1,0 +1,405 @@
+name: E2E (kind)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Install chart on kind
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Create kind cluster
+        uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
+
+      # ── Database / caching fixtures ────────────────────────────────────
+      - name: Install MariaDB and Valkey
+        run: |
+          kubectl create namespace matomo
+          kubectl apply -f tests/kind/mariadb.yaml -f tests/kind/valkey.yaml
+          kubectl -n matomo rollout status deployment/matomo-db-mysql --timeout=300s
+          kubectl -n matomo rollout status deployment/matomo-valkey --timeout=300s
+
+      # ── Ingress infrastructure (ingress-nginx) ─────────────────────────
+      - name: Install ingress-nginx
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/cloud/deploy.yaml
+          kubectl -n ingress-nginx rollout status deployment/ingress-nginx-controller --timeout=300s
+
+      # ── Gateway API infrastructure (cloud-provider-kind) ───────────────
+      - name: Install cloud-provider-kind
+        run: |
+          set -euo pipefail
+
+          VERSION="${CLOUD_PROVIDER_KIND_VERSION:-v0.11.1}"
+
+          curl -sL "https://github.com/kubernetes-sigs/cloud-provider-kind/releases/download/${VERSION}/cloud-provider-kind_${VERSION#v}_linux_amd64.tar.gz" \
+            | tar xz -C /usr/local/bin/ cloud-provider-kind
+
+          echo "Starting cloud-provider-kind..."
+          sudo cloud-provider-kind --gateway-channel standard &
+          sleep 5
+
+      - name: Wait for and verify GatewayClass from cloud-provider-kind
+        run: |
+          set -euo pipefail
+          kubectl wait --for=condition=Accepted gatewayclass/cloud-provider-kind \
+            --timeout=60s || {
+              echo "ERROR: GatewayClass not ready!"
+              kubectl get gatewayclass -A -o wide
+              exit 1
+            }
+          echo "✅ cloud-provider-kind GatewayClass ready"
+
+      # ── Deploy Gateway fixture ────────────────────────────────────────
+      - name: Deploy gateway.yaml fixture
+        run: |
+          set -euo pipefail
+          kubectl apply -f tests/kind/gateway.yaml
+
+      - name: Wait for Gateway → Programmed
+        run: |
+          set -euo pipefail
+          kubectl -n matomo wait --for=condition=Programmed \
+            gateway/matomo-gateway --timeout=120s || {
+              echo "Gateway did not reach Programmed state"
+              echo "=== Events ==="; kubectl describe gateway matomo-gateway -n matomo
+              exit 1
+            }
+          echo "✅ Gateway programed"
+
+      # ── Install Matomo chart (ingress + gatewayApi) ────────────────────
+      # Phase 1: baseline install, matomo.tagManagerRegenerate at its normal
+      # default (disabled). Exercises everything unrelated to that newer,
+      # riskier feature first, so a problem with it can't block/hang the
+      # well-established parts of this suite.
+      - name: Install Matomo chart
+        run: |
+          helm install matomo charts/matomo --namespace matomo \
+            --values tests/kind/values.yaml
+
+      - name: Wait for Matomo workloads
+        run: |
+          for d in matomo-dashboard matomo-tracker matomo-cli \
+                   matomo-queuedtracking-monitor matomo-queuedtracking-process; do
+            echo "::group::rollout $d"
+            kubectl -n matomo rollout status "deployment/$d" --timeout=600s
+            echo "::endgroup::"
+          done
+
+      - name: Verify tagManagerRegenerate is off by default
+        run: |
+          if kubectl -n matomo get pvc matomo-tagmanager-js >/dev/null 2>&1; then
+            echo "::error::matomo-tagmanager-js PVC exists even though tagManagerRegenerate wasn't enabled"
+            exit 1
+          fi
+          echo "matomo-tagmanager-js PVC correctly absent (feature is off by default)"
+
+      # ── Smoke tests ────────────────────────────────────────────────────
+      - name: Smoke test dashboard and tracker (in-cluster)
+        run: |
+          kubectl -n matomo run smoke --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 --command -- sh -c '
+            set -e
+            echo "dashboard /index.php"
+            curl -sSf -o /dev/null http://matomo-dashboard:8080/index.php
+            echo "tracker /matomo.js"
+            curl -sSf -o /dev/null http://matomo-tracker:8080/matomo.js
+            echo "tracker hit /matomo.php"
+            code=$(curl -sS -o /dev/null -w "%{http_code}" "http://matomo-tracker:8080/matomo.php?idsite=1&rec=1&action_name=ci-smoke-test")
+            echo "tracking hit returned HTTP $code"
+            case "$code" in 200|204) ;; *) echo "unexpected tracking response"; exit 1 ;; esac
+            '
+
+      - name: Verify php-fpm_exporter metrics
+        run: |
+          kubectl -n matomo run fpm-metrics-smoke --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 --command -- sh -c '
+            set -e
+            echo "dashboard php-fpm_exporter metrics"
+            dashboard_metrics=$(curl -sSf http://matomo-dashboard:9253/metrics)
+            echo "$dashboard_metrics" | grep -Eq "^phpfpm_up(\{.*\})? 1$" || {
+              echo "dashboard phpfpm_up is not 1 - exporter cannot reach php-fpm"
+              echo "$dashboard_metrics" | grep phpfpm_up || true
+              exit 1
+            }
+            echo "$dashboard_metrics" | grep -Eq "^phpfpm_active_processes(\{.*\})? [0-9]+$" || {
+              echo "dashboard missing phpfpm_active_processes metric"
+              exit 1
+            }
+
+            echo "tracker php-fpm_exporter metrics"
+            tracker_metrics=$(curl -sSf http://matomo-tracker:9253/metrics)
+            echo "$tracker_metrics" | grep -Eq "^phpfpm_up(\{.*\})? 1$" || {
+              echo "tracker phpfpm_up is not 1 - exporter cannot reach php-fpm"
+              echo "$tracker_metrics" | grep phpfpm_up || true
+              exit 1
+            }
+            echo "$tracker_metrics" | grep -Eq "^phpfpm_active_processes(\{.*\})? [0-9]+$" || {
+              echo "tracker missing phpfpm_active_processes metric"
+              exit 1
+            }
+            '
+
+      - name: Verify QueuedTracking uses Valkey
+        run: |
+          connections=$(kubectl -n matomo exec deployment/matomo-valkey -- \
+            valkey-cli INFO stats | grep -oE "total_connections_received:[0-9]+" | cut -d: -f2)
+          echo "Valkey total_connections_received=$connections"
+          if [ "$connections" -le 5 ]; then
+            echo "almost no connections to Valkey - QueuedTracking is not wired up"
+            exit 1
+          fi
+
+      # ── Ingress routing test (via ingress-nginx) ───────────────────────
+      - name: Test routing through ingress-nginx
+        run: |
+          kubectl -n matomo run ingress-smoke --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 --command -- sh -c '
+            set -e
+            HOST=ingress-nginx-controller.ingress-nginx.svc.cluster.local
+            echo "dashboard /index.php via ingress-nginx"
+            curl -sSf -o /dev/null -H "Host: dashboard.example.test" "http://$HOST/index.php"
+            echo "tracker /matomo.js via ingress-nginx"
+            curl -sSf -o /dev/null -H "Host: tracker.example.test" "http://$HOST/matomo.js"
+            echo "tracking hit /matomo.php via ingress-nginx"
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -H "Host: tracker.example.test" \
+              "http://$HOST/matomo.php?idsite=1&rec=1&action_name=ci-ingress-nginx")
+            echo "tracking hit returned HTTP $code"
+            case "$code" in 200|204) ;; *) echo "unexpected tracking response via ingress-nginx"; exit 1 ;; esac
+            '
+
+      # ── Gateway API routing test (via HTTPRoute) ───────────────────────
+      - name: Get Gateway IP
+        id: gateway-ip
+        run: |
+          GW_IP=$(kubectl get gateway matomo-gateway -n matomo \
+            -o json | jq -r '.status.addresses[] | select(.type=="IPAddress") | .value' | head -1)
+          if [ -z "$GW_IP" ]; then
+            echo "Failed to get Gateway IP — the Gateway might not be programmed"
+            kubectl get gateway matomo-gateway -n matomo -o yaml || true
+            exit 1
+          fi
+          echo "Gateway IP: $GW_IP"
+          echo "$GW_IP" > /tmp/gw_ip.txt
+
+      - name: Test routing through Gateway API (HTTPRoute)
+        run: |
+          set -e
+          GW_IP=$(cat /tmp/gw_ip.txt)
+
+          echo "waiting for dashboard to become routable via Gateway IP $GW_IP..."
+          max=90 i=0 status=000
+          until [ "$status" = "200" ] || [ $i -ge $max ]; do
+            status=$(curl -sf --max-time 5 -H 'Host: dashboard.example.test' \
+              "http://$GW_IP/index.php" -o /dev/null -w '%{http_code}' || echo 000)
+            [ "$status" = "200" ] && break
+            i=$((i+5)); sleep 5
+          done
+          if [ "$status" != "200" ]; then
+            echo "dashboard did not become routable via Gateway API after ${max}s (last HTTP $status)"
+            exit 1
+          fi
+          echo "dashboard /index.php via Gateway API: HTTP $status (after ${i}s)"
+
+          echo "tracker /matomo.js via Gateway API"
+          curl -sSf -o /dev/null -H "Host: tracker.example.test" "http://$GW_IP/matomo.js"
+
+          echo "tracking hit /matomo.php via Gateway API"
+          code=$(curl -sS -o /dev/null -w "%{http_code}" -H "Host: tracker.example.test" \
+            "http://$GW_IP/matomo.php?idsite=1&rec=1&action_name=ci-gateway-api")
+          echo "tracking hit returned HTTP $code"
+          case "$code" in 200|204) ;; *) echo "unexpected tracking response via Gateway API"; exit 1 ;; esac
+
+      - name: Test cron jobs (core:archive and scheduled-tasks)
+        run: |
+          for cj in matomo-jobs-corearchive matomo-jobs-scheduled-tasks; do
+            kubectl -n matomo create job "e2e-$cj" --from="cronjob/$cj"
+          done
+          fail=0
+          for cj in matomo-jobs-corearchive matomo-jobs-scheduled-tasks; do
+            echo "::group::job e2e-$cj"
+            if ! kubectl -n matomo wait --for=condition=complete "job/e2e-$cj" --timeout=420s; then
+              echo "::error::$cj did not complete"
+              fail=1
+            fi
+            kubectl -n matomo logs "job/e2e-$cj" --all-containers --tail=50 || true
+            echo "::endgroup::"
+          done
+          exit $fail
+
+      # ── Phase 2: matomo.tagManagerRegenerate ───────────────────────────
+      # Uninstall everything from phase 1 and reinstall from scratch with
+      # the feature enabled, so it's exercised as a genuine fresh install
+      # (including the matomo-seed-tagmanager-js cold-start path) rather
+      # than an in-place upgrade, and so a hang/failure here is isolated
+      # from - and doesn't block a clear read on - the phase 1 results above.
+      - name: Uninstall Matomo, MariaDB, and Valkey
+        run: |
+          helm uninstall matomo --namespace matomo --wait --timeout=180s
+          kubectl delete -f tests/kind/mariadb.yaml -f tests/kind/valkey.yaml --wait=true --timeout=120s
+
+      - name: Reinstall MariaDB and Valkey
+        run: |
+          kubectl apply -f tests/kind/mariadb.yaml -f tests/kind/valkey.yaml
+          kubectl -n matomo rollout status deployment/matomo-db-mysql --timeout=300s
+          kubectl -n matomo rollout status deployment/matomo-valkey --timeout=300s
+
+      # kind's default StorageClass (rancher.io/local-path) only supports
+      # ReadWriteOnce; matomo.tagManagerRegenerate needs ReadWriteMany. A
+      # hostPath-backed PV stands in for a real RWX backend on this
+      # single-node cluster. hostPath directories are root-owned by default
+      # when kubelet creates them, but this chart's containers run as
+      # non-root (matomo: uid 82, nginx: uid 65532) - without opening up the
+      # directory's permissions first, the matomo-seed-tagmanager-js init
+      # container (and the regenerate-tagmanager CronJob) fail to write to
+      # it, leaving the affected pods stuck and the rollout wait below
+      # hanging until it times out. This is a kind/test-fixture-only
+      # concern: a real RWX StorageClass (NFS, CephFS, etc.) handles this
+      # through its own CSI driver / export options instead.
+      - name: Prepare hostPath directory and PV for TagManager JS
+        run: |
+          docker exec chart-testing-control-plane mkdir -p /tmp/matomo-tagmanager-js
+          docker exec chart-testing-control-plane chmod 0777 /tmp/matomo-tagmanager-js
+          kubectl apply -f tests/kind/tagmanager-js-pv.yaml
+
+      - name: Reinstall Matomo chart with tagManagerRegenerate enabled
+        run: |
+          helm install matomo charts/matomo --namespace matomo \
+            --values tests/kind/values.yaml \
+            --values tests/kind/values-tagmanager.yaml
+
+      - name: Wait for Matomo workloads (phase 2)
+        run: |
+          for d in matomo-dashboard matomo-tracker matomo-cli \
+                   matomo-queuedtracking-monitor matomo-queuedtracking-process; do
+            echo "::group::rollout $d"
+            kubectl -n matomo rollout status "deployment/$d" --timeout=600s
+            echo "::endgroup::"
+          done
+
+      - name: Smoke test dashboard and tracker after reinstall
+        run: |
+          kubectl -n matomo run smoke-phase2 --rm -i --restart=Never \
+            --image=curlimages/curl:8.14.1 --command -- sh -c '
+            set -e
+            echo "dashboard /index.php"
+            curl -sSf -o /dev/null http://matomo-dashboard:8080/index.php
+            echo "tracker /matomo.js"
+            curl -sSf -o /dev/null http://matomo-tracker:8080/matomo.js
+            '
+
+      - name: Verify shared TagManager JS volume
+        run: |
+          set -euo pipefail
+          echo "PVC status:"
+          kubectl -n matomo get pvc matomo-tagmanager-js
+          phase=$(kubectl -n matomo get pvc matomo-tagmanager-js -o jsonpath='{.status.phase}')
+          if [ "$phase" != "Bound" ]; then
+            echo "::error::matomo-tagmanager-js PVC is not Bound (phase=$phase)"
+            kubectl -n matomo describe pvc matomo-tagmanager-js
+            exit 1
+          fi
+
+          marker="e2e-marker-$(date +%s)"
+          echo "writing $marker via a throwaway pod mounting the shared PVC"
+          cat <<EOF | kubectl -n matomo apply -f -
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: tagmanager-js-writer
+          spec:
+            restartPolicy: Never
+            containers:
+            - name: writer
+              image: busybox:1.36
+              command: ["sh", "-c", "echo $marker > /js/e2e-marker.txt"]
+              volumeMounts:
+              - name: js
+                mountPath: /js
+            volumes:
+            - name: js
+              persistentVolumeClaim:
+                claimName: matomo-tagmanager-js
+          EOF
+          kubectl -n matomo wait --for=condition=Ready pod/tagmanager-js-writer --timeout=60s || true
+          kubectl -n matomo wait --for=jsonpath='{.status.phase}'=Succeeded pod/tagmanager-js-writer --timeout=60s
+          kubectl -n matomo delete pod tagmanager-js-writer --wait=true
+
+          echo "reading it back from the dashboard's matomo container"
+          dashboard_seen=$(kubectl -n matomo exec deployment/matomo-dashboard -c matomo -- cat /var/www/html/js/e2e-marker.txt)
+          echo "reading it back from the tracker's matomo container"
+          tracker_seen=$(kubectl -n matomo exec deployment/matomo-tracker -c matomo -- cat /var/www/html/js/e2e-marker.txt)
+
+          if [ "$dashboard_seen" != "$marker" ] || [ "$tracker_seen" != "$marker" ]; then
+            echo "::error::marker mismatch - dashboard saw '$dashboard_seen', tracker saw '$tracker_seen', expected '$marker'"
+            exit 1
+          fi
+          echo "dashboard and tracker both see the shared TagManager JS volume correctly"
+
+      - name: Verify PVC labels
+        run: |
+          set -euo pipefail
+          pvc_labels=$(kubectl -n matomo get pvc matomo-tagmanager-js -o jsonpath='{.metadata.labels}')
+          echo "$pvc_labels" | grep -q 'app.*matomo-jobs-regenerate-tagmanager' || {
+            echo "::error::default PVC label (app=matomo-jobs-regenerate-tagmanager) is missing"
+            exit 1
+          }
+          echo "default label verified"
+          echo "$pvc_labels" | grep -q 'e2e-test-label.*true' || {
+            echo "::error::custom PVC label (e2e-test-label=true) is missing"
+            kubectl -n matomo get pvc matomo-tagmanager-js -o jsonpath='{.metadata.labels}'
+            exit 1
+          }
+          echo "custom labels verified correctly on the PVC"
+
+      - name: Test regenerate-tagmanager CronJob
+        run: |
+          kubectl -n matomo create job e2e-matomo-jobs-regenerate-tagmanager \
+            --from=cronjob/matomo-jobs-regenerate-tagmanager
+          if ! kubectl -n matomo wait --for=condition=complete \
+            job/e2e-matomo-jobs-regenerate-tagmanager --timeout=300s; then
+            echo "::error::regenerate-tagmanager did not complete"
+            kubectl -n matomo logs job/e2e-matomo-jobs-regenerate-tagmanager --all-containers --tail=100 || true
+            exit 1
+          fi
+          kubectl -n matomo logs job/e2e-matomo-jobs-regenerate-tagmanager --all-containers --tail=50
+
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          echo "::group::resources"
+          kubectl get all -n matomo || true
+          kubectl -n matomo get events --sort-by=.lastTimestamp | tail -n 50 || true
+          kubectl -n matomo get ingress,httproute,gateway -o wide || true
+          echo "::endgroup::"
+          echo "::group::routing controllers"
+          kubectl -n ingress-nginx get pods || true
+          kubectl -n ingress-nginx logs deployment/ingress-nginx-controller --tail=50 || true
+          kubectl get gatewayclass -o wide || true
+          echo "::endgroup::"
+          echo "::group::pod status overview"
+          kubectl -n matomo get pods -o wide || true
+          echo "::endgroup::"
+          for p in $(kubectl -n matomo get pods -o name); do
+            echo "::group::$p"
+            kubectl -n matomo describe "$p" | tail -n 60 || true
+            echo "--- current logs ---"
+            kubectl -n matomo logs "$p" --all-containers --tail=200 || true
+            # A crash-looping container is "Waiting" by the time this runs, so the
+            # current-logs call above returns nothing (swallowed by `|| true`) and
+            # the real startup error only lives in the previous container instance.
+            echo "--- previous logs (last container instance, in case of crash loop) ---"
+            kubectl -n matomo logs "$p" --all-containers --previous --tail=200 2>/dev/null || true
+            echo "::endgroup::"
+          done

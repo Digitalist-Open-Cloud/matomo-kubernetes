@@ -5,7 +5,8 @@ on: # rebuild any PRs and main branch changes
 
 jobs:
   spellcheck: # run the action
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: streetsidesoftware/cspell-action@v6
+      - uses: actions/checkout@v7
+      - uses: streetsidesoftware/cspell-action@de2a73e963e7443969755b648a1008f77033c5b2 #  v8.4.0 2026-04-06
+

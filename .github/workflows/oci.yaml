@@ -1,3 +1,5 @@
+name: Build
+
 on:
   push:
     tags:
@@ -7,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -29,12 +31,11 @@ jobs:
            helm registry login registry-1.docker.io -u $REG_USER -p $REG_PASS
            helm push matomo-$VERSION.tgz oci://registry-1.docker.io/digitalist
 
-
   release-internal:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
