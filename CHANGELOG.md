@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.24] - 2026-10-21
+
+## Changed
+
+Disabled session upload progress in all places.
+
 ## [12.0.23] - 2026-10-21
 
 ## Changed

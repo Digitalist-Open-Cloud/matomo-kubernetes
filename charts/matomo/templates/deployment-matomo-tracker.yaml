@@ -148,6 +148,9 @@ spec:
           - name: matomo-phpfpm-tracker
             mountPath: /usr/local/etc/php-fpm.d/zz-global.conf
             subPath: zz-global.conf
+          - name: matomo-phpfpm-tracker
+            mountPath: /usr/local/etc/php/conf.d/zz-tracker.ini
+            subPath: zz-tracker.ini
           {{- if .Values.matomo.tagManagerRegenerate.enabled }}
           - name: tagmanager-js
             mountPath: /var/www/html/js
