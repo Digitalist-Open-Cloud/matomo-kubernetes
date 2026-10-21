@@ -9,6 +9,7 @@ data:
     [www]
     ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
     php_admin_flag[session.upload_progress.enabled] = off
+    php_admin_flag[session.use_strict_mode] = on
     pm = {{ .Values.matomo.phpfpm.type | default "dynamic" }}
     pm.max_children = {{ .Values.matomo.phpfpm.max_children | default 32 }}
     pm.start_servers =  {{ .Values.matomo.phpfpm.start_servers | default 5 }}
@@ -30,6 +31,7 @@ data:
     [www]
     ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
     php_admin_flag[session.upload_progress.enabled] = off
+    php_admin_flag[session.use_strict_mode] = on
     php_admin_value[memory_limit] = "1024M"
     pm ="dynamic"
     pm.max_children = 32

@@ -7,7 +7,8 @@ metadata:
 data:
   zz-global.ini: |
     expose_php={{ .Values.matomo.php.expose_php | default "Off" }}
-    session.upload_progress.enabled=Off
+    session.upload_progress.enabled=0
+    session.use_strict_mode=1
     opcache.memory_consumption={{ .Values.matomo.php.opcache_memory_consumption | default "512" }}
     opcache.interned_strings_buffer={{ .Values.matomo.php.opcache_interned_strings_buffer | default "16" }}
     opcache.save_comments={{ .Values.matomo.php.opcache_save_comments | default "1" }}
@@ -28,7 +29,8 @@ data:
 data:
   zz-global.ini: |
     expose_php=Off
-    session.upload_progress.enabled=Off
+    session.upload_progress.enabled=0
+    session.use_strict_mode=1
     opcache.memory_consumption=512
     opcache.interned_strings_buffer=16
     opcache.save_comments=1
