@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.23] - 2026-10-21
+
+## Changed
+
+Disabled session upload progress in PHP by default.
+
 ## [12.0.22] - 2026-10-14
 
 ### Changed
