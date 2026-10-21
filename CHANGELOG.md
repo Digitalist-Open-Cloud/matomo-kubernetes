@@ -1,5 +1,11 @@
 # Change log
 
+## [11.0.65] - 2026-10-21
+
+### Security
+
+- Mitigations for CVE-2026-109618 and CVE-2026-109619: FPM pools enforce `memory_limit=-1`, low `post_max_size`/`upload_max_filesize` and `session.upload_progress.enabled=0` via `php_admin_*`. nginx `client_max_body_size` lowered to 32M (dashboard) and 8M (tracker).
+
 ## [11.0.60] - 2026-02-16
 
 ### Added

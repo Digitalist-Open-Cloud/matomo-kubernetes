@@ -14,13 +14,21 @@ data:
     pm.max_spare_servers =  {{ .Values.matomo.phpfpm.max_spare_servers | default 75 }}
     pm.max_requests =  {{ .Values.matomo.phpfpm.max_requests | default 500 }}
     pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "480s" }}
-    php_admin_value[memory_limit] = {{ .Values.matomo.phpfpm.memory_limit | default "2048M" }}
+    ; CVE-2026-109618/109619 mitigations, deliberately not configurable via values
+    php_admin_value[memory_limit] = -1
+    php_admin_value[post_max_size] = 32M
+    php_admin_value[upload_max_filesize] = 16M
+    php_admin_flag[session.upload_progress.enabled] = off
     pm.status_path =  {{ .Values.matomo.phpfpm.status_path | default "/status" }}
 {{ else }}
 data:
   zz-global.conf: |
     [www]
-    php_admin_value[memory_limit] = "2048M"
+    ; CVE-2026-109618/109619 mitigations, deliberately not configurable via values
+    php_admin_value[memory_limit] = -1
+    php_admin_value[post_max_size] = 32M
+    php_admin_value[upload_max_filesize] = 16M
+    php_admin_flag[session.upload_progress.enabled] = off
     pm ="ondemand"
     pm.max_children = 100
     pm.start_servers = 5

@@ -14,7 +14,11 @@ data:
     pm.start_servers =  {{ .Values.matomo.tracker.phpfpm.start_servers | default 5 }}
     pm.min_spare_servers =  {{ .Values.matomo.tracker.phpfpm.min_spare_servers | default 5 }}
     pm.max_spare_servers =  {{ .Values.matomo.tracker.phpfpm.max_spare_servers | default 75 }}
-    php_admin_value[memory_limit] =  {{ .Values.matomo.tracker.phpfpm.memory_limit | default "2048M" }}
+    ; CVE-2026-109618/109619 mitigations, deliberately not configurable via values
+    php_admin_value[memory_limit] = -1
+    php_admin_value[post_max_size] = 8M
+    php_admin_value[upload_max_filesize] = 4M
+    php_admin_flag[session.upload_progress.enabled] = off
     pm.status_path =  {{ .Values.matomo.tracker.phpfpm.status_path | default "/status" }}
 {{ else }}
 data:
@@ -27,6 +31,10 @@ data:
     pm.start_servers = 5
     pm.min_spare_servers = 5
     pm.max_spare_servers = 75
-    php_admin_value[memory_limit] = "2048M"
+    ; CVE-2026-109618/109619 mitigations, deliberately not configurable via values
+    php_admin_value[memory_limit] = -1
+    php_admin_value[post_max_size] = 8M
+    php_admin_value[upload_max_filesize] = 4M
+    php_admin_flag[session.upload_progress.enabled] = off
     pm.status_path = "/status"
 {{- end }}
