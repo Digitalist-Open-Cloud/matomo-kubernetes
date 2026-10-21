@@ -7,6 +7,8 @@ metadata:
 data:
   zz-global.conf: |
     [www]
+    ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
+    php_admin_flag[session.upload_progress.enabled] = off
     pm = {{ .Values.matomo.tracker.phpfpm.type | default "ondemand" }}
     pm.max_children = {{ .Values.matomo.tracker.phpfpm.max_children | default 75 }}
     pm.process_idle_timeout = {{ .Values.matomo.tracker.phpfpm.process_idle_timeout | default "600s" }}
@@ -20,6 +22,8 @@ data:
 data:
   zz-global.conf: |
     [www]
+    ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
+    php_admin_flag[session.upload_progress.enabled] = off
     pm = "ondemand"
     pm.max_children = 75
     pm.process_idle_timeout = "10s"
