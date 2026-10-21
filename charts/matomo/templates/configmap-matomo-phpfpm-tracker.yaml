@@ -5,12 +5,14 @@ metadata:
   namespace: {{.Values.namespace}}
 data:
   zz-tracker.ini: |
-    session.upload_progress.enabled=Off
+    session.upload_progress.enabled=0
+    session.use_strict_mode=1
 {{- if .Values.matomo.tracker.phpfpm }}
   zz-global.conf: |
     [www]
     ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
     php_admin_flag[session.upload_progress.enabled] = off
+    php_admin_flag[session.use_strict_mode] = on
     pm = {{ .Values.matomo.tracker.phpfpm.type | default "ondemand" }}
     pm.max_children = {{ .Values.matomo.tracker.phpfpm.max_children | default 75 }}
     pm.process_idle_timeout = {{ .Values.matomo.tracker.phpfpm.process_idle_timeout | default "600s" }}
@@ -25,6 +27,7 @@ data:
     [www]
     ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
     php_admin_flag[session.upload_progress.enabled] = off
+    php_admin_flag[session.use_strict_mode] = on
     pm = "ondemand"
     pm.max_children = 75
     pm.process_idle_timeout = "10s"
