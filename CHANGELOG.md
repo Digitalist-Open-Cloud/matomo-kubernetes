@@ -1,5 +1,12 @@
 # Change log
 
+## [12.0.27] - 2026-10-23
+
+### Changed
+
+- Reverted the PHP ini and php-fpm hardening from 12.0.23–12.0.26 now that a PHP fix is out. Only `session.upload_progress.enabled=0` is kept (CVE-2026-115560).
+- `matomo.tracker.phpfpm.memory_limit` is configurable again.
+
 ## [12.0.26] - 2026-10-21
 
 ### Security
