@@ -1618,6 +1618,11 @@
                   "title": "max_spare_servers",
                   "type": "integer"
                 },
+                "memory_limit": {
+                  "default": "2048M",
+                  "title": "memory_limit",
+                  "type": "string"
+                },
                 "min_spare_servers": {
                   "default": 5,
                   "title": "min_spare_servers",
