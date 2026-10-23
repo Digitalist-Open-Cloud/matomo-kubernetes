@@ -3,16 +3,11 @@ kind: ConfigMap
 metadata:
   name: matomo-phpfpm-tracker
   namespace: {{.Values.namespace}}
-data:
-  zz-tracker.ini: |
-    session.upload_progress.enabled=0
-    session.use_strict_mode=1
 {{- if .Values.matomo.tracker.phpfpm }}
+data:
   zz-global.conf: |
     [www]
-    ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
     php_admin_flag[session.upload_progress.enabled] = off
-    php_admin_flag[session.use_strict_mode] = on
     pm = {{ .Values.matomo.tracker.phpfpm.type | default "ondemand" }}
     pm.max_children = {{ .Values.matomo.tracker.phpfpm.max_children | default 75 }}
     pm.process_idle_timeout = {{ .Values.matomo.tracker.phpfpm.process_idle_timeout | default "600s" }}
@@ -20,17 +15,13 @@ data:
     pm.start_servers =  {{ .Values.matomo.tracker.phpfpm.start_servers | default 5 }}
     pm.min_spare_servers =  {{ .Values.matomo.tracker.phpfpm.min_spare_servers | default 5 }}
     pm.max_spare_servers =  {{ .Values.matomo.tracker.phpfpm.max_spare_servers | default 75 }}
-    ; CVE-2026-109618 mitigation, deliberately not configurable via values
-    php_admin_value[memory_limit] = -1
-    php_admin_value[post_max_size] = 8M
-    php_admin_value[upload_max_filesize] = 4M
+    php_admin_value[memory_limit] =  {{ .Values.matomo.tracker.phpfpm.memory_limit | default "2048M" }}
     pm.status_path =  {{ .Values.matomo.tracker.phpfpm.status_path | default "/status" }}
 {{ else }}
+data:
   zz-global.conf: |
     [www]
-    ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
     php_admin_flag[session.upload_progress.enabled] = off
-    php_admin_flag[session.use_strict_mode] = on
     pm = "ondemand"
     pm.max_children = 75
     pm.process_idle_timeout = "10s"
@@ -38,9 +29,6 @@ data:
     pm.start_servers = 5
     pm.min_spare_servers = 5
     pm.max_spare_servers = 75
-    ; CVE-2026-109618 mitigation, deliberately not configurable via values
-    php_admin_value[memory_limit] = -1
-    php_admin_value[post_max_size] = 8M
-    php_admin_value[upload_max_filesize] = 4M
+    php_admin_value[memory_limit] = "2048M"
     pm.status_path = "/status"
 {{- end }}
