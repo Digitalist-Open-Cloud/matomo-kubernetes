@@ -17,7 +17,10 @@ data:
     pm.max_spare_servers =  {{ .Values.matomo.phpfpm.max_spare_servers | default 20 }}
     pm.max_requests =  {{ .Values.matomo.phpfpm.max_requests | default 500 }}
     pm.process_idle_timeout = {{ .Values.matomo.phpfpm.process_idle_timeout | default "60s" }}
-    php_admin_value[memory_limit] = {{ .Values.matomo.phpfpm.memory_limit | default "1024M" }}
+    ; CVE-2026-109618 mitigation, deliberately not configurable via values
+    php_admin_value[memory_limit] = -1
+    php_admin_value[post_max_size] = 32M
+    php_admin_value[upload_max_filesize] = 16M
     pm.status_path =  {{ .Values.matomo.phpfpm.status_path | default "/status" }}
     ; Logs a full PHP stack trace for any request running longer than the
     ; threshold below, to /proc/self/fd/2 (the container's stderr, so it
@@ -32,7 +35,10 @@ data:
     ; Matomo never uses session upload progress; off shrinks the multipart/session attack surface.
     php_admin_flag[session.upload_progress.enabled] = off
     php_admin_flag[session.use_strict_mode] = on
-    php_admin_value[memory_limit] = "1024M"
+    ; CVE-2026-109618 mitigation, deliberately not configurable via values
+    php_admin_value[memory_limit] = -1
+    php_admin_value[post_max_size] = 32M
+    php_admin_value[upload_max_filesize] = 16M
     pm ="dynamic"
     pm.max_children = 32
     pm.start_servers = 5

@@ -1,6 +1,6 @@
 # matomo
 
-![Version: 12.0.25](https://img.shields.io/badge/Version-12.0.25-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
+![Version: 12.0.26](https://img.shields.io/badge/Version-12.0.26-informational?style=flat-square) ![AppVersion: 5.12.0](https://img.shields.io/badge/AppVersion-5.12.0-informational?style=flat-square)
 
 A Helm chart for Matomo
 
@@ -132,7 +132,7 @@ A Helm chart for Matomo
 | matomo.tracker.nginx.nginxWorkerProcesses | int | `5` | Worker process count for the tracker nginx. |
 | matomo.tracker.nginx.readinessProbe | object | `{}` | Readiness probe for the tracker nginx container. |
 | matomo.tracker.nginx.resources | object | `{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}` | Default resources for the tracker nginx container. |
-| matomo.tracker.phpfpm | object | `{"max_children":75,"max_requests":500,"max_spare_servers":75,"memory_limit":"2048M","min_spare_servers":5,"process_idle_timeout":"600s","start_servers":5,"status_path":"/status","type":"ondemand"}` | php-fpm pool tuning for the tracker (process manager type, max/spare children, idle timeout, max requests, status path). |
+| matomo.tracker.phpfpm | object | `{"max_children":75,"max_requests":500,"max_spare_servers":75,"min_spare_servers":5,"process_idle_timeout":"600s","start_servers":5,"status_path":"/status","type":"ondemand"}` | php-fpm pool tuning for the tracker (process manager type, max/spare children, idle timeout, max requests, status path). |
 | matomo.tracker.replicas | int | `1` | Number of replicas for the tracker Deployment. |
 | matomo.tracker.resources | object | `{"limits":{"cpu":"1000m","memory":"768Mi"},"requests":{"cpu":"300m","memory":"256Mi"}}` | Default resources for the Matomo php-fpm container in the tracker. |
 | matomo.tracker.secretName | string | `""` | Existing TLS secret name for the tracker ingress. |
