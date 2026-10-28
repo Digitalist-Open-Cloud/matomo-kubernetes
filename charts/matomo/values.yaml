@@ -682,7 +682,7 @@ matomo:
 # `matomo.dashboard.nginx.image` is set) and the tracker.
 nginx:
   # -- nginx image used for the dashboard and tracker.
-  image: digitalist/nginx:1.31.8-1
+  image: digitalist/nginx:1.31.8-2
   # -- Image pull secrets for the nginx image.
   imagePullSecrets: []
   # -- run the nginx container as this user id. digitalist/nginx (Wolfi-based)
