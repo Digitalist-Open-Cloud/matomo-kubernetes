@@ -409,7 +409,7 @@ timeoutSeconds: 5
 {{- define "matomo.probe.default.nginx.dashboard.readiness" -}}
 httpGet:
   scheme: HTTP
-  path: /index.php
+  path: /health
   port: 8080
 initialDelaySeconds: 10
 periodSeconds: 10
