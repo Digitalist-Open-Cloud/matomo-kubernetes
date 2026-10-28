@@ -1,5 +1,11 @@
 # Change log
 
+## [12.0.28] - 2026-10-28
+
+- Default nginx image updated (`digitalist/nginx:1.31.8-1`).
+- Changed default `matomo.dashboard.nginx.readinessProbe` to `/health`.
+- Changed Matomo app version to `5.14.1`.
+
 ## [12.0.27] - 2026-10-23
 
 ### Changed

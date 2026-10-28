@@ -1852,7 +1852,7 @@
       "description": "Default nginx image and settings shared by the dashboard (unless `matomo.dashboard.nginx.image` is set) and the tracker.",
       "properties": {
         "image": {
-          "default": "digitalist/nginx:1.31.6-5",
+          "default": "digitalist/nginx:1.31.8-1",
           "description": "nginx image used for the dashboard and tracker.",
           "required": [],
           "title": "image"
