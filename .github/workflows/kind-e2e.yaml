@@ -262,7 +262,7 @@ jobs:
       # when kubelet creates them, but this chart's containers run as
       # non-root (matomo: uid 82, nginx: uid 65532) - without opening up the
       # directory's permissions first, the matomo-seed-tagmanager-js init
-      # container (and the regenerate-tagmanager CronJob) fail to write to
+      # container (and the tagmanager-regenerate Deployment) fail to write to
       # it, leaving the affected pods stuck and the rollout wait below
       # hanging until it times out. This is a kind/test-fixture-only
       # concern: a real RWX StorageClass (NFS, CephFS, etc.) handles this
@@ -282,7 +282,8 @@ jobs:
       - name: Wait for Matomo workloads (phase 2)
         run: |
           for d in matomo-dashboard matomo-tracker matomo-cli \
-                   matomo-queuedtracking-monitor matomo-queuedtracking-process; do
+                   matomo-queuedtracking-monitor matomo-queuedtracking-process \
+                   matomo-tagmanager-regenerate; do
             echo "::group::rollout $d"
             kubectl -n matomo rollout status "deployment/$d" --timeout=600s
             echo "::endgroup::"
@@ -351,8 +352,8 @@ jobs:
         run: |
           set -euo pipefail
           pvc_labels=$(kubectl -n matomo get pvc matomo-tagmanager-js -o jsonpath='{.metadata.labels}')
-          echo "$pvc_labels" | grep -q 'app.*matomo-jobs-regenerate-tagmanager' || {
-            echo "::error::default PVC label (app=matomo-jobs-regenerate-tagmanager) is missing"
+          echo "$pvc_labels" | grep -q 'app.*matomo-tagmanager-regenerate' || {
+            echo "::error::default PVC label (app=matomo-tagmanager-regenerate) is missing"
             exit 1
           }
           echo "default label verified"
@@ -363,17 +364,18 @@ jobs:
           }
           echo "custom labels verified correctly on the PVC"
 
-      - name: Test regenerate-tagmanager CronJob
+      - name: Test tagmanager-regenerate Deployment
         run: |
-          kubectl -n matomo create job e2e-matomo-jobs-regenerate-tagmanager \
-            --from=cronjob/matomo-jobs-regenerate-tagmanager
-          if ! kubectl -n matomo wait --for=condition=complete \
-            job/e2e-matomo-jobs-regenerate-tagmanager --timeout=300s; then
-            echo "::error::regenerate-tagmanager did not complete"
-            kubectl -n matomo logs job/e2e-matomo-jobs-regenerate-tagmanager --all-containers --tail=100 || true
-            exit 1
-          fi
-          kubectl -n matomo logs job/e2e-matomo-jobs-regenerate-tagmanager --all-containers --tail=50
+          set -euo pipefail
+          # Proves the regenerator writes to the shared PVC itself.
+          kubectl -n matomo exec deployment/matomo-tagmanager-regenerate -c matomo -- \
+            sh -c 'echo ok > /var/www/html/js/e2e-regenerator.txt'
+          kubectl -n matomo exec deployment/matomo-tracker -c matomo -- \
+            cat /var/www/html/js/e2e-regenerator.txt | grep -qx ok
+          kubectl -n matomo exec deployment/matomo-tagmanager-regenerate -c matomo -- \
+            supervisorctl -s unix:///home/www-data/supervisord.sock status tagmanager-regenerate \
+            | grep RUNNING
+          kubectl -n matomo logs deployment/matomo-tagmanager-regenerate -c matomo --tail=50
 
       - name: Diagnostics on failure
         if: failure()

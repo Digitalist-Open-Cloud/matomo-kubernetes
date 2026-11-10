@@ -1,5 +1,22 @@
 # Change log
 
+## [13.0.0] - 2026-11-10
+
+### Changed
+
+- `matomo.tagManagerRegenerate` now runs as a Deployment (`matomo-tagmanager-regenerate`) with supervisord instead of a CronJob. The shared PVC stays mounted instead of being mounted and unmounted on every run.
+- The `matomo-tagmanager-js` PVC default label is now `app: matomo-tagmanager-regenerate`.
+- A NetworkPolicy is rendered for `matomo-tagmanager-regenerate` when `networkPolicy.enabled` is true.
+
+### Added
+
+- `matomo.tagManagerRegenerate.interval` (default `120`): seconds between regenerate runs.
+- `matomo.tagManagerRegenerate.livenessProbe` and `.readinessProbe`.
+
+### Removed
+
+- `matomo.tagManagerRegenerate.schedule`, `.concurrencyPolicy` and `.activeDeadlineSeconds`. Remove them from your values, the schema rejects them.
+
 ## [12.0.29] - 2026-10-28
 
 - Default nginx image updated (`digitalist/nginx:1.31.8-2`).

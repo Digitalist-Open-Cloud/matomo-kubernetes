@@ -80,7 +80,7 @@ matomo:
   # that. Unless matomo.tagManagerRegenerate.enabled is true, this is also
   # followed by a guarded `tagmanager:regenerate-released-containers` call
   # (see matomo.tagManagerRegenerateGuarded in _helpers.tpl); when that
-  # feature is enabled, the regenerate-tagmanager CronJob owns that work
+  # feature is enabled, the tagmanager-regenerate Deployment owns that work
   # instead, so it's skipped here.
   warmupCommand: ./console core:update --yes --no-interaction
   # -- Resources for the matomo-warmup init container (dashboard and tracker).
@@ -94,14 +94,14 @@ matomo:
 
   ## Moves TagManager's generated container JS (/var/www/html/js) out of each
   ## pod's own ephemeral static-data and onto a single ReadWriteMany
-  ## PersistentVolumeClaim, kept fresh by a dedicated CronJob instead of by
+  ## PersistentVolumeClaim, kept fresh by a dedicated Deployment instead of by
   ## the dashboard/tracker pods themselves. Disabled by default because it
   ## requires a StorageClass that supports ReadWriteMany; when enabled, the
   ## dashboard and tracker no longer regenerate TagManager containers at
   ## all (see matomo.warmupCommand above) - they just read the shared
-  ## volume, which the CronJob refreshes on its own schedule.
+  ## volume, which the Deployment refreshes every `interval` seconds.
   tagManagerRegenerate:
-    # -- Enable the regenerate-tagmanager CronJob and the shared
+    # -- Enable the tagmanager-regenerate Deployment and the shared
     # ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the
     # dashboard and tracker pods.
     enabled: false
@@ -109,7 +109,7 @@ matomo:
     # type: [integer, "null"]
     # required: false
     # @schema
-    # -- fsGroup applied to the dashboard, tracker, and regenerate-tagmanager
+    # -- fsGroup applied to the dashboard, tracker, and tagmanager-regenerate
     # pods when this feature is enabled. nginx (nginx.runAsUser) and matomo
     # (matomo.runAsUser) run as different UIDs but both need access to the
     # shared PVC; fsGroup is pod-wide, unlike runAsUser, so it's what lets
@@ -117,13 +117,20 @@ matomo:
     # effect on hostPath-backed volumes (e.g. the kind e2e test fixture) -
     # only on real volume plugins/CSI drivers (NFS, CephFS, etc).
     fsGroup:
-    # -- Cron schedule for the regenerate-tagmanager CronJob.
-    schedule: "*/2 * * * *"
-    # -- concurrencyPolicy for the regenerate-tagmanager CronJob.
-    concurrencyPolicy: Forbid
-    # -- activeDeadlineSeconds for the regenerate-tagmanager Job.
-    activeDeadlineSeconds: 300
-    # -- Default resources for the regenerate-tagmanager CronJob container.
+    # -- Seconds to sleep between regenerate runs in the tagmanager-regenerate
+    # Deployment.
+    interval: 120
+    # @schema
+    # additionalProperties: true
+    # @schema
+    # -- Liveness probe for the tagmanager-regenerate container (checks supervisord is running).
+    livenessProbe: {}
+    # @schema
+    # additionalProperties: true
+    # @schema
+    # -- Readiness probe for the tagmanager-regenerate container (checks supervisord is running).
+    readinessProbe: {}
+    # -- Default resources for the tagmanager-regenerate container.
     resources:
       requests:
         cpu: 100m
@@ -165,7 +172,7 @@ matomo:
       storageClassName: ""
       # -- Extra labels for the tagmanager JS PersistentVolumeClaim.
       # Labels set here will override or add to the default label
-      # (app: matomo-jobs-regenerate-tagmanager).
+      # (app: matomo-tagmanager-regenerate).
       # @schema
       # additionalProperties: true
       # @schema
