@@ -37,6 +37,7 @@ missed every ConfigMap added since (e.g. the php-fpm pool config).
   "configmap-supervisor-tracker.yaml"
   "configmap-supervisor-queuedtrackingmonitor.yaml"
   "configmap-supervisor-queuedtrackingprocess.yaml"
+  "configmap-supervisor-tagmanager-regenerate.yaml"
   "configmap-pre-upgrade-extras.yaml"
   "configmaps-extras.yaml"
 -}}
@@ -148,7 +149,7 @@ initContainers:
 
 {{/*
 Name of the PVC mounted at /var/www/html/js on the dashboard, tracker, and
-regenerate-tagmanager pods. Either the one this chart creates
+tagmanager-regenerate pods. Either the one this chart creates
 (matomo.tagManagerRegenerate.volume.create, the default) or a pre-existing
 PVC supplied via matomo.tagManagerRegenerate.volume.existingClaim.
 */}}
@@ -165,7 +166,7 @@ Guarded `tagmanager:regenerate-released-containers` invocation. TagManager
 isn't in the chart's default install.json PluginsInstalled list (see
 matomo.config), so on any site that's never activated it, this console
 command doesn't exist yet - this must be a no-op rather than fail the
-caller. Shared by matomo-warmup and the regenerate-tagmanager CronJob.
+caller. Shared by matomo-warmup and the tagmanager-regenerate Deployment.
 */}}
 {{- define "matomo.tagManagerRegenerateGuarded" -}}
 if ./console list --raw 2>/dev/null | grep -q "^tagmanager:regenerate-released-containers "; then ./console tagmanager:regenerate-released-containers; fi
@@ -185,7 +186,7 @@ php-fpm slowlog, all bottoming out in TagManager::regenerateReleasedContainers()
 Running `core:update` here instead does that work once, synchronously, gated
 behind pod readiness. The (also guarded) tagmanager regeneration itself is
 only run here when matomo.tagManagerRegenerate is disabled; when it's
-enabled, the regenerate-tagmanager CronJob owns that work instead, writing
+enabled, the tagmanager-regenerate Deployment owns that work instead, writing
 into the shared PersistentVolumeClaim mounted at /var/www/html/js on the
 dashboard/tracker containers, so redoing it here per-pod would be redundant.
 */}}
@@ -235,12 +236,12 @@ tracker.php/index.php - general tracker files, nothing TagManager-specific)
 are present in the shared TagManager JS PersistentVolumeClaim (mounted at
 /var/www/html/js on the dashboard/tracker main containers when
 matomo.tagManagerRegenerate.enabled). TagManager's own generated container
-files land in the same directory (via the regenerate-tagmanager CronJob),
+files land in the same directory (via the tagmanager-regenerate Deployment),
 but regenerating containers never restores these baseline files - only this
 step does.
 
-Deliberately NOT gated on "only if the shared volume is empty": the CronJob
-and dashboard/tracker pods start independently, so if the CronJob happens to
+Deliberately NOT gated on "only if the shared volume is empty": the regenerator
+and dashboard/tracker pods start independently, so if the regenerator happens to
 write its first container file before any pod has ever run this step, the
 volume is no longer empty, but the baseline files still wouldn't be there.
 Instead this always runs on every pod start.

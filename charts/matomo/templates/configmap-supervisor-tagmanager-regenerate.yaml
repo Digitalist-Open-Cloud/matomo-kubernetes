@@ -1,0 +1,27 @@
+{{- if .Values.matomo.tagManagerRegenerate.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matomo-supervisor-tagmanager-regenerate
+  namespace: {{.Values.namespace}}
+data:
+  tagmanager-regenerate.ini: |
+    [unix_http_server]
+    file = /home/www-data/supervisord.sock
+
+    [program:tagmanager-regenerate]
+    startretries=100
+    directory=/var/www/html
+    command=sh -c 'while true; do {{ include "matomo.tagManagerRegenerateGuarded" . }}; sleep {{ .Values.matomo.tagManagerRegenerate.interval }}; done'
+    autostart=true
+    autorestart=true
+    user=www-data
+    numprocs=1
+    redirect_stderr=true
+    stdout_events_enabled=true
+    stderr_events_enabled=true
+    stdout_logfile_maxbytes=0
+    stderr_logfile_maxbytes=0
+    stdout_logfile=/dev/stdout
+    stderr_logfile=/dev/stderr
+{{- end }}

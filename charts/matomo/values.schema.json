@@ -1233,29 +1233,17 @@
         },
         "tagManagerRegenerate": {
           "additionalProperties": false,
-          "description": " # pod's own ephemeral static-data and onto a single ReadWriteMany # PersistentVolumeClaim, kept fresh by a dedicated CronJob instead of by # the dashboard/tracker pods themselves. Disabled by default because it # requires a StorageClass that supports ReadWriteMany; when enabled, the # dashboard and tracker no longer regenerate TagManager containers at # all (see matomo.warmupCommand above) - they just read the shared # volume, which the CronJob refreshes on its own schedule.",
+          "description": " # pod's own ephemeral static-data and onto a single ReadWriteMany # PersistentVolumeClaim, kept fresh by a dedicated Deployment instead of by # the dashboard/tracker pods themselves. Disabled by default because it # requires a StorageClass that supports ReadWriteMany; when enabled, the # dashboard and tracker no longer regenerate TagManager containers at # all (see matomo.warmupCommand above) - they just read the shared # volume, which the Deployment refreshes every `interval` seconds.",
           "properties": {
-            "activeDeadlineSeconds": {
-              "default": "300",
-              "description": "activeDeadlineSeconds for the regenerate-tagmanager Job.",
-              "required": [],
-              "title": "activeDeadlineSeconds"
-            },
-            "concurrencyPolicy": {
-              "default": "Forbid",
-              "description": "concurrencyPolicy for the regenerate-tagmanager CronJob.",
-              "required": [],
-              "title": "concurrencyPolicy"
-            },
             "enabled": {
               "default": "false",
-              "description": "Enable the regenerate-tagmanager CronJob and the shared ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the dashboard and tracker pods.",
+              "description": "Enable the tagmanager-regenerate Deployment and the shared ReadWriteMany PersistentVolumeClaim mounted at /var/www/html/js on the dashboard and tracker pods.",
               "required": [],
               "title": "enabled"
             },
             "fsGroup": {
               "default": "",
-              "description": "fsGroup applied to the dashboard, tracker, and regenerate-tagmanager pods when this feature is enabled. nginx (nginx.runAsUser) and matomo (matomo.runAsUser) run as different UIDs but both need access to the shared PVC; fsGroup is pod-wide, unlike runAsUser, so it's what lets them actually share it. Defaults to matomo.runAsUser. Note this has no effect on hostPath-backed volumes (e.g. the kind e2e test fixture) - only on real volume plugins/CSI drivers (NFS, CephFS, etc).",
+              "description": "fsGroup applied to the dashboard, tracker, and tagmanager-regenerate pods when this feature is enabled. nginx (nginx.runAsUser) and matomo (matomo.runAsUser) run as different UIDs but both need access to the shared PVC; fsGroup is pod-wide, unlike runAsUser, so it's what lets them actually share it. Defaults to matomo.runAsUser. Note this has no effect on hostPath-backed volumes (e.g. the kind e2e test fixture) - only on real volume plugins/CSI drivers (NFS, CephFS, etc).",
               "required": [],
               "title": "fsGroup",
               "type": [
@@ -1263,9 +1251,27 @@
                 "null"
               ]
             },
+            "interval": {
+              "default": "120",
+              "description": "Seconds to sleep between regenerate runs in the tagmanager-regenerate Deployment.",
+              "required": [],
+              "title": "interval"
+            },
+            "livenessProbe": {
+              "additionalProperties": true,
+              "description": "Liveness probe for the tagmanager-regenerate container (checks supervisord is running).",
+              "required": [],
+              "title": "livenessProbe"
+            },
+            "readinessProbe": {
+              "additionalProperties": true,
+              "description": "Readiness probe for the tagmanager-regenerate container (checks supervisord is running).",
+              "required": [],
+              "title": "readinessProbe"
+            },
             "resources": {
               "additionalProperties": false,
-              "description": "Default resources for the regenerate-tagmanager CronJob container.",
+              "description": "Default resources for the tagmanager-regenerate container.",
               "properties": {
                 "limits": {
                   "additionalProperties": false,
@@ -1306,12 +1312,6 @@
               },
               "required": [],
               "title": "resources"
-            },
-            "schedule": {
-              "default": "*/2 * * * *",
-              "description": "Cron schedule for the regenerate-tagmanager CronJob.",
-              "required": [],
-              "title": "schedule"
             },
             "seedResources": {
               "additionalProperties": false,
@@ -1380,7 +1380,7 @@
                 },
                 "labels": {
                   "additionalProperties": true,
-                  "description": "Extra labels for the tagmanager JS PersistentVolumeClaim. Labels set here will override or add to the default label (app: matomo-jobs-regenerate-tagmanager). @schema additionalProperties: true @schema",
+                  "description": "Extra labels for the tagmanager JS PersistentVolumeClaim. Labels set here will override or add to the default label (app: matomo-tagmanager-regenerate). @schema additionalProperties: true @schema",
                   "required": [],
                   "title": "labels"
                 },
@@ -1765,7 +1765,7 @@
         },
         "warmupCommand": {
           "default": "./console core:update --yes --no-interaction",
-          "description": "force` (in installCommand above) doesn't itself fire the plugin install/update events some plugins (e.g. TagManager) hook to regenerate generated assets - normally left to happen lazily on the first web request(s) after a (re)start. Since static-data is an emptyDir, that bookkeeping resets on every fresh pod, so without this, concurrent probes/traffic on every restart each independently race to redo that (expensive) regeneration. Running it once here, synchronously, avoids that. Unless matomo.tagManagerRegenerate.enabled is true, this is also followed by a guarded `tagmanager:regenerate-released-containers` call (see matomo.tagManagerRegenerateGuarded in _helpers.tpl); when that feature is enabled, the regenerate-tagmanager CronJob owns that work instead, so it's skipped here.",
+          "description": "force` (in installCommand above) doesn't itself fire the plugin install/update events some plugins (e.g. TagManager) hook to regenerate generated assets - normally left to happen lazily on the first web request(s) after a (re)start. Since static-data is an emptyDir, that bookkeeping resets on every fresh pod, so without this, concurrent probes/traffic on every restart each independently race to redo that (expensive) regeneration. Running it once here, synchronously, avoids that. Unless matomo.tagManagerRegenerate.enabled is true, this is also followed by a guarded `tagmanager:regenerate-released-containers` call (see matomo.tagManagerRegenerateGuarded in _helpers.tpl); when that feature is enabled, the tagmanager-regenerate Deployment owns that work instead, so it's skipped here.",
           "required": [],
           "title": "warmupCommand"
         },
