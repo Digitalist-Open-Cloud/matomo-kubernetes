@@ -83,6 +83,7 @@ startretries
 stuffit
 subtable
 supervisord
+supervisorctl
 svgz
 tagmanager
 uwsgi
