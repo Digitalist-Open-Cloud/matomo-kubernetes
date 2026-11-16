@@ -137,7 +137,7 @@
       "title": "extraVolumes"
     },
     "global": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "Globals settings",
       "properties": {
         "imagePullSecrets": {
