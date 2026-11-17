@@ -1,4 +1,5 @@
-{{- if and .Values.matomo.gatewayApi.enabled .Values.matomo.tracker.enabled }}
+{{- $gw := include "matomo.gatewayApi" (list $ "tracker") | fromYaml -}}
+{{- if and .Values.matomo.gatewayApi.enabled $gw.enabled }}
 {{- $backend := "matomo-tracker" }}
 {{- $port := 8080 }}
 {{- if .Values.matomo.tracker.loadbalancer }}
@@ -12,12 +13,16 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: matomo-tracker
-{{- if .Values.matomo.gatewayApi.extralabels }}
-{{ toYaml .Values.matomo.gatewayApi.extralabels | indent 4 }}
-{{- end }}
+    {{- with $gw.extralabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $gw.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   parentRefs:
-{{ toYaml .Values.matomo.gatewayApi.parentRefs | indent 4 }}
+    {{- toYaml $gw.parentRefs | nindent 4 }}
   hostnames:
     - {{.Values.matomo.tracker.hostname}}
   rules:

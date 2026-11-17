@@ -341,6 +341,11 @@ matomo:
     # @schema
     # additionalProperties: true
     # @schema
+    # -- Extra annotations for the HTTPRoutes.
+    annotations: {}
+    # @schema
+    # additionalProperties: true
+    # @schema
     # -- Extra labels for the HTTPRoutes.
     extralabels: {}
 
@@ -537,6 +542,16 @@ matomo:
       # -- Extra annotations for the dashboard Ingress.
       annotations:
         digitalist.cloud/instance: "matomo"
+    # @schema
+    # additionalProperties: false
+    # @schema
+    # -- Sparsely merged over matomo.gatewayApi: set only the keys you want to change (e.g. a different parentRef or annotations for the dashboard).
+    # Maps (annotations) are merged key-by-key, lists (parentRefs) are replaced wholesale.
+    gatewayApi:
+      enabled:
+      parentRefs: []
+      annotations: {}
+      extralabels: {}
 
   queuedTrackingMonitor:
     # -- Enable the queuedtracking:monitor Deployment.
@@ -684,6 +699,16 @@ matomo:
       # -- Extra annotations for the tracker Ingress.
       annotations:
         digitalist.cloud/instance: "matomo"
+    # @schema
+    # additionalProperties: false
+    # @schema
+    # -- Sparsely merged over matomo.gatewayApi: set only the keys you want to change (e.g. a different parentRef or annotations for the tracker).
+    # Maps (annotations) are merged key-by-key, lists (parentRefs) are replaced wholesale.
+    gatewayApi:
+      enabled:
+      parentRefs: []
+      annotations: {}
+      extralabels: {}
 
 # -- Default nginx image and settings shared by the dashboard (unless
 # `matomo.dashboard.nginx.image` is set) and the tracker.
