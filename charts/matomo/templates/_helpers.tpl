@@ -449,7 +449,7 @@ Returns YAML of the merged map. */}}
 {{- $ctx := index . 0 -}}
 {{- $component := index . 1 -}}
 {{- $shared := deepCopy ($ctx.Values.matomo.gatewayApi | default dict) -}}
-{{- $comp := get $ctx.Values.matomo $component (dict) -}}
-{{- $override := deepCopy (get $comp "gatewayApi" (dict)) -}}
+{{- $comp := index $ctx.Values.matomo $component -}}
+{{- $override := deepCopy (index $comp "gatewayApi" | default dict) -}}
 {{- mergeOverwrite $shared $override | toYaml -}}
 {{- end }}
