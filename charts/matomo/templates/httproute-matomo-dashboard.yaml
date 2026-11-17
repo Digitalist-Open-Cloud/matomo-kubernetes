@@ -1,4 +1,5 @@
-{{- if and .Values.matomo.gatewayApi.enabled .Values.matomo.dashboard.enabled }}
+{{- $gw := include "matomo.gatewayApi" (list $ "dashboard") | fromYaml -}}
+{{- if and .Values.matomo.dashboard.enabled $gw.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -6,12 +7,16 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: matomo-dashboard
-{{- if .Values.matomo.gatewayApi.extralabels }}
-{{ toYaml .Values.matomo.gatewayApi.extralabels | indent 4 }}
-{{- end }}
+    {{- with $gw.extralabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $gw.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   parentRefs:
-{{ toYaml .Values.matomo.gatewayApi.parentRefs | indent 4 }}
+    {{- toYaml $gw.parentRefs | nindent 4 }}
   hostnames:
     - {{.Values.matomo.dashboard.hostname}}
   rules:

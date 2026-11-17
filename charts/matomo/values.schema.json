@@ -600,6 +600,41 @@
               "required": [],
               "title": "firstuser"
             },
+            "gatewayApi": {
+              "additionalProperties": false,
+              "description": "Per-component gatewayApi overrides, sparsely merged over matomo.gatewayApi.",
+              "properties": {
+                "annotations": {
+                  "additionalProperties": true,
+                  "description": "Extra annotations for the dashboard HTTPRoutes, merged over matomo.gatewayApi.annotations.",
+                  "required": [],
+                  "title": "annotations"
+                },
+                "enabled": {
+                  "description": "Enable the HTTPRoute for the dashboard. Overrides matomo.gatewayApi.enabled.",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "extralabels": {
+                  "additionalProperties": true,
+                  "description": "Extra labels for the dashboard HTTPRoutes, merged over matomo.gatewayApi.extralabels.",
+                  "required": [],
+                  "title": "extralabels"
+                },
+                "parentRefs": {
+                  "description": "parentRefs for the dashboard HTTPRoutes. Replaces matomo.gatewayApi.parentRefs wholesale when set.",
+                  "items": {
+                    "additionalProperties": true,
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "parentRefs"
+                }
+              },
+              "required": [],
+              "title": "gatewayApi"
+            },
             "hostname": {
               "default": "my.host",
               "description": "Hostname used for the dashboard Ingress/HTTPRoute rule.",
@@ -747,6 +782,12 @@
           "additionalProperties": false,
           "description": "Gateway API support. When enabled, HTTPRoutes are created for the dashboard and tracker (using their `hostname` values) instead of - or alongside - the Ingress resources. Requires the Gateway API CRDs and a Gateway; TLS is terminated on the Gateway listener, not in the chart.",
           "properties": {
+            "annotations": {
+              "additionalProperties": true,
+              "description": "Extra annotations for the HTTPRoutes.",
+              "required": [],
+              "title": "annotations"
+            },
             "enabled": {
               "default": false,
               "title": "enabled",
@@ -1489,6 +1530,41 @@
               },
               "required": [],
               "title": "exporter"
+            },
+            "gatewayApi": {
+              "additionalProperties": false,
+              "description": "Per-component gatewayApi overrides, sparsely merged over matomo.gatewayApi.",
+              "properties": {
+                "annotations": {
+                  "additionalProperties": true,
+                  "description": "Extra annotations for the tracker HTTPRoutes, merged over matomo.gatewayApi.annotations.",
+                  "required": [],
+                  "title": "annotations"
+                },
+                "enabled": {
+                  "description": "Enable the HTTPRoute for the tracker. Overrides matomo.gatewayApi.enabled.",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "extralabels": {
+                  "additionalProperties": true,
+                  "description": "Extra labels for the tracker HTTPRoutes, merged over matomo.gatewayApi.extralabels.",
+                  "required": [],
+                  "title": "extralabels"
+                },
+                "parentRefs": {
+                  "description": "parentRefs for the tracker HTTPRoutes. Replaces matomo.gatewayApi.parentRefs wholesale when set.",
+                  "items": {
+                    "additionalProperties": true,
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "parentRefs"
+                }
+              },
+              "required": [],
+              "title": "gatewayApi"
             },
             "hostname": {
               "default": "tracker.my.host",

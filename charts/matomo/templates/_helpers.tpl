@@ -439,3 +439,17 @@ tcpSocket:
 initialDelaySeconds: 10
 periodSeconds: 10
 {{- end -}}
+
+{{/* Merged gatewayApi config for a component (dashboard or tracker):
+per-component overrides are merged over the shared matomo.gatewayApi.
+Objects merge key-by-key, lists (parentRefs) are replaced wholesale.
+Usage: include "matomo.gatewayApi" (list $ "dashboard")
+Returns YAML of the merged map. */}}
+{{- define "matomo.gatewayApi" -}}
+{{- $ctx := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- $shared := deepCopy ($ctx.Values.matomo.gatewayApi | default dict) -}}
+{{- $comp := get $ctx.Values.matomo $component (dict) -}}
+{{- $override := deepCopy (get $comp "gatewayApi" (dict)) -}}
+{{- mergeOverwrite $shared $override | toYaml -}}
+{{- end }}

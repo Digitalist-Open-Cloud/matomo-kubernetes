@@ -52,6 +52,7 @@ A Helm chart for Matomo
 | matomo.dashboard.exporter.readinessProbe | object | `{}` | Readiness probe for the dashboard php-fpm_exporter (fpm-metrics) container. |
 | matomo.dashboard.exporter.resources | object | `{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"15m","memory":"32Mi"}}` | Default resources for the dashboard php-fpm_exporter (fpm-metrics) container. |
 | matomo.dashboard.firstuser | object | `{"email":"foo@example.com","password":"admin123","username":"admin"}` | Credentials for the first (super)user, applied by the init container on install. |
+| matomo.dashboard.gatewayApi | object | `{"annotations":{},"enabled":null,"extralabels":{},"parentRefs":[]}` | Sparsely merged over matomo.gatewayApi: set only the keys you want to change (e.g. a different parentRef or annotations for the dashboard). Maps (annotations) are merged key-by-key, lists (parentRefs) are replaced wholesale. |
 | matomo.dashboard.hostname | string | `"my.host"` | Hostname used for the dashboard Ingress/HTTPRoute rule. |
 | matomo.dashboard.ingress.annotations | object | `{"digitalist.cloud/instance":"matomo"}` | Extra annotations for the dashboard Ingress. |
 | matomo.dashboard.ingressClassName | string | `""` | ingressClassName for the dashboard Ingress. |
@@ -69,7 +70,8 @@ A Helm chart for Matomo
 | matomo.env | list | `[]` | Env variables to inject, if any. |
 | matomo.exporterImage | string | `"hipages/php-fpm_exporter:2.2.0"` | Image for the php-fpm_exporter (fpm-metrics) sidecar shared by the dashboard and tracker pods. Override per-workload via `matomo.dashboard.exporter.image` / `matomo.tracker.exporter.image`. |
 | matomo.extralabels | object | `{}` | Extra labels applied to Matomo pods (dashboard, tracker, cli, cronjobs, queuedtracking). |
-| matomo.gatewayApi | object | `{"enabled":false,"extralabels":{},"parentRefs":[]}` | Gateway API support. When enabled, HTTPRoutes are created for the dashboard and tracker (using their `hostname` values) instead of - or alongside - the Ingress resources. Requires the Gateway API CRDs and a Gateway; TLS is terminated on the Gateway listener, not in the chart. |
+| matomo.gatewayApi | object | `{"annotations":{},"enabled":false,"extralabels":{},"parentRefs":[]}` | Gateway API support. When enabled, HTTPRoutes are created for the dashboard and tracker (using their `hostname` values) instead of - or alongside - the Ingress resources. Requires the Gateway API CRDs and a Gateway; TLS is terminated on the Gateway listener, not in the chart. |
+| matomo.gatewayApi.annotations | object | `{}` | Extra annotations for the HTTPRoutes. |
 | matomo.gatewayApi.extralabels | object | `{}` | Extra labels for the HTTPRoutes. |
 | matomo.gatewayApi.parentRefs | list | `[]` | parentRefs applied to all HTTPRoutes, e.g.: parentRefs:   - name: my-gateway     namespace: my-namespace     sectionName: http |
 | matomo.image | string | `"digitalist/matomo:5.12.0"` | Which image to use for Matomo deployment. |
@@ -124,6 +126,7 @@ A Helm chart for Matomo
 | matomo.tracker.exporter.livenessProbe | object | `{}` | Liveness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
 | matomo.tracker.exporter.readinessProbe | object | `{}` | Readiness probe for the tracker php-fpm_exporter (fpm-metrics) container. |
 | matomo.tracker.exporter.resources | object | `{"limits":{"cpu":"40m","memory":"32Mi"},"requests":{"cpu":"40m","memory":"32Mi"}}` | Default resources for the tracker php-fpm_exporter (fpm-metrics) container. |
+| matomo.tracker.gatewayApi | object | `{"annotations":{},"enabled":null,"extralabels":{},"parentRefs":[]}` | Sparsely merged over matomo.gatewayApi: set only the keys you want to change (e.g. a different parentRef or annotations for the tracker). Maps (annotations) are merged key-by-key, lists (parentRefs) are replaced wholesale. |
 | matomo.tracker.hostname | string | `"tracker.my.host"` | Hostname used for the tracker Ingress/HTTPRoute rule. |
 | matomo.tracker.ingress.annotations | object | `{"digitalist.cloud/instance":"matomo"}` | Extra annotations for the tracker Ingress. |
 | matomo.tracker.ingressClassName | string | `""` | ingressClassName for the tracker Ingress. |
